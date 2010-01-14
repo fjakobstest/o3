@@ -1,0 +1,81 @@
+/*
+ * Copyright (C) 2010 Javeline BV
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this library; if not, write to the Free Software Foundation, Inc., 51
+ * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+#ifndef O3_C_CONSOLE1_WIN32_H
+#define O3_C_CONSOLE1_WIN32_H
+
+namespace o3 {
+
+struct cConsole1 : cScr {
+
+    o3_begin_class(cScr)
+    o3_end_class()
+
+#include "o3_cConsole1_win32_scr.h"
+
+    static o3_get o3_ext("cO3") siStream in(iCtx* ctx)
+    {
+        o3_trace3 trace;
+        Var in = ctx->value("in");
+
+        if (in.type() == Var::TYPE_VOID)
+            in = ctx->setValue("in", o3_new(cStream)(GetStdHandle(STD_INPUT_HANDLE)));
+        return in.toScr();
+    }
+
+    static o3_get o3_ext("cO3") siStream out(iCtx* ctx)
+    {
+        o3_trace3 trace;
+        Var out = ctx->value("out");
+
+        if (out.type() == Var::TYPE_VOID)
+            out = ctx->setValue("out", o3_new(cStream)(GetStdHandle(STD_OUTPUT_HANDLE)));
+        return out.toScr();
+    }
+
+    static o3_get o3_ext("cO3") siStream err(iCtx* ctx)
+    {
+        o3_trace3 trace;
+        Var err = ctx->value("err");
+
+        if (err.type() == Var::TYPE_VOID)
+            err = ctx->setValue("err", o3_new(cStream)(GetStdHandle(STD_ERROR_HANDLE)));
+        return err.toScr();
+    }
+
+    static o3_fun o3_ext("cStreamBase") void print(iStream* stream,
+                                                   const Str& str)
+    {
+        o3_trace3 trace;
+
+        stream->write(str.ptr(), str.size());
+        stream->flush();
+    }
+
+    static o3_fun o3_ext("cO3") void print(iCtx* ctx, const Str& str)
+    {
+        o3_trace3 trace;
+        siStream out = cConsole1::out(ctx);
+
+        out->write(str.ptr(), str.size());
+        out->flush();
+    }
+};
+
+}
+
+#endif // O3_C_CONSOLE1_WIN32_H
