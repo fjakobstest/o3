@@ -63,7 +63,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Ws2_32.lib winmm.lib libcurld.lib wldap32.lib urlmon.lib"
-				OutputFile="$(OutDir)\$(ProjectName)_deb.exe"
+				OutputFile="$(OutDir)\$(ProjectName)_dbg.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../external/lib/win32"
 				GenerateDebugInformation="true"

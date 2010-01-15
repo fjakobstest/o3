@@ -19,10 +19,10 @@ var mode = o3.args[2];
 
 var src1 = o3.cwd.get("o3_installer_header.bmp");
 var src2 = o3.cwd.get("o3_installer_left.bmp");
-var src3 = o3.cwd.get("../../build/npplugin" + (mode == "debug" ? "_deb.dll" : ".dll"));
+var src3 = o3.cwd.get("../../build/npplugin" + (mode == "debug" ? "_dbg.dll" : ".dll"));
 var src4 = o3.cwd.get("installer.js");
 var src5 = o3.cwd.get("install.ico");
-var tgt = o3.cwd.get("../../build/o3plugin" + (mode == "debug" ? "_deb.exe" : ".exe"));
+var tgt = o3.cwd.get("../../build/o3plugin" + (mode == "debug" ? "_dbg.exe" : ".exe"));
 
 function checkFile(file) {    
     if (!file.exists) {

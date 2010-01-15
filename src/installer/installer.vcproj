@@ -63,7 +63,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Ws2_32.lib comctl32.lib"
-				OutputFile="$(OutDir)\o3plugin_deb.exe"
+				OutputFile="$(OutDir)\o3plugin_dbg.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../external/lib/win32"
 				GenerateDebugInformation="true"

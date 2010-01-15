@@ -30,7 +30,7 @@ var src = o3.cwd.get("logo.gif");
 var src2 = o3.cwd.get("logo.ico");
 var src3 = o3.cwd.get("body_backg.png");
 var src4 = o3.cwd.get("../../samples/o3.js");
-var tgt = o3.cwd.get("../../build/ssb" + (mode == "debug" ? "_deb.exe" : ".exe"));
+var tgt = o3.cwd.get("../../build/ssb" + (mode == "debug" ? "_dbg.exe" : ".exe"));
 
 checkFile(src);
 checkFile(src2);

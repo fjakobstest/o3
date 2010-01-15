@@ -62,7 +62,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalDependencies="libcurld.lib wldap32.lib ws2_32.lib"
-				OutputFile="$(OutDir)\$(ProjectName)_deb.exe"
+				OutputFile="$(OutDir)\$(ProjectName)_dbg.exe"
 				AdditionalLibraryDirectories=" ../../external/lib/win32"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(TargetDir)$(ConfigurationName)\$(TargetName).pdb"
