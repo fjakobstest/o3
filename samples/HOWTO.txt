@@ -1,6 +1,6 @@
   bounce.html :
   =============== 
-  only for the oxs version of the site specific browser (ssb)
+  only for the oxs version of the site specific browser (ssb). Execute "sudo xcodebuild install -alltargets" from the src directory. Then start the application "o3" from the Applications folder.
  
   o3.js : 
   =========
@@ -8,7 +8,7 @@
  
   -ssb_start.html : 
   =================
-  Default example for the windos version of the ssb. To execute it, start ssb (or ssb_dbg) in the same folder with this file,
+  Default example for the windos version of the ssb. To execute it, start ssb (or ssb_deb) in the same folder with this file,
 or start ssb from the command line with the full path to this file as argument (i.e. ssb.exe C:\Development\o3\samples\ssb_start.html),
 or simply drag and drop the html file on the ssb.exe in your explorer.
   Note: that by default, the msvc ssb project as a post build step will append resource files to the executable. Those files
@@ -17,18 +17,15 @@ check out src\ssb\addResources.bat + src\ssb\ssb_resources.js files how to do it
 
   testplugin.html : 
   ====================
-  -Windows: First you have to build the plugin, then the installer projects. Then you have to run the installer (o3plugin.exe or o3plugin_dbg.exe) 
+  -Windows: First you have to build the plugin, then the installer projects. Then you have to run the installer (o3plugin.exe or o3plugin_deb.exe) 
 and after the plugin installed on your machine you can just open this html file with your browser.
-  -OSX:
 
   whatis.js :
   =============
-  -Windows: Example for the command line version. Build project sh. Run sh.exe (or sh_dbg.exe) from the comman line client with this script file as the 
+  -Windows: Example for the command line version. Build project sh. Run sh.exe (or sh_deb.exe) from the comman line client with this script file as the 
 second and some word you would like to look up from wikipedia as the third parameter. 
 (i.e. sh.exe C:\Development\o3\samples\whatis.js Github)
-  -OSX:
-  -linux:
-
- 
+  -OSX: Execute "sudo xcodebuild install -alltargets" from the src directory. Then execute ./whatis.js from the samples directory.
+  -linux: Executed "sudo make" from the src directory. Then execute ./whatis.js from the samples directory.
  
  
