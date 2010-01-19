@@ -192,10 +192,11 @@ namespace o3{
                 if (!excepinfo.bstrDescription)
                     return E_FAIL;
                 
-                m_pthis->m_error.appendf("%s%s%s%d%s%d\n", L"ScriptError: ", excepinfo.bstrDescription, 
-                    L",   line: ", ulLineNumber, L",   char: ", ichCharPosition);
+                m_pthis->m_error.appendf("%s%s%s%d%s%d\n", "ScriptError: ", 
+                    Str(excepinfo.bstrDescription).ptr(), 
+                    ",   line: ", ulLineNumber, ",   char: ", ichCharPosition);
                 
-                //fprintf(stdout, "%s%s%s%d%s%d\n", "    ScriptError ", desc.ptr(), " line: ",
+                //fprintf(stdout, "%s%s%s%d%s%d\n", "    ScriptError ", Str(excepinfo.bstrDescription).ptr(), " line: ",
                 //    ulLineNumber, " char: ", ichCharPosition);                
                 //return E_FAIL;
                 return S_OK;
