@@ -44,7 +44,7 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "Ajax.org"
-            VALUE "FileDescription", "Ajax.org O3Stem - v1.0"
+            VALUE "FileDescription", "Ajax.org O3Stem - v0.9"
             VALUE "FileExtents", "o3"
             VALUE "FileOpenName", "O3Stem-AAAAAAAA-1111-BBBB-1111-CCCCCCCCCCCC"
             VALUE "FileVersion", "1, 0, 0, 1"

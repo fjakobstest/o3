@@ -68,7 +68,7 @@ struct cO3 : cScr {
     {
         o3_trace3 trace;
 
-        return "v1.0";    
+        return "v0.9";    
     }
 
 };

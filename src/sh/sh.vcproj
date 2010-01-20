@@ -61,8 +61,8 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
-				AdditionalDependencies="libcurld.lib wldap32.lib ws2_32.lib"
-				OutputFile="$(OutDir)\$(ProjectName)_dbg.exe"
+				AdditionalDependencies="libcurld.lib wldap32.lib ws2_32.lib libxml2d.lib"
+				OutputFile="$(OutDir)\o3_dbg.exe"
 				AdditionalLibraryDirectories=" ../../external/lib/win32"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(TargetDir)$(ConfigurationName)\$(TargetName).pdb"
@@ -137,6 +137,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
 				AdditionalDependencies="libcurl.lib wldap32.lib ws2_32.lib"
+				OutputFile="$(OutDir)\o3.exe"
 				AdditionalLibraryDirectories=" ../../external/lib/win32"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(TargetDir)$(ConfigurationName)\$(TargetName).pdb"
@@ -175,6 +176,10 @@
 	<Files>
 		<File
 			RelativePath=".\o3_sh_win32.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\tool\script\parseme.js"
 			>
 		</File>
 	</Files>

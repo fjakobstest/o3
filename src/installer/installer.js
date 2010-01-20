@@ -1,7 +1,7 @@
 var appInfo = {
     GUID    : "8A66ECAC-63FD-4AFA-9D42-3034D18C88F4",
     baseApp : "O3Demo",
-    version : "2.0",
+    version : "0.9",
     locale  : "en_US"
 };
 appInfo.fullId    = appInfo.baseApp + "-" + appInfo.GUID;

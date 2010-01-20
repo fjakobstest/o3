@@ -165,11 +165,11 @@ int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR arg, int show)
     
 
     Str url = "file:///";
-    if (arg){
+    if (arg && *arg){
         Str path(arg);
         backslash2slash(path);
         url.append(path.ptr());
-    }else {
+    } else {
         Str cwd = cwdPath();
         backslash2slash(cwd);
         url.append(cwd);
