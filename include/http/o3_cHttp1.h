@@ -340,7 +340,10 @@ struct cHttp1 : cScr {
         m_state = READY_STATE_COMPLETED;
         m_ctx->loop()->post(Delegate(this, &cHttp1::callOnReadystatechange),
                             o3_cast this);
+
+		m_mutex->lock();
         m_event->wait(m_mutex);
+		m_mutex->unlock();
     }
 
     void callOnReadystatechange(iUnk*)
