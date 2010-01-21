@@ -36,7 +36,7 @@ typedef _w64 __int32 intptr_t;
 typedef _w64 unsigned __int32 uintptr_t;
 
 typedef ::ptrdiff_t ptrdiff_t;
-typedef ::size_t size_t;
+//typedef ::size_t size_t;
 
 }
 
