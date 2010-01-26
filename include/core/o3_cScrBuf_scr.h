@@ -46,23 +46,23 @@
 
         switch (index) {
         case 0:
-            *rval = (int) pthis1->length();
+            *rval = (int32_t) pthis1->length();
             break;
         case 1:
-            *rval = (int) pthis1->setLength((size_t) argv[0].toInt());
+            *rval = (int32_t) pthis1->setLength((size_t) argv[0].toInt32());
             break;
         case 2:
-            *rval = (int) pthis1->__enumerator__((size_t) argv[0].toInt());
+            *rval = (int32_t) pthis1->__enumerator__((size_t) argv[0].toInt32());
             break;
         case 3:
-            *rval = pthis1->__query__((size_t) argv[0].toInt());
+            *rval = pthis1->__query__((size_t) argv[0].toInt32());
             break;
         case 4:
-            *rval = (int) pthis1->__getter__((size_t) argv[0].toInt());
+            *rval = (int32_t) pthis1->__getter__((size_t) argv[0].toInt32());
             break;
         case 5:
-            *rval = (int) pthis1->__setter__((size_t) argv[0].toInt(),
-                                             (uint8_t) argv[1].toInt());
+            *rval = (int32_t) pthis1->__setter__((size_t) argv[0].toInt32(),
+                                                 (uint8_t) argv[1].toInt32());
             break;
         }
         return 0;

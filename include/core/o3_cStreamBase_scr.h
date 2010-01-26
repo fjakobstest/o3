@@ -55,20 +55,20 @@
             *rval = pthis1->error();
             break;
         case 2:
-            *rval = (int) pthis1->pos();
+            *rval = pthis1->pos();
             break;
         case 3:
-            *rval = (int) pthis1->setPos(argv[0].toInt());
+            *rval = pthis1->setPos(argv[0].toInt32());
             break;
         case 4:
-            *rval = o3_new(cScrBuf)(pthis1->readBlob(argv[0].toInt()));
+            *rval = o3_new(cScrBuf)(pthis1->readBlob(argv[0].toInt32()));
             break;
         case 5:
-            *rval = pthis1->read(argv[0].toInt());
+            *rval = pthis1->read(argv[0].toInt32());
             break;
         case 6:
             if (siBuf buf = argv[0].toScr()) 
-                *rval = (int) pthis1->write(Buf(buf));
+                *rval = pthis1->write(Buf(buf));
             else 
                 *rval = (int) pthis1->write(argv[0].toStr());
             break;

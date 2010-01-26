@@ -169,10 +169,20 @@ public:
         return tStr(val ? STR_TRUE : STR_FALSE, alloc);
     }
 
-    static tStr fromInt(int val, iAlloc* alloc = g_sys)
+    static tStr fromInt32(int32_t val, iAlloc* alloc = g_sys)
     {
         o3_trace1 trace;
-        const C STR_FORMAT[] = { '%', 'd', '\0' };
+        const C STR_FORMAT[] = { '%', 'l', 'd', '\0' };
+        tStr str(alloc);
+
+        str.appendf(STR_FORMAT, val);
+        return str;
+    }
+
+    static tStr fromInt64(int64_t val, iAlloc* alloc = g_sys)
+    {
+        o3_trace1 trace;
+        const C STR_FORMAT[] = { '%', 'l', 'l', 'd', '\0' };
         tStr str(alloc);
 
         str.appendf(STR_FORMAT, val);
@@ -408,11 +418,18 @@ public:
         return strToBool(ptr());
     }
 
-    int toInt() const
+    int32_t toInt32() const
     {
         o3_trace1 trace;
 
-        return strToInt(ptr());
+        return strToInt32(ptr());
+    }
+
+    int64_t toInt64() const
+    {
+        o3_trace1 trace;
+
+        return strToInt64(ptr());
     }
 
     double toDouble() const

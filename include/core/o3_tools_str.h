@@ -86,21 +86,35 @@ inline bool strToBool(const C* str)
     o3_trace0 trace;
     const C STR_TRUE[] = { 't', 'r', 'u', 'e', '\0' };
 
-    return strEquals(str, STR_TRUE) || strToInt(str);
+    return strEquals(str, STR_TRUE) || strToInt32(str);
 }
 
-inline int strToInt(const char* str)
+inline int32_t strToInt32(const char* str)
 {
     o3_trace0 trace;
 
     return ::strtol(str, 0, 0);
 }
 
-inline int strToInt(const wchar_t* str)
+inline int32_t strToInt32(const wchar_t* str)
 {
     o3_trace0 trace;
 
     return ::wcstol(str, 0, 0);
+}
+
+inline int64_t strToInt64(const char* str)
+{
+    o3_trace0 trace;
+
+    return ::strtoll(str, 0, 0);
+}
+
+inline int64_t strToInt64(const wchar_t* str)
+{
+    o3_trace0 trace;
+
+    return ::wcstoll(str, 0, 0);
 }
 
 inline double strToDouble(const char* str)

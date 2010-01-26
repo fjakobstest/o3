@@ -27,7 +27,8 @@ class Var {
             int type;
             union {
                 bool val_bool;
-                int val_int;
+                int32_t val_int32;
+                int64_t val_int64;
                 double val_double;
                 iScr* val_scr;
             };
@@ -71,7 +72,8 @@ public:
         TYPE_VOID,
         TYPE_NULL,
         TYPE_BOOL,
-        TYPE_INT,
+        TYPE_INT32,
+        TYPE_INT64,
         TYPE_DOUBLE,
         TYPE_SCR,
         TYPE_STR,
@@ -97,16 +99,33 @@ public:
         m_u.val_bool = val;
     }
 
-    Var(int val, iAlloc* alloc = g_sys)
+    Var(int32_t val, iAlloc* alloc = g_sys)
     {
         o3_trace1 trace;
 
         m_u.alloc = alloc;
         m_u.alloc->addRef();
-        m_u.type = TYPE_INT;
-        m_u.val_int = val;
+        m_u.type = TYPE_INT32;
+        m_u.val_int32 = val;
     }
 
+    Var(int64_t val, iAlloc* alloc = g_sys)
+    {
+        o3_trace1 trace;
+
+        m_u.alloc = alloc;
+        m_u.alloc->addRef();
+        m_u.type = TYPE_INT64;
+        m_u.val_int64 = val;
+    }
+
+    Var(size_t val, iAlloc* alloc = g_sys)
+    {
+        o3_trace1 trace;
+
+        new (this) Var((int32_t) val, alloc);
+    }
+ 
     Var(double val, iAlloc* alloc = g_sys)
     {
         o3_trace1 trace;
@@ -201,8 +220,10 @@ public:
             return set((iScr*) 0);
         case TYPE_BOOL:
             return set(that.toBool());
-        case TYPE_INT:
-            return set(that.toInt());
+        case TYPE_INT32:
+            return set(that.toInt32());
+        case TYPE_INT64:
+            return set(that.toInt64());
         case TYPE_DOUBLE:
             return set(that.toDouble());
         case TYPE_SCR:
@@ -253,8 +274,10 @@ public:
         switch (type()) {
         case TYPE_BOOL:
             return m_u.val_bool;
-        case TYPE_INT:
-            return m_u.val_int ? true : false;
+        case TYPE_INT32:
+            return m_u.val_int32 ? true : false;
+        case TYPE_INT64:
+            return m_u.val_int64 ? true : false;
         case TYPE_DOUBLE:
             return m_u.val_double ? true : false;
         case TYPE_SCR:
@@ -268,21 +291,45 @@ public:
         }
     }
 
-    int toInt() const
+    int32_t toInt32() const
     {
         o3_trace1 trace;
 
         switch (type()) {
         case TYPE_BOOL:
             return m_u.val_bool;
-        case TYPE_INT:
-            return m_u.val_int;
+        case TYPE_INT32:
+            return m_u.val_int32;
+        case TYPE_INT64:
+            return m_u.val_int64;
         case TYPE_DOUBLE:
             return (int)DoubleToInt(m_u.val_double);
         case TYPE_WSTR:
-            return ((WStr*) m_wstr)->toInt();
+            return ((WStr*) m_wstr)->toInt32();
         case TYPE_STR:
-            return ((Str*) m_str)->toInt();
+            return ((Str*) m_str)->toInt32();
+        default:
+            return 0;
+        }
+    }
+
+    int64_t toInt64() const
+    {
+        o3_trace1 trace;
+
+        switch (type()) {
+        case TYPE_BOOL:
+            return m_u.val_bool;
+        case TYPE_INT32:
+            return m_u.val_int32;
+        case TYPE_INT64:
+            return m_u.val_int64;
+        case TYPE_DOUBLE:
+            return (int)DoubleToInt(m_u.val_double);
+        case TYPE_WSTR:
+            return ((WStr*) m_wstr)->toInt64();
+        case TYPE_STR:
+            return ((Str*) m_str)->toInt64();
         default:
             return 0;
         }
@@ -295,8 +342,10 @@ public:
         switch (type()) {
         case TYPE_BOOL:
             return m_u.val_bool;
-        case TYPE_INT:
-            return m_u.val_int;
+        case TYPE_INT32:
+            return m_u.val_int32;
+        case TYPE_INT64:
+            return m_u.val_int64;
         case TYPE_DOUBLE:
             return m_u.val_double;
         case TYPE_WSTR:
@@ -331,8 +380,10 @@ public:
             return "null";
         case TYPE_BOOL:
             return Str::fromBool(m_u.val_bool);
-        case TYPE_INT:
-            return Str::fromInt(m_u.val_int);
+        case TYPE_INT32:
+            return Str::fromInt32(m_u.val_int32);
+        case TYPE_INT64:
+            return Str::fromInt64(m_u.val_int64);
         case TYPE_DOUBLE:
             return Str::fromDouble(m_u.val_double);
         case TYPE_SCR:
@@ -357,8 +408,10 @@ public:
             return L"null";
         case TYPE_BOOL:
             return WStr::fromBool(m_u.val_bool);
-        case TYPE_INT:
-            return WStr::fromInt(m_u.val_int);
+        case TYPE_INT32:
+            return WStr::fromInt32(m_u.val_int32);
+        case TYPE_INT64:
+            return WStr::fromInt64(m_u.val_int64);
         case TYPE_DOUBLE:
             return WStr::fromDouble(m_u.val_double);
         case TYPE_SCR:
@@ -390,7 +443,16 @@ public:
         return *this;
     }
 
-    Var& set(int val)
+    Var& set(int32_t val)
+    {
+        o3_trace1 trace;
+        Var tmp(val, alloc());
+
+        swap(*this, tmp);
+        return *this;
+    }
+
+    Var& set(int64_t val)
     {
         o3_trace1 trace;
         Var tmp(val, alloc());

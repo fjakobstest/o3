@@ -272,7 +272,7 @@ struct cJs1 : cJs1Base {
             ThrowException(String::New(ex->message()));
             return Handle<Array>();
         }
-        for (int index = rval.toInt(); index >= 0; index = rval.toInt()) {
+        for (int index = rval.toInt32(); index >= 0; index = rval.toInt32()) {
             ++length;
             arg = index;
             scr->invoke(pthis, ACCESS_CALL, enumerator, 1, &arg, &rval);
@@ -285,7 +285,7 @@ struct cJs1 : cJs1Base {
             ThrowException(String::New(ex->message()));
             return Handle<Array>();
         }
-        for (int index = rval.toInt(); index >= 0; index = rval.toInt()) {
+        for (int index = rval.toInt32(); index >= 0; index = rval.toInt32()) {
             names->Set(Number::New(key++),
                        String::New(scr->name(pthis, index)));
             arg = index;
@@ -358,8 +358,9 @@ struct cJs1 : cJs1Base {
             return Null();
         case Var::TYPE_BOOL:
             return Boolean::New(val.toBool());
-        case Var::TYPE_INT:
-            return Int32::New(val.toInt());
+        case Var::TYPE_INT32:
+            return Int32::New(val.toInt32());
+        case Var::TYPE_INT64:
         case Var::TYPE_DOUBLE:
             return Number::New(val.toDouble());
         case Var::TYPE_SCR:
@@ -498,7 +499,7 @@ public:
         return toVar(result);
     error:
         Str msg = *String::Utf8Value(try_catch.Exception());
-        Str line = Str::fromInt(try_catch.Message()->GetLineNumber());
+        Str line = Str::fromInt32(try_catch.Message()->GetLineNumber());
 
         if (ex)
             *ex = o3_new(cEx)(msg + " on line " + line);

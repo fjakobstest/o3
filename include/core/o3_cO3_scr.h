@@ -51,10 +51,10 @@
             *rval = pthis1->loadModule(ctx, argv[0].toStr());
             break;
         case 2:
-            pthis1->wait(ctx, argc > 0 ? argv[0].toInt() : -1);
+            pthis1->wait(ctx, argc > 0 ? argv[0].toInt32() : -1);
             break;
         case 3:
-            pthis1->exit(argc > 0 ? argv[0].toInt() : 0);
+            pthis1->exit(argc > 0 ? argv[0].toInt32() : 0);
             break;
         case 4:
             *rval = pthis1->versionInfo();

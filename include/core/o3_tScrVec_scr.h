@@ -47,25 +47,25 @@
 
         switch (index) {
         case 0:
-            *rval = (int) pthis1->length();
+            *rval = pthis1->length();
             break;
         case 1:
-            *rval = (int) pthis1->setLength(argv[0].toInt());
+            *rval = pthis1->setLength(argv[0].toInt32());
             break;
         case 2:
-            *rval = (int) pthis1->__enumerator__(argv[0].toInt());
+            *rval = pthis1->__enumerator__(argv[0].toInt32());
             break;
         case 3:
-            *rval = pthis1->__query__(argv[0].toInt());
+            *rval = pthis1->__query__(argv[0].toInt32());
             break;
         case 4:
-            *rval = pthis1->__getter__(ctx, argv[0].toInt());
+            *rval = pthis1->__getter__(ctx, argv[0].toInt32());
             break;
         case 5:
-            *rval = pthis1->__setter__(argv[0].toInt(), argv[1]);
+            *rval = pthis1->__setter__(argv[0].toInt32(), argv[1]);
             break;
         case 6:
-            *rval = pthis1->__deleter__(argv[0].toInt());
+            *rval = pthis1->__deleter__(argv[0].toInt32());
             break;
         }
         return 0;
