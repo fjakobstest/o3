@@ -281,7 +281,7 @@ namespace o3 {
 						return DISP_E_BADINDEX;
 					++it;
 				}
-				*pid = strToInt(bstrName) + __ARRAY_IDX_DISPID;
+				*pid = strToInt32(bstrName) + __ARRAY_IDX_DISPID;
 				return S_OK;
 			}
 
@@ -529,9 +529,9 @@ namespace o3 {
 				out.vt = VT_EMPTY;
 				break;
 
-			case Var::TYPE_INT:	
+			case Var::TYPE_INT32:	
 				out.vt = VT_INT;
-				out.lVal = in.toInt();
+				out.lVal = in.toInt32();
 				break;
 
             /* Disabled for the release

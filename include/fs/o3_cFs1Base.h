@@ -28,7 +28,7 @@ struct cFs1Base : cScr, iFs {
         TYPE_DIR,
         TYPE_FILE,
         TYPE_LINK
-    };
+    };    
 
     siWeak m_ctx;
     siScr m_onchange;
@@ -37,7 +37,9 @@ struct cFs1Base : cScr, iFs {
         o3_add_iface(iFs)
     o3_end_class()
 
-#include "o3_cFs1Base_scr.h"
+    o3_glue_gen()
+
+    o3_enum("Type", INVALID, DIR, FILE, LINK);
 
     virtual o3_get bool valid() = 0;
 

@@ -19,6 +19,9 @@
 #define O3_SCREEN_H
 
 #include "o3_cScreen1Base.h"
+#ifdef O3_WITH_GLUE
+#include "o3_scr_cScreen1Base.h"
+#endif
 #include "o3_cScreen1.h"
 
 #endif // O3_SCREEN_H

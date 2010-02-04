@@ -22,10 +22,29 @@
 
 #define o3_fun
 #define o3_get
-#define o3_get_imm(...)
+#define o3_get_imm(T)
 #define o3_set
-#define o3_set_imm(...)
+#define o3_set_imm(T)
+#define o3_imm(T)
 #define o3_ext(T)
+#define o3_tgt
+#define o3_enum(...)
+
+#define O3_WITH_GLUE
+
+#ifdef O3_WITH_GLUE
+#define o3_glue_gen() \
+    Trait* select(); \
+    static Trait* clsTraits();\
+    static Trait* extTraits();\
+    static siEx clsInvoke(iScr* pthis, iCtx* ctx, \
+        int index, int argc,const Var* argv, Var* rval);\
+    static siEx extInvoke(iScr* pthis, iCtx* ctx, \
+        int index, int argc,const Var* argv, Var* rval);
+#else // !O3_WITH_GLUE
+#define o3_glue_gen() \
+    static Trait* extTraits(){return 0;}
+#endif // O3_WITH_GLUE
 
 namespace o3 {
 

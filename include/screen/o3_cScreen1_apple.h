@@ -23,7 +23,7 @@
 namespace o3 {
 
 struct cScreen1 : cScreen1Base {
-    o3_ext("cO3") o3_fun static siScr screen(iCtx* ctx)
+    static o3_ext("cO3") o3_fun siScr screen(iCtx* ctx)
     {
         static Var screen = ctx->value("screen");
 
@@ -35,7 +35,7 @@ struct cScreen1 : cScreen1Base {
     o3_begin_class(cScreen1Base)
     o3_end_class()
 
-    #include "o3_cScreen1_apple_scr.h"
+    o3_glue_gen()
 
     int width()
     {

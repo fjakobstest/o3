@@ -22,4 +22,8 @@
 #include "o3_cProtocol1_win32.h"
 #endif // O3_WIN32
 
+#ifdef O3_WITH_GLUE
+#include "o3_scr_cProtocol1_win32.h"
+#endif
+
 #endif // O3_C_PROTOCOL_1_H

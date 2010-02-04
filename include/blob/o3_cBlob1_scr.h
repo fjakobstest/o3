@@ -66,7 +66,7 @@
                     *rval = o3_new(cScrBuf)(pthis1->__self__(argv[0].toStr()));
                 else
                     *rval = o3_new(cScrBuf)(pthis1->__self__(ctx,
-                                                             argv[0].toInt()));
+                                                             argv[0].toInt32()));
             } else 
                 *rval = o3_new(cScrBuf)(pthis1->__self__(ctx));
             break;

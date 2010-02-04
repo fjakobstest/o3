@@ -20,6 +20,10 @@
 
 #ifdef O3_WIN32
 #include "o3_cResourceBuilder1_win32.h"
+#ifdef O3_WITH_GLUE
+#include "o3_scr_cResourceBuilder1_win32.h"
+#endif
+
 #endif // O3_WIN32
 
 #endif // O3_C_RESOURCE_BUILDER1_WIN32_H

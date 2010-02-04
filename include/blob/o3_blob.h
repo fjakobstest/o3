@@ -20,4 +20,8 @@
 
 #include "o3_cBlob1.h"
 
+#ifdef O3_WITH_GLUE
+#include "o3_scr_cBlob1.h"
+#endif
+
 #endif // O3_BLOB_H

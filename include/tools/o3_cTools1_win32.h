@@ -29,10 +29,10 @@ struct cTools1 : cScr{
     o3_begin_class(cScr)
     o3_end_class()
 
-    typedef void (WINAPI *REGSVRCUST)(bool, wchar_t*);
-    typedef void (WINAPI *UNREGSVRCUST)(bool);
+    o3_glue_gen()
 
-    #include "o3_cTools1_win32_scr.h"
+    typedef void (WINAPI *REGSVRCUST)(bool, wchar_t*);
+    typedef void (WINAPI *UNREGSVRCUST)(bool);    
 
     static Var getProperty(iCtx* ctx, iScr* obj, const char* prop_name)
     {
@@ -45,31 +45,27 @@ struct cTools1 : cScr{
         return ret;
     }
 
-    o3_ext("cO3")
-    o3_get static Str tempPath()
+    static o3_ext("cO3") o3_get Str tempPath()
     {
         Str ret = tmpPath();            
         backslash2slash(ret);
         return Str(ret);
     }
 
-    o3_ext("cO3")
-    o3_get static Str selfPath() 
+    static o3_ext("cO3") o3_get Str selfPath() 
     {
         Str ret = getSelfPath();
         backslash2slash(ret);
         return Str(ret);
     }
 
-    o3_ext("cO3")
-    o3_fun static bool checkIfInstalled(const Str& app)
+    static o3_ext("cO3") o3_fun bool checkIfInstalled(const Str& app)
     {
         WStr app_name(app);
         return o3::checkIfInstalled(app_name);
     }
 
-    o3_ext("cO3")
-    o3_fun static bool regDll(const Str& name, bool all_usr)
+    static o3_ext("cO3") o3_fun bool regDll(const Str& name, bool all_usr)
     {
         //Var rval(g_sys);  
         //getProperty(scr_iscr(0),rval,"name");
@@ -83,8 +79,7 @@ struct cTools1 : cScr{
         return true;
     }
 
-    o3_ext("cO3")
-    o3_fun static bool unregDll(const Str& name, bool all_usr)
+    static o3_ext("cO3") o3_fun bool unregDll(const Str& name, bool all_usr)
     {
         //WStr wpath(name);
         HMODULE hModule = LoadLibraryA(name.ptr());            
@@ -96,8 +91,7 @@ struct cTools1 : cScr{
         return true;     
     }
 
-    o3_ext("cO3")
-    o3_fun static bool regUninstaller(iCtx* ctx, bool all_usr, iScr* iobj) 
+    static o3_ext("cO3") o3_fun bool regUninstaller(iCtx* ctx, bool all_usr, iScr* iobj) 
     {
         siScr obj(iobj);
         if (!obj)
@@ -118,22 +112,19 @@ struct cTools1 : cScr{
             helplink, publisher, major, minor );
     }
 
-    o3_ext("cO3")
-    o3_fun static bool unregUninstaller(bool all_usr, const Str& name) 
+    static o3_ext("cO3") o3_fun bool unregUninstaller(bool all_usr, const Str& name) 
     {         
         WStr wname = WStr(name);
         return uninstallerEntryRemove(all_usr, wname);
     }
 
-    o3_ext("cO3")
-    o3_fun static Str getUninstPath(const Str& name) 
+    static o3_ext("cO3") o3_fun Str getUninstPath(const Str& name) 
     {
         WStr wname = WStr(name);
         return uninstallerPath(wname);    
     }
 
-    o3_ext("cO3")
-    o3_fun static bool regMozillaPlugin(iCtx* ctx, bool all_usr, iScr* iobj) 
+    static o3_ext("cO3") o3_fun bool regMozillaPlugin(iCtx* ctx, bool all_usr, iScr* iobj) 
     {
         siScr obj(iobj);
         if (!obj)
@@ -152,21 +143,18 @@ struct cTools1 : cScr{
             product, description, mimetype );
     }
 
-    o3_ext("cO3")
-    o3_fun static bool unregMozillaPlugin(bool all_usr, const Str& company, 
+    static o3_ext("cO3") o3_fun bool unregMozillaPlugin(bool all_usr, const Str& company, 
         const Str& app, const Str& version) 
     {
         return mozillaEntryRemove(all_usr, WStr(company), WStr(app), WStr(version));            
     }
 
-    o3_ext("cO3")
-    o3_get static bool adminUser() 
+    static o3_ext("cO3") o3_get bool adminUser() 
     {
         return (TRUE==IsUserAnAdmin());
     }
 
-    o3_ext("cO3")
-    o3_get static int winVersionMajor()
+    static o3_ext("cO3") o3_get int winVersionMajor()
     {
 
         OSVERSIONINFO osvi;

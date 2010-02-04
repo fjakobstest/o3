@@ -31,12 +31,12 @@ struct cResourceBuilder1 : cScr
     o3_begin_class(cScr)
     o3_end_class()
 
-    tMap<Str, siFs> m_files_to_add;
+    o3_glue_gen()
 
-    #include "o3_cResourceBuilder1_win32_scr.h"
+    tMap<Str, siFs> m_files_to_add;    
 
     // new resource builder
-    o3_ext("cO3") o3_fun static siScr resourceBuilder()
+    static o3_ext("cO3") o3_fun siScr resourceBuilder()
     {
         return o3_new(cResourceBuilder1)();
     }
@@ -57,7 +57,7 @@ struct cResourceBuilder1 : cScr
     // build the Rsc component with the files added to the RscBuilder then 
     // append the Rsc to the target file, if there was another Rsc appended
     // to the file already it will be replaced
-    o3_fun void buildAndAppend(iFs* target_file, iEx** )
+    o3_fun void buildAndAppend(iFs* target_file, siEx* )
     {
         if (!target_file)
             return; // Ex here
@@ -145,7 +145,7 @@ struct cResourceBuilder1 : cScr
         stream->flush();
     }
 
-    o3_ext("cFs1") o3_fun static bool removeResource(iFs* fs_node)
+    static o3_ext("cFs1") o3_fun bool removeResource(iFs* fs_node)
     {
         siFs file(fs_node);
         if (!file || !((cFs1*) file.ptr())->isFile())

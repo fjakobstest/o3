@@ -26,7 +26,7 @@ struct cJs1Base : cScr, iCtx {
         o3_add_iface(iCtx)
     o3_end_class()
 
-#include "o3_cJs1Base_scr.h"
+    o3_glue_gen()
 
     virtual o3_fun Var eval(const char* str, siEx* ex) = 0;
 };

@@ -35,19 +35,19 @@ struct cButton1 : cWindow1
         o3_add_iface(iWindowProc)
     o3_end_class()
 
+    o3_glue_gen()
+
     ButtonType      m_type;
     WNDPROC         m_def_proc;
     siScr           m_onclick;
 
-    #include "o3_cButton1_win32_scr.h"
-
-    o3_ext("cWindow1") o3_fun static siWindow createButton(iUnk* target, const char* text, 
-        int x, int y, int w, int h, int font_size = 16, int font_style = 0, siEx* =0)
-    {       
+    static o3_ext("cWindow1") o3_fun siWindow createButton(iUnk* target, const char* text, 
+        int x, int y, int w, int h, int font_size = 16, int font_style = 0)
+    {              
         return create(TYPE_PUSH,target,text,x,y,w,h,font_size,font_style, 0);
     }
 
-    o3_ext("cWindow1") o3_fun static siWindow createRButton(iUnk* target, const char* text, 
+    static o3_ext("cWindow1") o3_fun siWindow createRButton(iUnk* target, const char* text, 
         int x, int y, int w, int h, int font_size = 16, int font_style = 0, int bkcolor = 0)
     {
         return create(TYPE_RADIO,target,text,x,y,w,h,font_size,font_style, bkcolor);

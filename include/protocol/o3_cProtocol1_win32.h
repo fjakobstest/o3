@@ -57,7 +57,7 @@ namespace o3 {
         siScr           m_source;
         siWeak          m_ctx;
 
-        #include "o3_cProtocol1_win32_scr.h"
+        o3_glue_gen()
 
         // some custom url magic if needed...
         virtual Str processURL(const char* url)
@@ -83,7 +83,7 @@ namespace o3 {
             return ret.toScr();
         }       
 
-        o3_fun bool addSource(iScr* source, const char* = 0)
+        o3_fun bool addSource(iScr* source, const char*)
         {
             m_source = source;
             return true;

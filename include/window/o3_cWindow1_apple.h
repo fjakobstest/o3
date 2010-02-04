@@ -23,7 +23,7 @@
 namespace o3 {
 
 struct cWindow1 : cWindow1Base {
-    o3_ext("cO3") o3_fun static siScr window(iCtx* ctx)
+    static o3_ext("cO3") o3_fun siScr window(iCtx* ctx)
     {
         static Var window = ctx->value("window");
         
@@ -42,7 +42,7 @@ struct cWindow1 : cWindow1Base {
     o3_begin_class(cWindow1Base)
     o3_end_class()
     
-    #include "o3_cWindow1_apple_scr.h"
+    o3_glue_gen()
     
     int x()
     {

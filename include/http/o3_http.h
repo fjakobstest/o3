@@ -20,4 +20,8 @@
 
 #include "o3_cHttp1.h"
 
+#ifdef O3_WITH_GLUE
+#include "o3_scr_cHttp1.h"
+#endif
+
 #endif // O3_HTTP_H

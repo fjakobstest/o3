@@ -24,9 +24,9 @@ struct cBlob1 : cScr {
     o3_begin_class(cScr)
     o3_end_class()
 
-#include "o3_cBlob1_scr.h"
+    o3_glue_gen()
 
-    static o3_get o3_ext("cO3") siScr blob(iCtx* ctx)
+    static o3_ext("cO3") o3_get siScr blob(iCtx* ctx)
     {
         o3_trace3 trace;
         Var blob = ctx->value("blob");
@@ -80,31 +80,34 @@ struct cBlob1 : cScr {
         return Buf::fromBase64(str.ptr(), str.alloc());
     }
 
-    static o3_fun o3_ext(cScrBuf) Str toString(cScrBuf* pthis)
+    static o3_ext("cScrBuf") o3_fun Str toString(o3_tgt iScr* tgt)
     {
         o3_trace3 trace;
+        cScrBuf* pthis = (cScrBuf*) tgt;
         Buf buf(pthis);
 
         return Str(buf);
     }
 
-    static o3_fun o3_ext(cScrBuf) Str toHex(cScrBuf* pthis)
+    static o3_ext("cScrBuf") o3_fun Str toHex(o3_tgt iScr* tgt)
     {
         o3_trace3 trace;
+        cScrBuf* pthis = (cScrBuf*) tgt;
         Buf buf(pthis);
 
         return Str::fromHex(buf.ptr(), buf.size());
     }
 
-    static o3_fun o3_ext(cScrBuf) Str toBase64(cScrBuf* pthis)
+    static o3_ext("cScrBuf") o3_fun Str toBase64(o3_tgt iScr* tgt)
     {
         o3_trace3 trace;
+        cScrBuf* pthis = (cScrBuf*) tgt;
         Buf buf(pthis);
 
         return Str::fromBase64(buf.ptr(), buf.size());
     }
     
-    static o3_fun o3_ext("cScrBuf") void replace(iUnk* tgt, iBuf* orig,
+    static o3_ext("cScrBuf") o3_fun void replace(o3_tgt iScr* tgt, iBuf* orig,
         iBuf* rep) 
     {
         siBuf buf(tgt);
@@ -118,7 +121,7 @@ struct cBlob1 : cScr {
             replace_buf.ptr(), replace_buf.size());
     }
 
-    static o3_fun o3_ext("cScrBuf") void replace(iUnk* tgt, const char* orig,
+    static o3_ext("cScrBuf") o3_fun void replace(o3_tgt iScr* tgt, const char* orig,
         const char* rep)
     {    
         siBuf buf(tgt);
@@ -127,7 +130,7 @@ struct cBlob1 : cScr {
             rep, strLen(rep)*sizeof(char));
     }
 
-    static o3_fun o3_ext("cScrBuf") void replaceUtf16(iUnk* tgt, 
+    static o3_ext("cScrBuf") o3_fun void replaceUtf16(o3_tgt iScr* tgt, 
         const wchar_t* orig, const wchar_t* rep) 
     {
         siBuf buf(tgt);
@@ -135,16 +138,7 @@ struct cBlob1 : cScr {
         buf->unwrap().findAndReplaceAll(orig, strLen(orig)*sizeof(wchar_t),
             rep, strLen(rep)*sizeof(wchar_t));
     }
-
-    static o3_fun o3_ext("cScrBuf") void replaceUtf16(iUnk* tgt, 
-        const char* orig, const char* rep)
-    {
-        WStr worig(orig);
-        WStr wrep(rep);
-        replaceUtf16(tgt, worig.ptr(), wrep.ptr());
-    }
-};
-
+};    
 }
 
 #endif // O3_C_BLOB1_H

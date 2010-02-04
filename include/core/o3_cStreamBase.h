@@ -72,6 +72,14 @@ struct cStreamBase : cScr, iStream {
     virtual o3_fun bool flush() = 0;
 
     virtual o3_fun bool close() = 0;
+
+    o3_fun void print(const Str& str)
+    {
+        o3_trace3 trace;
+
+        write(str.ptr(), str.size());
+        flush();
+    }
 };
 
 }

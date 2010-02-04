@@ -24,7 +24,7 @@ struct cWindow1Base : cScr {
     o3_begin_class(cScr)
     o3_end_class()
 
-#include "o3_cWindow1Base_scr.h"
+    o3_glue_gen()
 
     virtual o3_get int x() = 0;
 

@@ -78,6 +78,8 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         o3_add_iface(iWindowProc)
     o3_end_class()
 
+    o3_glue_gen()
+
     siWindowProc           m_prev_proc;
     HICON               m_icon_s;
     HICON               m_icon_l;
@@ -88,11 +90,9 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
     int                 m_color;
     bool                m_done;
 
-    #include "o3_cWindow1_win32_scr.h" 
-
     // TODO: get rid of this ASAP:
 
-    o3_ext("cO3") o3_get static siWindow window(iCtx* ctx)
+    static o3_ext("cO3") o3_get siWindow window(iCtx* ctx)
     {
         Var v = ctx->value("appWindow");
         siWindow ret = v.toScr();
@@ -109,7 +109,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         return ret;
     }
 
-    o3_ext("cO3") o3_fun static siWindow createWindow(iUnk*, const char* caption, int x, int y, 
+    static o3_ext("cO3") o3_fun siWindow createWindow(iUnk*, const char* caption, int x, int y, 
         int width, int height, int style = 0)
     {            
         return create(0, caption, x, y, width, height, style);
@@ -149,21 +149,21 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         return flags;
     }
 
-     virtual int x()
+    virtual int x()
     {
         RECT r;
         ::GetWindowRect(m_hwnd, &r);
         return r.left;
     }
 
-     virtual int y()
+    virtual int y()
     {
         RECT r;
         ::GetWindowRect(m_hwnd, &r);
         return r.top;    
     }
 
-    o3_get virtual int clientX()
+    virtual o3_get int clientX()
     {
         RECT w,c;
         ::GetWindowRect(m_hwnd,&w);
@@ -172,7 +172,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         return (w.right - w.left) - c.right - bdr;            
     }
 
-    o3_get virtual int clientY()
+    virtual o3_get int clientY()
     {
         RECT w,c;
         ::GetWindowRect(m_hwnd,&w);
@@ -181,21 +181,21 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         return (w.bottom - w.top) -c.bottom - bdr;    
     }
                     
-     virtual int height()
+    virtual int height()
     {
         RECT r;
         ::GetWindowRect(m_hwnd, &r);
         return r.bottom - r.top;        
     }
 
-     virtual int width()
+    virtual int width()
     {
         RECT r;
         ::GetWindowRect(m_hwnd, &r);
         return r.right - r.left;            
     }
 
-     virtual int setX(int x) 
+    virtual int setX(int x) 
     {
         RECT r;
         ::GetWindowRect(m_hwnd, &r);
@@ -203,7 +203,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         return this->x();
     }
     
-     virtual int setY(int y) 
+    virtual int setY(int y) 
     {
         RECT r;
         ::GetWindowRect(m_hwnd, &r);
@@ -211,7 +211,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         return this->y();    
     }
 
-     virtual int setHeight(int h) 
+    virtual int setHeight(int h) 
     {
         RECT r;
         ::GetWindowRect(m_hwnd, &r);
@@ -219,7 +219,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         return height();    
     }
 
-     virtual int setWidth(int w) 
+    virtual int setWidth(int w) 
     {
         RECT r;
         ::GetWindowRect(m_hwnd, &r);
@@ -227,39 +227,39 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         return width();        
     }
 
-    o3_fun virtual void minimize()
+    virtual o3_fun void minimize()
     {
         ::ShowWindow(m_hwnd, SW_MINIMIZE);
     }
 
-    o3_fun virtual void maximize() 
+    virtual o3_fun void maximize() 
     {
         ::ShowWindow(m_hwnd, SW_MAXIMIZE);
     }
 
-    o3_fun virtual void restore() 
+    virtual o3_fun void restore() 
     {
         ::ShowWindow(m_hwnd, SW_RESTORE);
     }
 
-    o3_fun virtual void close() 
+    virtual o3_fun void close() 
     {
         ::PostMessage(m_hwnd,WM_CLOSE,0,0);
     }
 
-    o3_set virtual bool setVisible(bool visible)     
+    virtual o3_set bool setVisible(bool visible)     
     {
         ::ShowWindow(m_hwnd, visible ? SW_SHOW : SW_HIDE);
         ::UpdateWindow(m_hwnd);
         return visible;
     }
 
-    o3_get virtual bool showButtons()
+    virtual o3_get bool showButtons()
     {
         return true;        
     }
 
-    o3_set virtual bool setShowButtons(bool show) 
+    virtual o3_set bool setShowButtons(bool show) 
     {        
         LONG style = ::GetWindowLong(m_hwnd, GWL_STYLE);        
         
@@ -275,7 +275,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         return show;
     }
 
-    o3_get virtual Str caption() 
+    virtual o3_get Str caption() 
     {
         WStr caption;
         caption.reserve(4096);
@@ -284,14 +284,14 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         return caption;
     }
 
-    o3_set virtual Str setCaption(const Str& caption_string) 
+    virtual o3_set Str setCaption(const Str& caption_string) 
     {      
         ::SetWindowTextA(m_hwnd, caption_string.ptr());
         ::InvalidateRect(m_hwnd,0,TRUE);
         return caption_string;
     }
 
-    o3_set virtual void setIcon(const Str& name_of_icon) 
+    virtual o3_set void setIcon(const Str& name_of_icon) 
     {
         // get the icon from the rsc
         Buf icon = ((cSys*) g_sys)->resource(name_of_icon);
@@ -302,12 +302,12 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         useIcon(icon);
     }
 
-    o3_fun virtual Str open()
+    virtual o3_fun Str open()
     {
         return openFileDialog(m_hwnd);
     }
 
-    o3_fun virtual void useIcon(const Buf& icon_data)
+    virtual o3_fun void useIcon(const Buf& icon_data)
     {
         if (m_icon_s) {
             ::DestroyIcon(m_icon_s);
@@ -472,7 +472,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
 
     // sending key event, the virtual key events sent out will be handled by the window
     // in focus
-    o3_ext("cO3") o3_fun static void sendKeyEvent(const char* keys) 
+    static o3_ext("cO3") o3_fun void sendKeyEvent(const char* keys) 
     {           				        
         const char* d = keys; 
 		BYTE buf_new[256];
@@ -519,7 +519,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
 		}
     }
 
-    o3_ext("cO3") o3_fun static void mouseTo(int x, int y, iWindow* wnd = 0)
+    static o3_ext("cO3") o3_fun void mouseTo(int x, int y, iWindow* wnd = 0)
     {        
         // db_assert(x>=0 && y>=0);
         static DWORD cx = GetSystemMetrics(SM_CXSCREEN);
@@ -537,13 +537,13 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
             (DWORD) (X + dx),(DWORD) (Y + dy), 0, 0);
     }
 
-    o3_ext("cO3") o3_fun static void mouseLeftClick()
+    static o3_ext("cO3") o3_fun void mouseLeftClick()
     {
         mouse_event( MOUSEEVENTF_LEFTDOWN,0,0,0,0);
         mouse_event( MOUSEEVENTF_LEFTUP,0,0,0,0);
     }
 
-    o3_ext("cO3") o3_fun static void mouseRightClick()
+    static o3_ext("cO3") o3_fun void mouseRightClick()
     {
         mouse_event( MOUSEEVENTF_RIGHTDOWN,0,0,0,0);
         mouse_event( MOUSEEVENTF_RIGHTUP,0,0,0,0);
@@ -551,7 +551,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
 
     // installer related:
 
-    o3_ext("cO3") o3_fun static int alertBox(const char* caption, const char* message, const char* mode=0, siEx* ex=0) 
+    static o3_ext("cO3") o3_fun int alertBox(const char* caption, const char* message, const char* mode=0, siEx* ex=0) 
     {
         WStr wcaption = Str(caption);
         WStr wmessage = Str(message);

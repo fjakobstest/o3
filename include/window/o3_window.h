@@ -23,4 +23,8 @@
 #include "o3_cButton1.h"
 #include "o3_cStaticCtrl1.h"
 
+#ifdef O3_WITH_GLUE
+#include "o3_scr_cWindow1Base.h"
+#endif // O3_WITH_GLUE 
+
 #endif // O3_WINDOW_H

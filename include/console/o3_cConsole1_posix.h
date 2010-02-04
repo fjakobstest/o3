@@ -25,9 +25,9 @@ struct cConsole1 : cScr {
     o3_begin_class(cScr)
     o3_end_class()
 
-#include "o3_cConsole1_win32_scr.h"
+    o3_glue_gen()
 
-    static o3_get o3_ext("cO3") siStream in(iCtx* ctx)
+    static o3_get siStream in(iCtx* ctx)
     {
         o3_trace3 trace;
         Var in = ctx->value("in");
@@ -37,7 +37,7 @@ struct cConsole1 : cScr {
         return in.toScr();
     }
 
-    static o3_get o3_ext("cO3") siStream out(iCtx* ctx)
+    static o3_ext("cO3") o3_get siStream out(iCtx* ctx)
     {
 #ifdef O3_WIN32
         static HANDLE stdout = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -50,7 +50,7 @@ struct cConsole1 : cScr {
         return out.toScr();
     }
 
-    static o3_get o3_ext("cO3") siStream err(iCtx* ctx)
+    static o3_ext("cO3") o3_get siStream err(iCtx* ctx)
     {
 #ifdef O3_WIN32
         static HANDLE stdout = GetStdHandle(STD_ERROR_HANDLE);
@@ -63,7 +63,7 @@ struct cConsole1 : cScr {
         return err.toScr();
     }
 
-    static o3_get o3_ext("cStreamBase") void print(iStream* stream,
+    static o3_ext("cStreamBase") o3_get void print(iStream* stream,
                                                    const Str& str)
     {
         o3_trace3 trace;
@@ -72,7 +72,7 @@ struct cConsole1 : cScr {
         stream->flush();
     }
 
-    static o3_get o3_ext("cO3") void print(iCtx* ctx, const Str& str)
+    static o3_ext("cO3") o3_get void print(iCtx* ctx, const Str& str)
     {
         o3_trace3 trace;
         siStream out = cConsole1::out(ctx);

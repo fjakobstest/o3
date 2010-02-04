@@ -51,25 +51,25 @@
             *rval = pthis1->x();
             break;
         case 1:
-            *rval = pthis1->setX(argv[0].toInt());
+            *rval = pthis1->setX(argv[0].toInt32());
             break;
         case 2:
             *rval = pthis1->y();
             break;
         case 3:
-            *rval = pthis1->setY(argv[0].toInt());
+            *rval = pthis1->setY(argv[0].toInt32());
             break;
         case 4:
             *rval = pthis1->width();
             break;
         case 5:
-            *rval = pthis1->setWidth(argv[0].toInt());
+            *rval = pthis1->setWidth(argv[0].toInt32());
             break;
         case 6:
             *rval = pthis1->height();
             break;
         case 7:
-            *rval = pthis1->setHeight(argv[0].toInt());
+            *rval = pthis1->setHeight(argv[0].toInt32());
             break;
         }
         return 0;

@@ -39,9 +39,9 @@ struct cFs1 : cFs1Base {
     o3_begin_class(cFs1Base)
     o3_end_class()
 
-#include "o3_cFs1_posix_scr.h"
+    o3_glue_gen();
 
-    static o3_fun o3_ext("cO3") siScr fs(iCtx* ctx)
+    static o3_ext("cO3") o3_fun siScr fs(iCtx* ctx)
     {
         o3_trace3 trace;
         Var fs = ctx->value("fs");
@@ -51,7 +51,7 @@ struct cFs1 : cFs1Base {
         return fs.toScr();
     }
 
-    static o3_fun o3_ext("cO3") siScr cwd(iCtx* ctx)
+    static o3_ext("cO3") o3_fun siScr cwd(iCtx* ctx)
     {
         o3_trace3 trace;
         Var cwd = ctx->value("cwd");

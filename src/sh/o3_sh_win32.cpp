@@ -19,7 +19,7 @@
 #include <core/o3_core.h>
 #include <js/o3_js.h>
 //#include <test/o3_proto_v1.h>
-//#include "xml/o3_xml.h"
+#include "xml/o3_xml.h"
 //#include "socket/o3_socket.h"
 #include "fs/o3_fs.h"
 #include "blob/o3_blob.h"
@@ -37,7 +37,6 @@
 //int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR arg, int show){
 int main(int argc, char **argv) {
 
-
     using namespace o3;  
 
     CoInitializeEx(NULL, COINIT_APARTMENTTHREADED); 
@@ -48,14 +47,12 @@ int main(int argc, char **argv) {
     siCtx ctx = o3_new(cJs1)(mgr, --argc, ++argv);
    
     
-
-
     //mgr->addExtTraits(cCanvas1::extTraits());
     mgr->addExtTraits(cFs1::extTraits());
     mgr->addExtTraits(cHttp1::extTraits());
     mgr->addExtTraits(cBlob1::extTraits());
     mgr->addExtTraits(cConsole1::extTraits());
-    //mgr->addExtTraits(cXml_v1::extTraits());
+    mgr->addExtTraits(cXml1::extTraits());
     //mgr->addExtTraits(cJs1::extTraits());
     //js.mgr()->addExtTraits(cSocket1::extTraits());
     mgr->addExtTraits(cResource1::extTraits());

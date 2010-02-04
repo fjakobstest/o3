@@ -19,6 +19,10 @@
 #define O3_FS_H
 
 #include "o3_cFs1Base.h"
+#ifdef O3_WITH_GLUE
+#include "o3_scr_cFs1Base.h"
+#endif
+
 #include "o3_cFs1.h"
 
 #endif // O3_FS_H

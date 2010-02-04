@@ -25,4 +25,13 @@
 #include "o3_cFs1_win32.h"
 #endif // O3_WIN32
 
+#ifdef O3_WITH_GLUE
+#ifdef O3_POSIX
+#include "o3_scr_cFs1_posix.h"
+#endif
+#ifdef O3_WIN32
+#include "o3_scr_cFs1_win32.h"
+#endif // O3_POSIX
+#endif // O3_WITH_GLUE
+
 #endif // O3_C_FS1_H

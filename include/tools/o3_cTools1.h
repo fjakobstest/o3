@@ -22,4 +22,8 @@
 #include "o3_cTools1_win32.h"
 #endif // O3_WIN32
 
+#ifdef O3_WITH_GLUE
+#include "o3_scr_cTools1_win32.h"
+#endif
+
 #endif // O3_C_TOOLS1_H

@@ -37,31 +37,31 @@ struct cStaticCtrl1 : cWindow1
         o3_add_iface(iWindowProc)
     o3_end_class()
 
+    o3_glue_gen()
+
     StaticType      m_type;
     WNDPROC         m_def_proc;
-    HBITMAP         m_bitmap;
+    HBITMAP         m_bitmap;    
 
-    #include "o3_cStaticCtrl1_win32_scr.h"
-
-    o3_ext("cWindow1") o3_fun static siWindow createTextbox(iUnk* target, const char* text, 
+    static o3_ext("cWindow1") o3_fun siWindow createTextbox(iUnk* target, const char* text, 
         int x, int y, int w, int h, int font_size = 16, int font_style = 0)
     {
         return createStatic(TYPE_TEXTBOX,target,text,x,y,w,h,font_size,font_style);
     }
 
-    o3_ext("cWindow1") o3_fun static siWindow createBlank(iUnk* target,  
+    static o3_ext("cWindow1") o3_fun siWindow createBlank(iUnk* target,  
         int x, int y, int w, int h)
     {
         return createStatic(TYPE_BLANK,target,0,x,y,w,h);
     }
 
-    o3_ext("cWindow1") o3_fun static siWindow createSeparator(iUnk* target, 
+    static o3_ext("cWindow1") o3_fun siWindow createSeparator(iUnk* target, 
         int x, int y, int w)
     {
         return createStatic(TYPE_SEPARATOR,target,0,x,y,w,3);
     }
 
-    o3_ext("cWindow1") o3_fun static siWindow createImgbox(iUnk* target, const char* img_name, 
+    static o3_ext("cWindow1") o3_fun siWindow createImgbox(iUnk* target, const char* img_name, 
         int x, int y, int w, int h)
     {
         return createStatic(TYPE_IMAGEBOX,target,img_name,x,y,w,h);

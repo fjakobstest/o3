@@ -33,7 +33,7 @@ struct cScreen1: cScreen1Base
     o3_begin_class(cScreen1Base)
     o3_end_class()
 
-    #include "o3_cScreen1_win32_scr.h"
+    o3_glue_gen()
 
     o3_ext("cO3") o3_get static siScr screen(iCtx* ctx)
     {

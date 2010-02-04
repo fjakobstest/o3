@@ -274,10 +274,6 @@ namespace o3{
 				return hr;
 			}
 
-			// Returns the debug application object associated with this script site. Provides 
-			// a means for a smart host to define what application object each script belongs to. 
-			// Script engines should attempt to call this method to get their containing application 
-			// and resort to IProcessDebugManager::GetDefaultApplication if this fails. 
 			HRESULT STDMETHODCALLTYPE GetApplication(IDebugApplication **ppda)
 			{
 			   if (!ppda)
@@ -348,17 +344,16 @@ namespace o3{
             o3_add_iface(iCtx1)
         o3_end_class();
 
-        #include "o3_cJs1_win32_scr.h"
+        o3_glue_gen()
 
-
-        o3_ext("cO3") o3_get static siScr js(iCtx* ctx)
+        static o3_ext("cO3") o3_get siScr js(iCtx* ctx)
         {
             // TODO: this should be created only once per ctx
             // siJs js = o3_new(cJs1)(ctx->mgr());            
             return siScr(ctx);
         }
 
-        o3_fun virtual Var include(const char* path, siEx* ex = 0) 
+        virtual o3_fun Var include(const char* path, siEx* ex = 0) 
         {
             Str str = eval(Str("o3.cwd.get(\"") + path + "\").data", ex).toStr();
             Var res = eval(str, ex);
@@ -368,11 +363,9 @@ namespace o3{
                 return Var();
             }
             return res;
-        }
+        }        
 
-        
-
-		o3_fun virtual Var eval(const char* src, siEx* ex)
+		virtual o3_fun Var eval(const char* src, siEx* ex)
         {
             ex;
             Var vret;

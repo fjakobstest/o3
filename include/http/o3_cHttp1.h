@@ -127,9 +127,16 @@ struct cHttp1 : cScr {
     o3_begin_class(cScr)
     o3_end_class()
 
-#include "o3_cHttp1_scr.h"
+    o3_glue_gen()
 
-    static o3_get o3_ext("cO3") siScr http()
+    o3_enum("ReadyState",
+        READY_STATE_UNINITIALIZED,
+        READY_STATE_LOADING,
+        READY_STATE_LOADED,
+        READY_STATE_INTERACTIVE,
+        READY_STATE_COMPLETED);
+
+    static o3_ext("cO3") o3_get siScr http()
     {
         o3_trace3 trace;
 
@@ -196,7 +203,7 @@ struct cHttp1 : cScr {
 
     virtual o3_get Str statusText()
     {
-        return Str::fromInt(statusCode());
+        return Str::fromInt32(statusCode());
     }
 
     virtual o3_get int statusCode()
@@ -234,7 +241,7 @@ struct cHttp1 : cScr {
 
         iter = m_response_headers.find("Content-Length");
         if (iter != m_response_headers.end())
-            return iter->val.toInt();
+            return iter->val.toInt32();
         return (size_t) -1;
     }
 

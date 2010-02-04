@@ -31,10 +31,10 @@ struct cResource1 : cScr
     o3_begin_class(cScr)
     o3_end_class()
 
-    #include "o3_cResource1_win32_scr.h"
+    o3_glue_gen()
 
     // get the resource comp singleton, that handles appended resource files
-    o3_ext("cO3") o3_get static siScr resources(iCtx* ctx)
+    static o3_ext("cO3") o3_get siScr resources(iCtx* ctx)
     {
         Var v = ctx->value("resources");
         siScr ret = v.toScr();
@@ -57,7 +57,7 @@ struct cResource1 : cScr
     }
 
     // returns a list with the appended files
-    o3_fun virtual tVec<Str> list()
+    virtual o3_fun tVec<Str> list()
     {
         return ((cSys*) g_sys)->resourcePaths();
     }

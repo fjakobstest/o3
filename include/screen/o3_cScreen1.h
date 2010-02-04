@@ -25,4 +25,13 @@
 #include "o3_cScreen1_win32.h"
 #endif // O3_WIN32
 
+#ifdef O3_WITH_GLUE
+#ifdef O3_APPLE
+#include "o3_scr_cScreen1_apple.h"
+#endif // O3_APPLE
+#ifdef O3_WIN32
+#include "o3_scr_cScreen1_win32.h"
+#endif // O3_WIN32
+#endif // O3_WITH_GLUE
+
 #endif // O3_C_SCREEN1_H

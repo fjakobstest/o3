@@ -20,6 +20,10 @@
 
 #ifdef O3_WIN32
 #include "o3_cButton1_win32.h"
+#ifdef O3_WITH_GLUE
+#include "o3_scr_cButton1_win32.h"
+#endif // O3_WITH_GLUE 
 #endif // O3_WIN32
+
 
 #endif // O3_C_BUTTON1_H

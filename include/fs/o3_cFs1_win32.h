@@ -109,9 +109,12 @@ private:
             m_valid = true;
         }
 
+public:
         o3_begin_class(cFs1Base)            
             o3_add_iface(iFs)
         o3_end_class()
+
+        o3_glue_gen()
 
         bool        m_valid;
         Str         m_local_path;
@@ -191,12 +194,12 @@ private:
 
 public:
 
-        o3_ext("cO3") o3_fun static siFs fs(iCtx* ctx) 
+        static o3_ext("cO3") o3_fun siFs fs(iCtx* ctx) 
         {            
             return siFs(o3_new(cFs1(ctx->mgr()->root(), "")));
         }
 
-        o3_ext("cO3") o3_get static siFs cwd() 
+        static o3_ext("cO3") o3_get siFs cwd() 
         {
             Str cwd = cwdPath();
             //cwd.findAndReplaceAll((size_t)0,"\\","/");
@@ -204,25 +207,25 @@ public:
             return siFs(o3_new(cFs1(cwd, "")));
         }
 
-        o3_ext("cO3") o3_get static siFs programFiles() 
+        static o3_ext("cO3") o3_get siFs programFiles() 
         {
             Str path = programFilesPath();
             backslash2slash(path.ptr());
             return o3_new(cFs1(path, ""));
         }
 
-        o3_ext("cO3") o3_get static siFs appData() 
+        static o3_ext("cO3") o3_get siFs appData() 
         {
             Str path = appDataPath();
             backslash2slash(path.ptr());
             return o3_new(cFs1(path, ""));            
         }
 
-        o3_get virtual bool valid() {
+        virtual bool valid() {
             return m_valid;
         }
 	    
-        o3_get virtual bool exists() {
+        virtual bool exists() {
             if (!m_valid) 
                 return false;
 
@@ -230,7 +233,7 @@ public:
             return getAttributes(fa);
         }		    
         
-        o3_get virtual int64_t accessedTime() {
+        virtual int64_t accessedTime() {
             FAttrib fa; 			
 		    if ( !m_valid || !getAttributes(fa)) 
                 return -1;
@@ -241,7 +244,7 @@ public:
             return ret.QuadPart;
         }
 	    
-        o3_get virtual int64_t createdTime() {
+        virtual int64_t createdTime() {
             FAttrib fa; 			
 		    if ( !m_valid || !getAttributes(fa)) 
                 return -1;
@@ -252,7 +255,7 @@ public:
             return ret.QuadPart;            
         }
 
-        o3_get virtual int64_t modifiedTime() {
+        virtual int64_t modifiedTime() {
             FAttrib fa; 			
 		    if ( !m_valid || !getAttributes(fa)) 
                 return -1;
@@ -263,7 +266,7 @@ public:
             return ret.QuadPart;   
         }
         
-	    o3_get virtual size_t size() {
+	    virtual size_t size() {
             FAttrib fa;
 		    if ( !m_valid || !getAttributes(fa)) 
                 return 0;
@@ -275,7 +278,7 @@ public:
         }
         
         
-        o3_get virtual Str name() {
+        virtual Str name() {
             if (!m_valid)
                 return Str();
 
@@ -291,7 +294,7 @@ public:
             return name;
         }
 
-	    o3_set virtual Str setName(const char* name, siEx* ex) {
+	    virtual Str setName(const char* name, siEx* ex) {
             if (!m_valid) {
                 o3_set_ex(ex_invalid_filename);
                 return Str();
@@ -311,18 +314,18 @@ public:
             return this->name();
         }
 	    
-        o3_get virtual Str path() {
+        virtual Str path() {
             Str path("/");
             path.append(m_local_path);
             return path;
         }
 	    
-        o3_get virtual int permissions() {
+        virtual int permissions() {
             //!TODO: implement
             return 0;
         }
   
-	    o3_get virtual Type type() {
+	    virtual Type type() {
             FAttrib fa;
 		    if ( !m_valid || !getAttributes(fa)) 
                 return TYPE_INVALID;
@@ -333,7 +336,7 @@ public:
             return TYPE_FILE;
         }
 
-        o3_fun virtual siStream open(const char* mode, siEx* ex) {
+        virtual siStream open(const char* mode, siEx* ex) {
             if (!m_valid)
                 return siStream();
 
@@ -382,11 +385,11 @@ public:
             return s;
         }
         
-        o3_get virtual siFs parent() {
+        virtual siFs parent() {
             return get("..");
         }
 
-	    o3_get virtual bool hasChildren() {
+	    virtual bool hasChildren() {
             return listChildren<tVec<Str>>(true).size() 
                 ? true : false;
         }
@@ -437,18 +440,18 @@ public:
             return ret;
         }
 
-        o3_get virtual tVec<siFs> children() {
+        virtual tVec<siFs> children() {
             return listChildren<tVec<siFs>>();
         }
 
-        o3_get virtual tVec<Str> scandir(const char* path = 0) {            
+        virtual tVec<Str> scandir(const char* path = 0) {            
             if (path)
                 return ((cFs1*) get(path).ptr())->scandir();
             else
                 return listChildren<tVec<Str>>();
         }
         
-        o3_fun virtual siFs get(const char* path) {
+        virtual siFs get(const char* path) {
             if (!m_valid)
                 return siFs();
 
@@ -473,7 +476,7 @@ public:
             return siFs( o3_new(cFs1)(local_path, m_root_path) );
         }
 
-	    o3_fun virtual bool createFile() {
+	    virtual bool createFile() {
             if (!createParents())
                 return false;
 
@@ -492,7 +495,7 @@ public:
             return true;
         }
 
-	    o3_fun virtual bool createDir() {
+	    virtual bool createDir() {
             if (exists())
                 return type() == TYPE_DIR;
             if (!createParents())
@@ -502,12 +505,12 @@ public:
                 
         }
 
-	    o3_fun virtual bool createLink(iFs* to) {
+	    virtual bool createLink(iFs* to) {
             to;
             return false;
         }
 
-	    o3_fun virtual bool remove(bool deep = false) {
+	    virtual bool remove(bool deep = false) {
             const size_t max_children = 10;
             switch (type()) {
                 case TYPE_FILE:
@@ -615,9 +618,7 @@ public:
             m_listener = 0;
             m_change = 0;
             m_mod_time = 0;            
-        }
-      
-        #include "o3_cFs1_win32_scr.h" 
+        }              
     };
 }
 

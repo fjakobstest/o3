@@ -268,6 +268,28 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "image", "image", "{B7A9287F
 		..\include\image\o3_image.h = ..\include\image\o3_image.h
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "xml", "xml", "{04EB2E65-1848-49E8-AFA9-F39D74A26639}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		..\include\xml\o3_cXml1.h = ..\include\xml\o3_cXml1.h
+		..\include\xml\o3_cXmlAttr1.h = ..\include\xml\o3_cXmlAttr1.h
+		..\include\xml\o3_cXmlCDATASection1.h = ..\include\xml\o3_cXmlCDATASection1.h
+		..\include\xml\o3_cXmlCharacterData1.h = ..\include\xml\o3_cXmlCharacterData1.h
+		..\include\xml\o3_cXmlComment1.h = ..\include\xml\o3_cXmlComment1.h
+		..\include\xml\o3_cXmlDocument1.h = ..\include\xml\o3_cXmlDocument1.h
+		..\include\xml\o3_cXmlElement1.h = ..\include\xml\o3_cXmlElement1.h
+		..\include\xml\o3_cXmlNamedNodeMap1.h = ..\include\xml\o3_cXmlNamedNodeMap1.h
+		..\include\xml\o3_cXmlNode1.h = ..\include\xml\o3_cXmlNode1.h
+		..\include\xml\o3_cXmlNodeArray1.h = ..\include\xml\o3_cXmlNodeArray1.h
+		..\include\xml\o3_cXmlNodeList1.h = ..\include\xml\o3_cXmlNodeList1.h
+		..\include\xml\o3_cXmlText1.h = ..\include\xml\o3_cXmlText1.h
+		..\include\xml\o3_iXml1.h = ..\include\xml\o3_iXml1.h
+		..\include\xml\o3_xml.h = ..\include\xml\o3_xml.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32

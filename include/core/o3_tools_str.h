@@ -107,14 +107,22 @@ inline int64_t strToInt64(const char* str)
 {
     o3_trace0 trace;
 
+#ifdef O3_WIN32
+    return ::_strtoi64(str, 0, 0);
+#else
     return ::strtoll(str, 0, 0);
+#endif
 }
 
 inline int64_t strToInt64(const wchar_t* str)
 {
     o3_trace0 trace;
 
+#ifdef O3_WIN32
+    return ::_wcstoi64(str, 0, 0);
+#else
     return ::wcstoll(str, 0, 0);
+#endif
 }
 
 inline double strToDouble(const char* str)

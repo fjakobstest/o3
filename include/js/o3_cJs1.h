@@ -25,4 +25,12 @@
 #include "o3_cJs1_win32.h"
 #endif // O3_WIN32
 
+#ifdef O3_WITH_GLUE
+#ifdef O3_POSIX
+#include "o3_scr_cJs1_posix.h"
+#else
+#include "o3_scr_cJs1_win32.h"
+#endif // O3_POSIX
+#endif // O3_WITH_GLUE
+
 #endif // O3_C_JS1_H

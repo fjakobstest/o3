@@ -435,8 +435,8 @@ struct cCtx : cMgr, iCtx {
 			case Var::TYPE_BOOL:
 				BOOLEAN_TO_NPVARIANT(from.toBool(), to);
 				break;
-			case Var::TYPE_INT:
-				INT32_TO_NPVARIANT(from.toInt(), to);
+			case Var::TYPE_INT32:
+				INT32_TO_NPVARIANT(from.toInt32(), to);
 				break;
 			case Var::TYPE_DOUBLE:
 				DOUBLE_TO_NPVARIANT(from.toDouble(), to);
@@ -615,7 +615,7 @@ inline ::int32_t NPN_IntFromIdentifier(NPIdentifier identifier)
 {
     if (g_netscape_funcs->identifierisstring(identifier)) {
         char* str = ::NPN_UTF8FromIdentifier(identifier);
-        int x = o3::strToInt(str);
+        int x = o3::strToInt32(str);
         
         ::NPN_MemFree(str);
         return x;

@@ -41,7 +41,7 @@ struct cJs1 : cJs1Base {
 
         o3_begin_class(cUnk)
             o3_add_iface(iScr)
-        o3_end_class()
+        o3_end_class()        
 
         virtual int enumerate(iCtx* ctx, int index)
         {
@@ -423,9 +423,9 @@ public:
     o3_begin_class(cJs1Base)
     o3_end_class()
 
-#include "o3_cJs1_posix_scr.h"
+    o3_glue_gen()
 
-    static o3_get o3_ext("cO3") siScr js(iCtx* ctx)
+    static o3_ext("cO3") o3_get siScr js(iCtx* ctx)
     {
         o3_trace3 trace;
         Var js = ctx->value("js");
