@@ -21,7 +21,7 @@ function fileWriter(fileName) {
     return function(str) {
         o3.cwd.get('../' + fileName).data = str;
     }
-}
+} 
 
 include("../o3_Reporter.js");
 include("../o3_FileHandler.js");
