@@ -43,7 +43,9 @@ struct cStream : cStreamBase {
     }
 
     o3_begin_class(cStreamBase)
-    o3_end_class();
+    o3_end_class()
+
+	o3_glue_gen()
 
     bool eof()
     {

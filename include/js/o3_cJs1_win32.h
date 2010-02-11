@@ -312,10 +312,10 @@ namespace o3{
 
 		};	
 
-        cJs1(iMgr* mgr = o3_new(cMgr)(), int argc=0, char** argv=0, bool debug = false) 
+        cJs1(iMgr* mgr = o3_new(cMgr)(), int argc=0, char** argv=0, char** envp=0, bool debug = false) 
             : m_mgr(mgr), m_track(0), m_loop(g_sys->createMessageLoop())
         {
-            m_root = o3_new(cO3)(argc,argv);
+            m_root = o3_new(cO3)(argc,argv,envp);
             initEngine(debug);
         }
 

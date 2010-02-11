@@ -21,12 +21,17 @@
 namespace o3 {
 
 struct cO3 : cScr {
-    tVec<Str> m_args;
+    tVec<Str>   m_args;
+    tVec<Str>   m_envs;
 
-    cO3(int argc, char** argv)
+    cO3(int argc, char** argv, char** envp)
     {
-        while (argc--)
-            m_args.push(*argv++);
+        if (argv)
+            while (*argv)
+                m_args.push(*argv++);
+        if (envp)
+            while (*envp)
+                m_envs.push(*envp++);
     }
 
     ~cO3()
@@ -36,11 +41,16 @@ struct cO3 : cScr {
     o3_begin_class(cScr)
     o3_end_class()
 
-#include "o3_cO3_scr.h"
+	o3_glue_gen()
 
     o3_get tVec<Str> args()
     {
         return m_args;
+    }
+
+    o3_get tVec<Str> envs()
+    {
+        return m_envs;
     }
 
     o3_fun bool loadModule(iCtx* ctx, const char* name) 

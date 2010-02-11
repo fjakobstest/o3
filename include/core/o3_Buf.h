@@ -61,6 +61,8 @@ class Buf {
         m_u1.ptr = (void*) ((uintptr_t) m_u1.ptr | 0x1);
     }
 
+    friend void test_Buf();
+
 public:
     template<typename C>
     static Buf fromHex(const C* str, iAlloc* alloc = g_sys)
@@ -112,6 +114,7 @@ public:
         o3_trace1 trace;
 
         m_alloc->addRef();
+        m_u1.capacity = size;
         m_u1.size = size;
         m_u1.ptr = ptr;
         setWrap();

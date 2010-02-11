@@ -74,10 +74,10 @@ public:
         TYPE_BOOL,
         TYPE_INT32,
         TYPE_INT64,
-        TYPE_DOUBLE,
-        TYPE_SCR,
+        TYPE_DOUBLE,        
         TYPE_STR,
-        TYPE_WSTR
+        TYPE_WSTR,
+		TYPE_SCR
     };
 
     Var(iAlloc* alloc = g_sys)

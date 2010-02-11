@@ -375,7 +375,8 @@ struct cJs1 : cJs1Base {
     }
 
 public:
-    cJs1(iMgr* mgr, int argc, char** argv) : m_context(Context::New())
+    cJs1(iMgr* mgr, int argc, char** argv, char** envp)
+    :   m_context(Context::New())
     {
         o3_trace2 trace;
         Context::Scope context_scope(m_context);
@@ -397,7 +398,7 @@ public:
         m_template->SetIndexedPropertyHandler(indexedGetter, indexedSetter,
                                               indexedQuery, indexedDeleter,
                                               indexedEnumerator, data);
-        object = createObject(o3_new(cO3)(argc, argv));
+        object = createObject(o3_new(cO3)(argc, argv, envp));
         m_context->Global()->Set(String::New("o3"), object);
     }
 
@@ -431,7 +432,7 @@ public:
         Var js = ctx->value("js");
 
         if (js.type() == Var::TYPE_VOID)
-            js = ctx->setValue("js", (iScr*) o3_new(cJs1)(ctx->mgr(), 0, 0));
+            js = ctx->setValue("js", (iScr*) o3_new(cJs1)(ctx->mgr(), 0, 0, 0));
         return js.toScr();
     }
 

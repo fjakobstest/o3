@@ -482,16 +482,16 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
 		{			            
             while (*d && *d == '[') {
                 const char* d2 = d+1;
-                if (strEquals(d2,"ALT") && d2[3] == ']') {
+                if (strEquals(d2,"ALT",3) && d2[3] == ']') {
                     flags|=ALT;
                     d = d2 + 4;
-                } else if (strEquals(d2,"CTRL") && d2[4] == ']') {
+                } else if (strEquals(d2,"CTRL",4) && d2[4] == ']') {
                     flags|=CTRL;
                     d = d2 + 5;
-                } else if (strEquals(d2,"ESC") && d2[3] == ']') {
+                } else if (strEquals(d2,"ESC",3) && d2[3] == ']') {
                     flags|=ESC;
                     d = d2 + 4;
-                } else if (strEquals(d2,"SHIFT") && d2[5] == ']') {
+                } else if (strEquals(d2,"SHIFT",5) && d2[5] == ']') {
                     flags|=SHIFT;
                     d = d2 + 6;
                 } else 
@@ -548,7 +548,30 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         mouse_event( MOUSEEVENTF_RIGHTDOWN,0,0,0,0);
         mouse_event( MOUSEEVENTF_RIGHTUP,0,0,0,0);
     }
+	static o3_ext("cO3") o3_fun void mouseLeftDown()
+    {
+        mouse_event( MOUSEEVENTF_LEFTDOWN,0,0,0,0);        
+    }
 
+	static o3_ext("cO3") o3_fun void mouseLeftUp()
+    {        
+        mouse_event( MOUSEEVENTF_LEFTUP,0,0,0,0);
+    }
+
+	static o3_ext("cO3") o3_fun void mouseRightDown()
+    {
+        mouse_event( MOUSEEVENTF_RIGHTDOWN,0,0,0,0);        
+    }
+
+	static o3_ext("cO3") o3_fun void mouseRightUp()
+    {
+		mouse_event( MOUSEEVENTF_RIGHTUP,0,0,0,0);    
+	}
+
+	static o3_ext("cO3") o3_fun void mouseWheel(int i)
+    {
+		mouse_event( MOUSEEVENTF_WHEEL, 0, 0, WHEEL_DELTA * i, 0);
+	}
     // installer related:
 
     static o3_ext("cO3") o3_fun int alertBox(const char* caption, const char* message, const char* mode=0, siEx* ex=0) 

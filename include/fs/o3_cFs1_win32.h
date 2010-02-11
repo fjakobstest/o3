@@ -550,16 +550,16 @@ public:
         }
         
         virtual void onChangeNotification(iUnk*) 
-        {
+        {			
             if (!m_onchange)
                 return;
 
             FindNextChangeNotification(m_change->handle());            
             switch(type()){    
                  case TYPE_DIR:
-                     Delegate(siCtx(m_ctx), m_onchange)(this); 
+					 Delegate(siCtx(m_ctx), m_onchange)(this); 
                      break;
-                 case TYPE_FILE: 
+                 case TYPE_FILE:					
                     int64_t modt = modifiedTime();                         
                     if (modt != -1 && m_mod_time != modt){
                         m_mod_time = modt;                   

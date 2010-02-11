@@ -69,7 +69,15 @@ inline bool strEquals(const C* str, const C* str1)
 
     return strCompare(str, str1) == 0;
 }
-	
+
+template<typename C>
+inline bool strEquals(const C* str, const C* str1, size_t n)
+{
+    o3_trace0 trace;
+
+    return strCompare(str, str1, n) == 0;
+}
+
 inline char* strCopy(char* dst, const char* src)
 {
 	return ::strcpy(dst, src);
@@ -160,14 +168,14 @@ inline size_t strFromHex(C* str, const void* ptr, size_t size)
     uint8_t* ptr1 = (uint8_t*) ptr;
     size_t len = 0;
 
-    while (size-- > 0) {
+    while (size--) {
         unsigned bits = *ptr1++;
 
         if (str) {
             *str++ = chrFromHex(bits >> 4);
             *str++ = chrFromHex(bits & 0xF);
         }
-        len += 3;
+        len += 2;
         if (size != 0) {
             if (str)
                 *str++ = ' ';
@@ -183,13 +191,13 @@ template<typename C>
 inline size_t strFromBase64(C* str, const void* ptr, size_t size)
 {
     o3_trace0 trace;
-    uint8_t*  ptr1 = (uint8_t*) ptr;
+    uint8_t* ptr1 = (uint8_t*) ptr;
     size_t len = 0;
     unsigned bits = 0;
     int n = 0;
     int cols = 0;
 
-    while (size-- > 0) {
+    while (size--) {
         bits |= *ptr1++;
         if (++n == 3) {
             if (str) {
@@ -198,7 +206,7 @@ inline size_t strFromBase64(C* str, const void* ptr, size_t size)
                 *str++ = chrFromBase64(bits >> 6 & 0x3F);
                 *str++ = chrFromBase64(bits & 0x3F);
             }
-            n += 4, cols += 4;
+            len += 4, cols += 4;
             if (cols == 72) {
                 if (str)
                     *str++ = '\n';
@@ -214,7 +222,7 @@ inline size_t strFromBase64(C* str, const void* ptr, size_t size)
         if (str) {
             *str++ = chrFromBase64(bits >> 18);
             *str++ = chrFromBase64(bits >> 12 & 0x3F);
-            *str++ = cols > 1 ? chrFromBase64(bits >> 6 & 0x3F) : '=';
+            *str++ = n > 1 ? chrFromBase64(bits >> 6 & 0x3F) : '=';
             *str++ = '=';
         }
         len += 4;

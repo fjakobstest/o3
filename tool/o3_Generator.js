@@ -111,7 +111,7 @@ this.Generator = {
         // check if there are any properties at all...
         for (ext=0;ext<2;ext++) { 
             tType = ext?'ext':'cls';
-            for (i in properties[tType]) {
+            for (var i in properties[tType]) {
                 hasProps[tType] = true;
                 break;
             }
@@ -245,7 +245,7 @@ this.Generator = {
                     if (trait.ret.indexOf('tVec') != -1) {
                         base = trait.ret.match(/<[\w]+>/);
                         base = base[0].substring(1,base[0].length-1);
-                        return {start:'o3_new(tScrVec<' + base + '>)(', close:');'};
+                        return {start:'*rval = o3_new(tScrVec<' + base + '>)(', close:');'};
                     }                    
                     if (siSg = trait.ret.match(/si[\w]+/)){
                         return {start:'*rval = ' + siSg[0] + '(', close:');'};
@@ -260,7 +260,7 @@ this.Generator = {
         };
         // arguments for the function call + arg count check    
         function genArgsForCall(args) {
-            var i, min=-1, max=0, fetch='', not_arg=false, def_start='', def_close='', 
+            var i, min=-1, max=0, fetch='', spec_arg=false, def_start='', def_close='', 
             wrap_start='', wrap_close='', argc_check=[], call = [],info;    
             
             for (i=0; i<args.length; i++) {
@@ -271,27 +271,34 @@ this.Generator = {
                 wrap_start = info.wrap ? info.wrap + '(' : '';
                 wrap_close = info.wrap ? ')' : '';
 
+				// second wrapper for the Buf...
                 if (info.wrap2) {
                     wrap_start = info.wrap2 + '(' + wrap_start;
                     wrap_close += ')';
                 }     
 
-                not_arg = info.type ? (args[i].tgt ? true : false) : true;
+				// not real script argument like siEx*, iCtx*, o3_tgt, etc.
+                spec_arg = info.type ? (args[i].tgt ? true : false) : true;
                 
-                if (args[i].def) {
+                if (args[i].def && !spec_arg) {
                     if (min<0)
                         min = max;
-                    def_start = 'argc > ' + max + ' ? ';
+                    // if it was an siEx* param for example we dont want to check the arg count
+					def_start = spec_arg ? '' : ('argc > ' + max + ' ? ');
                     def_close = ' : ' + args[i].def;
                 }
                     
                 call.push(wrap_start, def_start);
-                if (!not_arg)
-                    call.push('argv[',max++,'].');
+                if (!spec_arg) {
+                    call.push('argv[',max++,']');
+					if (!info.direct)	
+						call.push('.');
+				}	
+				
                 call.push(fetch,def_close,wrap_close, ',');            
                                     
                 iSg=fetch=def_start=def_close=wrap_start=wrap_close='';
-                not_arg= false;        
+                spec_arg= false;        
             }
             if (args.length > 0)
                 call.pop(); // remove last ',' 
@@ -362,7 +369,7 @@ this.Generator = {
             diff = false;
             if (funs1.length == funs2.length)
                 for (var j=0; j<funs1.length; j++) 
-                    if (funs1[j] != funs2[i]) {
+                    if (funs1[j] != funs2[j]) {
                         diff = true;
                         break;        
                     }
@@ -453,7 +460,7 @@ this.Generator = {
             return blocks;
         };
         function recursiveGen(blocks, ws, t, level) {
-            var i,j,si,siVar,funs,b,toCheck = 'argc', min, max;
+            var i,j,si,siVar,funs,b,toCheck = 'argc', min, max, index = 0;
             with(Generator) {                        
                 if (level) {
                     toCheck = 'type' + (level-1);
@@ -462,11 +469,10 @@ this.Generator = {
 
                     for (i=0; i<blocks.length; i++) {                        
                         if (si = blocks[i].si) {
-                            siVar = si.toLowerCase(),'_', level-1;
-                            t.push(ws, si, ' ', siVar,
-                                ' = ', si, '(argv[', level-1, '].toScr());\n');        
+                            siVar = si.toLowerCase(),'_', level-1;                            
                             
-                            t.push(ws, 'if (',siVar,') {\n');                                                            
+                            t.push(ws, index++ ? 'else if(' : 'if (' ,si, ' ', siVar,
+                                ' = ', si, '(argv[', level-1, '].toScr())',') {\n');                                                            
                         
                             funs = blocks[i].fun;
                             if (funs.length == 1) {
@@ -490,7 +496,7 @@ this.Generator = {
                     
                     min = level ? "Var::TYPE_" + b.min : b.min;
                     max = level ? "Var::TYPE_" + b.max : b.max;
-                    t.push(ws, 'if (');
+                    t.push(ws, index++ ? 'else if(' : 'if (');
                     if (b.min == b.max) {
                         t.push(toCheck, '==', min, ') {\n');
                     }
@@ -508,9 +514,13 @@ this.Generator = {
                                 ws + '   ', t, level+1);
                     }
                     
-                    t.push(ws,'}\n');        
-                
+                    t.push(ws,'}\n');                        
                 }
+				
+				if (blocks.length)
+					t.push(ws,'else{\n',ws,'   return o3_new(cEx)(', 
+						level ? '"Invalid argument type."' : '"Invalid argument count."',
+						');\n', ws,  '}\n');
             }    
         };
         
@@ -531,6 +541,8 @@ this.ArgInfo = {
     'const char *'       : {fetch:'toStr()',     type:'STR'},
     'const Str &'       : {fetch:'toStr()',     type:'STR'},
     'const wchar_t *'   : {fetch:'toWStr()',    type:'WSTR'},
+	'const Var &'		: {fetch:'', 			type:'VAR', 
+		direct: true},
     'const WStr &'      : {fetch:'toWStr()',    type:'WSTR'},
     'const Buf &'       : {fetch:'toScr()',     type:'SCR', 
         wrap : 'siBuf', wrap2 : 'Buf'},

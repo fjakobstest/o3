@@ -28,8 +28,10 @@
 #ifdef O3_WITH_GLUE
 #ifdef O3_POSIX
 #include "o3_scr_cJs1_posix.h"
+#include "o3_scr_cJs1Base.h"
 #else
 #include "o3_scr_cJs1_win32.h"
+#include "o3_scr_cJs1Base.h"
 #endif // O3_POSIX
 #endif // O3_WITH_GLUE
 

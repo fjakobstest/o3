@@ -126,6 +126,8 @@ struct iSys : iAlloc {
 
     virtual void assert(const char* pred, const char* file, int line) = 0;
 
+    virtual void logfv(const char* format, va_list ap) = 0;
+
     virtual siModule loadModule(const char* name) = 0;
 
     virtual siThread createThread(const Delegate& run) = 0;
@@ -174,6 +176,15 @@ inline void traceLeave()
 inline void assert(const char* pred, const char* file, int line)
 {
     return g_sys->assert(pred, file, line);
+}
+
+inline void log(const char* format, ...)
+{
+    va_list ap;
+
+    va_start(ap, format);
+    g_sys->logfv(format, ap);
+    va_end(ap);
 }
 
 inline void* memAlloc(size_t size)

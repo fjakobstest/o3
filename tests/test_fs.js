@@ -15,15 +15,13 @@
  * this library; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+o3.loadModule('console');
+o3.loadModule('fs');
 
-var failed = function(message){
-	return "***FAILED* " + message + "\n";
-}
-
-var init = function(){
-	root = o3.fs();
+var setup = function(){
+	root = o3.cwd;
 	wd_name = "testfs";
-	wd = root.get("C:/down/tmp/" + wd_name);
+	wd = root.get(wd_name);
 	wd.createDir();
 	if(wd.valid && wd.exists)
 		return true;
@@ -237,7 +235,7 @@ var tests = {
             dirchanged = true;
             this_node.onchange = 0;
         }
-        
+        o3.wait(10);
         node.data = "changed";
         o3.wait(1);
         if (!changed)
@@ -250,7 +248,7 @@ var tests = {
         o3.wait(1);
         if (changed)
             return failed("onchange notification reset failed");
-        
+ /*  TOFIX:     
         node = wd.get("2changeA");
         var counterA = 0, 
             counterB = 0, 
@@ -260,41 +258,69 @@ var tests = {
         node.data = "Wait";
         node2.data = "Start";
         
-        node.onchange = function(this_node) {
-            str = node2.data;
-            node2.data = str + "A";
-            if (10 == ++counterA)
+        node.onchange = function(this_node) {            
+            o3.print('A\n');
+			if (10 == ++counterA)
                 this_node.onchange = 0;    
         }
 
-        node2.onchange = function(this_node) {
-            str = node.data;
-            node.data = str + "B";
-            if (10 == counterB++)
+        node2.onchange = function(this_node) {            
+            o3.print('B\n');
+			if (10 == ++counterB)
                 this_node.onchange = 0;    
         }
         
-        node.data = "Start";
-        for(var i=0; i<100; i++) {
-            o3.wait(1);
-            if (counterB==10 && counterA==10)
-                break;
+        for(var i=0; i<10; i++) {
+			o3.print('wait\n');
+			o3.wait(100);			
+			node.data = i;
+			node2.data = i;
+			o3.wait(100);
+			if (counterB==10 && counterA==10) {
+				break;
+			}	
         }
 
-        if (counterB!=10 || counterA!=10)
-            return failed("onchange notification test with two listeners failed");
+        if (counterB!=10 || counterA!=10) {
+			o3.print(counterA + '\n');
+			o3.print(counterB + '\n');
+			return failed("onchange notification test with two listeners failed");
+		}
+*/		
         return true;    
     }    
+	
 }
 
-//if(s==0 || (t==s?s=0:0))
-
-for (var v in tests) {
-    o3.print("Test " + v + ": \n");
-    o3.print("init: " + init() + "\n");
-    o3.print("    " + tests[v]().toString() + "\n");
-    o3.print("teardown: " + teardown() + "\n");
+var failed = function(message){
+	return "ERROR: " + test + ' ' + v + ' : ' + message + "\n";
 }
 
+var v,
+	wd,
+	result, 
+	test = 'fs';
+	last = o3.argc > 1 ? o3.argv[1] : null, 
+	foundLast = last ? false : true, 
+	stdErr = o3.stdErr;
+	
+for (v in tests) {
+    if(foundLast) {
+		o3.print(v + '\n');	
+		result = setup();
+		if (result != true)
+			stdErr.write(result);
+		
+		result = tests[v]();
+		if (result != true)
+			stdErr.write(result);
+		
+		result = teardown();
+		if (result != true)
+			stdErr.write(result);
+	}
+	else {
+		foundLast = (v == last);
+	}
+}
 
-o3.print("\n-----------------------------------END-----------------------------------\n");

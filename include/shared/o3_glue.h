@@ -112,22 +112,6 @@ static const char* ex_file_not_found = "File not found";
     if (ex) \
         *ex = o3_new(cEx)(msg);
 
-struct cMgr1 : cMgr {
-    void* m_app_wnd;
-
-    o3_begin_class(cMgr)
-    o3_end_class()
-
-    void* appWindow() 
-    {
-        return m_app_wnd;        
-    }
-
-    void setAppWindow(void* wnd) 
-    {
-        m_app_wnd = wnd;
-    } 
-};
 
 }
 

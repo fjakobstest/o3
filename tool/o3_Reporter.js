@@ -3,7 +3,7 @@ this.Reporter = {
     logs   : {general:[]},        
     currentFile   : 'general',    
     logWriter : o3.print,
-    errorWriter: o3.print,
+    errorWriter: o3.out.write,
     immediate: false,    
     
     reset : function() {
@@ -25,24 +25,20 @@ this.Reporter = {
     error : function(){
         with(this) {
             var i,l;
-            //if (immediate)
-                    errorWriter('ERROR: ' + currentFile + ': ');
+            errorWriter('ERROR: ' + currentFile + ': ');
             for (i=0,l=arguments.length; i<l; i++) {
                 errors[currentFile].push(arguments[i]);
-                //if (immediate)
-                    errorWriter(arguments[i]);
+                errorWriter(arguments[i]);
             }    
         }
     },
     globalError : function() {
         with(this) {
             var i,l;
-            //if (immediate)
-                    errorWriter('GLOBAL ERROR: ');
+                errorWriter('GLOBAL ERROR: ');
             for (i=0,l=arguments.length; i<l; i++) {
                 errors['general'].push(arguments[i]);
-                //if (immediate)
-                    errorWriter(arguments[i]);
+                errorWriter(arguments[i]);
             }    
         }
     },

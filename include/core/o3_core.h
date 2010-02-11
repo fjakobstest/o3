@@ -48,4 +48,11 @@
 #include "o3_cStreamBase.h"
 #include "o3_cStream.h"
 
+#ifdef O3_WITH_GLUE
+#include "o3_scr_cScrBuf.h"
+#include "o3_scr_cO3.h"
+#include "o3_scr_cStreamBase.h"
+#endif // O3_WITH_GLUE
+
+
 #endif // O3_CORE_H

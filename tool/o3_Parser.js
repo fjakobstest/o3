@@ -189,8 +189,11 @@ this.Parser = {
                 name_pos = eq - 1;
                 if (subtree[eq+1].plain_text)
                     def = subtree[eq+1].plain_text;
-                else
+                else {
                     def = subtree[eq+1].token;
+					if (def == '-')
+						def += subtree[eq+2].token
+				}	
             } 
             else if (op_count + mod_count + 1 == j-i ) {
                 // no name for the arg
@@ -359,7 +362,7 @@ this.Parser = {
                             case 'o3_cls':    
                                 break;
                             case 'o3_glue_gen':
-                                // this should set up a flag that the o3_glue_def
+                                classes[classes.length-1].gen = 1;
                                 // macro was not in a comment block...
                                 break
                             default : 

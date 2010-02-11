@@ -1,32 +1,19 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sh", "sh\sh.vcproj", "{A909D85D-3EB5-433B-8C13-2A698B6E354D}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{475BCB3E-DE6D-4860-B1E2-9AE4B00D4BC7}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
 	ProjectSection(SolutionItems) = preProject
 		..\include\core\o3_Buf.h = ..\include\core\o3_Buf.h
 		..\include\core\o3_cMgr.h = ..\include\core\o3_cMgr.h
 		..\include\core\o3_cO3.h = ..\include\core\o3_cO3.h
-		..\include\core\o3_cO3_scr.h = ..\include\core\o3_cO3_scr.h
 		..\include\core\o3_config.h = ..\include\core\o3_config.h
 		..\include\core\o3_core.h = ..\include\core\o3_core.h
 		..\include\core\o3_cScr.h = ..\include\core\o3_cScr.h
 		..\include\core\o3_cScrBuf.h = ..\include\core\o3_cScrBuf.h
-		..\include\core\o3_cScrBuf_scr.h = ..\include\core\o3_cScrBuf_scr.h
 		..\include\core\o3_cStream.h = ..\include\core\o3_cStream.h
 		..\include\core\o3_cStream_posix.h = ..\include\core\o3_cStream_posix.h
 		..\include\core\o3_cStream_win32.h = ..\include\core\o3_cStream_win32.h
 		..\include\core\o3_cStreamBase.h = ..\include\core\o3_cStreamBase.h
-		..\include\core\o3_cStreamBase_scr.h = ..\include\core\o3_cStreamBase_scr.h
 		..\include\core\o3_cSys.h = ..\include\core\o3_cSys.h
 		..\include\core\o3_cSys_posix.h = ..\include\core\o3_cSys_posix.h
 		..\include\core\o3_cSys_win32.h = ..\include\core\o3_cSys_win32.h
@@ -62,217 +49,170 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{475BCB3E-D
 		..\include\core\o3_types_win32.h = ..\include\core\o3_types_win32.h
 		..\include\core\o3_Var.h = ..\include\core\o3_Var.h
 	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "js", "js", "{C02C94C7-98BB-4788-885D-541BD19B2CB2}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "js", "js", "{C02C94C7-98BB-4788-885D-541BD19B2CB2}"
 	ProjectSection(SolutionItems) = preProject
 		..\include\js\o3_cJs1.h = ..\include\js\o3_cJs1.h
 		..\include\js\o3_cJs1_posix.h = ..\include\js\o3_cJs1_posix.h
-		..\include\js\o3_cJs1_posix_scr.h = ..\include\js\o3_cJs1_posix_scr.h
 		..\include\js\o3_cJs1_win32.h = ..\include\js\o3_cJs1_win32.h
-		..\include\js\o3_cJs1_win32_scr.h = ..\include\js\o3_cJs1_win32_scr.h
 		..\include\js\o3_cJs1Base.h = ..\include\js\o3_cJs1Base.h
-		..\include\js\o3_cJs1Base_scr.h = ..\include\js\o3_cJs1Base_scr.h
 		..\include\js\o3_js.h = ..\include\js\o3_js.h
 	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{751FEB73-AF5E-4FFF-8207-12A522B438D7}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{751FEB73-AF5E-4FFF-8207-12A522B438D7}"
 	ProjectSection(SolutionItems) = preProject
 		..\include\shared\o3_glue.h = ..\include\shared\o3_glue.h
 		..\include\shared\o3_glue_idispatch.h = ..\include\shared\o3_glue_idispatch.h
 		..\include\shared\o3_lib_zlib.h = ..\include\shared\o3_lib_zlib.h
 		..\include\shared\o3_tools_win32.h = ..\include\shared\o3_tools_win32.h
 	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "blob", "blob", "{D9D652FD-2FC9-494E-BF5D-824BE865D930}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "blob", "blob", "{D9D652FD-2FC9-494E-BF5D-824BE865D930}"
 	ProjectSection(SolutionItems) = preProject
 		..\include\blob\o3_blob.h = ..\include\blob\o3_blob.h
 		..\include\blob\o3_cBlob1.h = ..\include\blob\o3_cBlob1.h
-		..\include\blob\o3_cBlob1_scr.h = ..\include\blob\o3_cBlob1_scr.h
+	EndProjectSection
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "console", "console", "{020ECB95-47CF-49EE-84CB-E46532D6BA66}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
 	ProjectSection(SolutionItems) = preProject
 		..\include\console\o3_cConsole1.h = ..\include\console\o3_cConsole1.h
 		..\include\console\o3_cConsole1_posix.h = ..\include\console\o3_cConsole1_posix.h
-		..\include\console\o3_cConsole1_posix_scr.h = ..\include\console\o3_cConsole1_posix_scr.h
 		..\include\console\o3_cConsole1_win32.h = ..\include\console\o3_cConsole1_win32.h
-		..\include\console\o3_cConsole1_win32_scr.h = ..\include\console\o3_cConsole1_win32_scr.h
 		..\include\console\o3_console.h = ..\include\console\o3_console.h
+	EndProjectSection
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fs", "fs", "{1F23B622-9555-4D23-AC1A-38AFFB5EF1C7}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
 	ProjectSection(SolutionItems) = preProject
 		..\include\fs\o3_cFs1.h = ..\include\fs\o3_cFs1.h
 		..\include\fs\o3_cFs1_posix.h = ..\include\fs\o3_cFs1_posix.h
-		..\include\fs\o3_cFs1_posix_scr.h = ..\include\fs\o3_cFs1_posix_scr.h
 		..\include\fs\o3_cFs1_win32.h = ..\include\fs\o3_cFs1_win32.h
-		..\include\fs\o3_cFs1_win32_scr.h = ..\include\fs\o3_cFs1_win32_scr.h
 		..\include\fs\o3_cFs1Base.h = ..\include\fs\o3_cFs1Base.h
-		..\include\fs\o3_cFs1Base_scr.h = ..\include\fs\o3_cFs1Base_scr.h
 		..\include\fs\o3_fs.h = ..\include\fs\o3_fs.h
+	EndProjectSection
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "http", "http", "{983F558F-A471-4D74-BA07-4562E1703378}"
+	ProjectSection(SolutionItems) = preProject
+		..\include\http\o3_cHttp1.h = ..\include\http\o3_cHttp1.h
+		..\include\http\o3_http.h = ..\include\http\o3_http.h
+	EndProjectSection
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-	ProjectSection(SolutionItems) = preProject
-		..\include\http\o3_cHttp1.h = ..\include\http\o3_cHttp1.h
-		..\include\http\o3_cHttp1_scr.h = ..\include\http\o3_cHttp1_scr.h
-		..\include\http\o3_http.h = ..\include\http\o3_http.h
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resource", "resource", "{46CC01A2-09E8-4011-9DD6-A637A68B6FA8}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
 	ProjectSection(SolutionItems) = preProject
 		..\include\resource\o3_cResource1.h = ..\include\resource\o3_cResource1.h
 		..\include\resource\o3_cResource1_win32.h = ..\include\resource\o3_cResource1_win32.h
-		..\include\resource\o3_cResource1_win32_scr.h = ..\include\resource\o3_cResource1_win32_scr.h
 		..\include\resource\o3_cResourceBuilder1.h = ..\include\resource\o3_cResourceBuilder1.h
 		..\include\resource\o3_cResourceBuilder1_win32.h = ..\include\resource\o3_cResourceBuilder1_win32.h
-		..\include\resource\o3_cResourceBuilder1_win32_scr.h = ..\include\resource\o3_cResourceBuilder1_win32_scr.h
 		..\include\resource\o3_resource.h = ..\include\resource\o3_resource.h
+	EndProjectSection
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "process", "process", "{9E8CFBB4-167A-420F-90EE-354EC8504B88}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
 	ProjectSection(SolutionItems) = preProject
 		..\include\process\o3_cProcess1.h = ..\include\process\o3_cProcess1.h
 		..\include\process\o3_cProcess1_posix.h = ..\include\process\o3_cProcess1_posix.h
-		..\include\process\o3_cProcess1_posix_scr.h = ..\include\process\o3_cProcess1_posix_scr.h
 		..\include\process\o3_cProcess1_win32.h = ..\include\process\o3_cProcess1_win32.h
-		..\include\process\o3_cProcess1_win32_scr.h = ..\include\process\o3_cProcess1_win32_scr.h
 		..\include\process\o3_cProcess1Base.h = ..\include\process\o3_cProcess1Base.h
-		..\include\process\o3_cProcess1Base_scr.h = ..\include\process\o3_cProcess1Base_scr.h
 		..\include\process\o3_process.h = ..\include\process\o3_process.h
+	EndProjectSection
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "screen", "screen", "{0B65BB5A-1245-4DEF-A23E-4D8BC56C848B}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
 	ProjectSection(SolutionItems) = preProject
 		..\include\screen\o3_cScreen1.h = ..\include\screen\o3_cScreen1.h
 		..\include\screen\o3_cScreen1_apple.h = ..\include\screen\o3_cScreen1_apple.h
-		..\include\screen\o3_cScreen1_apple_scr.h = ..\include\screen\o3_cScreen1_apple_scr.h
 		..\include\screen\o3_cScreen1_win32.h = ..\include\screen\o3_cScreen1_win32.h
-		..\include\screen\o3_cScreen1_win32_scr.h = ..\include\screen\o3_cScreen1_win32_scr.h
 		..\include\screen\o3_cScreen1Base.h = ..\include\screen\o3_cScreen1Base.h
-		..\include\screen\o3_cScreen1Base_scr.h = ..\include\screen\o3_cScreen1Base_scr.h
 		..\include\screen\o3_screen.h = ..\include\screen\o3_screen.h
+	EndProjectSection
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "window", "window", "{5049F677-6EF5-4F64-9637-F14604B42867}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
 	ProjectSection(SolutionItems) = preProject
 		..\include\window\o3_cButton1.h = ..\include\window\o3_cButton1.h
 		..\include\window\o3_cButton1_win32.h = ..\include\window\o3_cButton1_win32.h
-		..\include\window\o3_cButton1_win32_scr.h = ..\include\window\o3_cButton1_win32_scr.h
 		..\include\window\o3_cStaticCtrl1.h = ..\include\window\o3_cStaticCtrl1.h
 		..\include\window\o3_cStaticCtrl1_win32.h = ..\include\window\o3_cStaticCtrl1_win32.h
-		..\include\window\o3_cStaticCtrl1_win32_scr.h = ..\include\window\o3_cStaticCtrl1_win32_scr.h
 		..\include\window\o3_cWindow1.h = ..\include\window\o3_cWindow1.h
 		..\include\window\o3_cWindow1_apple.h = ..\include\window\o3_cWindow1_apple.h
-		..\include\window\o3_cWindow1_apple_scr.h = ..\include\window\o3_cWindow1_apple_scr.h
 		..\include\window\o3_cWindow1_win32.h = ..\include\window\o3_cWindow1_win32.h
-		..\include\window\o3_cWindow1_win32_scr.h = ..\include\window\o3_cWindow1_win32_scr.h
 		..\include\window\o3_cWindow1Base.h = ..\include\window\o3_cWindow1Base.h
-		..\include\window\o3_cWindow1Base_scr.h = ..\include\window\o3_cWindow1Base_scr.h
 		..\include\window\o3_window.h = ..\include\window\o3_window.h
+	EndProjectSection
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{5E5ED425-ED4E-4DC4-9413-332248804CA7}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
 	ProjectSection(SolutionItems) = preProject
 		..\include\tools\o3_cTools1.h = ..\include\tools\o3_cTools1.h
 		..\include\tools\o3_cTools1_win32.h = ..\include\tools\o3_cTools1_win32.h
-		..\include\tools\o3_cTools1_win32_scr.h = ..\include\tools\o3_cTools1_win32_scr.h
 		..\include\tools\o3_tools.h = ..\include\tools\o3_tools.h
+	EndProjectSection
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "protocol", "protocol", "{ED7CFBE2-03E1-401C-801B-476E960D9558}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
 	ProjectSection(SolutionItems) = preProject
 		..\include\protocol\o3_cProtocol1.h = ..\include\protocol\o3_cProtocol1.h
 		..\include\protocol\o3_cProtocol1_win32.h = ..\include\protocol\o3_cProtocol1_win32.h
-		..\include\protocol\o3_cProtocol1_win32_scr.h = ..\include\protocol\o3_cProtocol1_win32_scr.h
 		..\include\protocol\o3_protocol.h = ..\include\protocol\o3_protocol.h
 	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plugin", "plugin\plugin.vcproj", "{54048B17-8201-4503-AAC7-B8652228519D}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ssb", "ssb\ssb.vcproj", "{93E2AEBD-1B72-4158-A668-5E2A52AE5806}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "installer", "installer\installer.vcproj", "{9791C227-C0E7-45D1-93C9-BF65862F4032}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-		{54048B17-8201-4503-AAC7-B8652228519D} = {54048B17-8201-4503-AAC7-B8652228519D}
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "image", "image", "{B7A9287F-E9B9-48D1-B8AC-D5C0E31F67CC}"
+	ProjectSection(SolutionItems) = preProject
+		..\include\image\o3_cImage1.h = ..\include\image\o3_cImage1.h
+		..\include\image\o3_image.h = ..\include\image\o3_image.h
+	EndProjectSection
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-	ProjectSection(SolutionItems) = preProject
-		..\include\image\o3_cImage1.h = ..\include\image\o3_cImage1.h
-		..\include\image\o3_cImage1_scr.h = ..\include\image\o3_cImage1_scr.h
-		..\include\image\o3_image.h = ..\include\image\o3_image.h
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "xml", "xml", "{04EB2E65-1848-49E8-AFA9-F39D74A26639}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
 	ProjectSection(SolutionItems) = preProject
 		..\include\xml\o3_cXml1.h = ..\include\xml\o3_cXml1.h
 		..\include\xml\o3_cXmlAttr1.h = ..\include\xml\o3_cXmlAttr1.h
@@ -288,6 +228,51 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "xml", "xml", "{04EB2E65-184
 		..\include\xml\o3_cXmlText1.h = ..\include\xml\o3_cXmlText1.h
 		..\include\xml\o3_iXml1.h = ..\include\xml\o3_iXml1.h
 		..\include\xml\o3_xml.h = ..\include\xml\o3_xml.h
+	EndProjectSection
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sh", "sh\sh.vcproj", "{A909D85D-3EB5-433B-8C13-2A698B6E354D}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plugin", "plugin\plugin.vcproj", "{54048B17-8201-4503-AAC7-B8652228519D}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ssb", "ssb\ssb.vcproj", "{93E2AEBD-1B72-4158-A668-5E2A52AE5806}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "installer", "installer\installer.vcproj", "{9791C227-C0E7-45D1-93C9-BF65862F4032}"
+	ProjectSection(ProjectDependencies) = postProject
+		{54048B17-8201-4503-AAC7-B8652228519D} = {54048B17-8201-4503-AAC7-B8652228519D}
+	EndProjectSection
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{B8064196-FDA2-498B-8DCC-63F2CF520844}"
+	ProjectSection(SolutionItems) = preProject
+		..\include\test\o3_cTest1.h = ..\include\test\o3_cTest1.h
+		..\include\test\o3_cTest1_scr.h = ..\include\test\o3_cTest1_scr.h
+		..\include\test\o3_test.h = ..\include\test\o3_test.h
+		..\include\test\o3_test_Buf.h = ..\include\test\o3_test_Buf.h
+		..\include\test\o3_test_Str.h = ..\include\test\o3_test_Str.h
+		..\include\test\o3_test_tList.h = ..\include\test\o3_test_tList.h
+		..\include\test\o3_test_tMap.h = ..\include\test\o3_test_tMap.h
+		..\include\test\o3_test_tVec.h = ..\include\test\o3_test_tVec.h
+		..\include\test\o3_test_Var.h = ..\include\test\o3_test_Var.h
+		..\include\test\o3_test_WStr.h = ..\include\test\o3_test_WStr.h
 	EndProjectSection
 EndProject
 Global

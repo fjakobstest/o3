@@ -22,48 +22,73 @@
 
 namespace o3{
 
-    struct cProcess1 : cScr {
+    struct cProcess1 : cProcess1Base {
 
-        cProcess1()
+        cProcess1(iCtx* ctx)
             : m_stdin_r(0)
             , m_stdin_w(0)
             , m_stdout_r(0)
             , m_stdout_w(0)
-            , m_dead(m_dead) 
-            , m_outcode(0) 
+			, m_stderr_r(0)
+			, m_stderr_w(0)
+            , m_terminated(0) 
+            , m_exitcode(0) 
         {
-            m_p_info.hProcess = 0;            
-        }
+            m_p_info.hProcess = 0;   
+			Var value = ctx->value("out");
 
+			if (value.type() == Var::TYPE_VOID)
+				value = ctx->setValue("out", o3_new(cStream)(GetStdHandle(STD_OUTPUT_HANDLE)));				 
+		
+			m_stdout_default = value.toScr();
+
+			value = ctx->value("err");
+			if (value.type() == Var::TYPE_VOID)
+				value = ctx->setValue("err", o3_new(cStream)(GetStdHandle(STD_ERROR_HANDLE)));				 
+
+			m_stderr_default = value.toScr();
+		}
+	
         virtual ~cProcess1() 
         {
         }
 
-        o3_begin_class(cScr)
+        o3_begin_class(cProcess1Base)
         o3_end_class();
+
+		o3_glue_gen()
 
         HANDLE                  m_stdin_r; 
         HANDLE                  m_stdin_w; 
         HANDLE                  m_stdout_r; 
         HANDLE                  m_stdout_w;
-        OVERLAPPED              m_overlapped;
-        siEvent                 m_readevent;
-        siHandle                m_hprocess;
+        HANDLE                  m_stderr_r; 
+        HANDLE                  m_stderr_w;
+        OVERLAPPED              m_overlapped_out;
+		OVERLAPPED              m_overlapped_err;
+        siEvent                 m_event_out;
+        siEvent                 m_event_err;
+		siHandle                m_hprocess;
         PROCESS_INFORMATION     m_p_info;
         DWORD                   m_av;
-        siScr                   m_onreceive;
-        siScr                   m_ondeath;
-        siWeak                  m_ctx;
-        siListener              m_r_listener;
-        siListener              m_e_listener;
-        o3_get_imm() Str        m_output;
-        o3_get_imm() Str        m_name;
-        char                    m_first;
-        o3_get_imm() bool       m_dead;
-        o3_get_imm() int        m_outcode;
+        siScr                   m_onterminate;
+        siStream				m_stdout_default;
+		siStream				m_stdout_custom;
+        siStream				m_stderr_default;
+		siStream				m_stderr_custom;
 
-        #include "o3_cProcess1_win32_scr.h"
+		siWeak                  m_ctx;
+        siListener              m_listener_out;
+		siListener              m_listener_err;
+        siListener              m_listener_term;
+        //o3_get_imm() Str        m_output;
+        Str				        m_name;
+        char                    m_first_out;
+		char                    m_first_err;
+        bool			        m_terminated;
+        int						m_exitcode;
 
+        
         o3_fun int run(iCtx* ctx, const char* app) 
         {
             WStr wapp = Str(app);
@@ -101,28 +126,23 @@ namespace o3{
             return (int) m_p_info.dwProcessId;
         }
 
-        o3_set void setOndeath(iCtx* ctx, iScr* cb) 
+        o3_set void setOnterminate(iCtx* ctx, iScr* cb) 
         {
             m_ctx = ctx;
-            m_ondeath = cb;
+            m_onterminate = cb;
         }
 
-        o3_set void setOnreceive(iCtx* ctx, iScr* cb) 
-        {
-            m_ctx = ctx;
-            m_onreceive = cb;
-        }
 
-        o3_fun Str receive(iCtx* ctx, int timeout = 0) 
-        {            
-            ctx->loop()->wait( timeout );
-            if (!m_onreceive) {
-                Str ret = m_output;                
-                m_output.clear();
-                return ret;
-            }
-            return Str();
-        }
+        //o3_fun Str receive(iCtx* ctx, int timeout = 0) 
+        //{            
+        //    ctx->loop()->wait( timeout );
+        //    if (!m_onreceive) {
+        //        Str ret = m_output;                
+        //        m_output.clear();
+        //        return ret;
+        //    }
+        //    return Str();
+        //}
 
         o3_fun void send(const char* input, size_t size)
         {
@@ -139,13 +159,13 @@ namespace o3{
                 m_hprocess = 0;
                 m_p_info.hProcess = 0;
                 m_p_info.hThread = 0;
-                m_output.clear();
+                //m_output.clear();
             }            
         }
 
-        o3_ext("cO3") o3_fun static siScr createProcess(const char* name = 0, int pid = 0) 
+        static o3_ext("cO3") o3_fun siScr createProcess(iCtx* ctx, const char* name = 0, int pid = 0) 
         {
-            cProcess1* ret = o3_new(cProcess1)() ;
+            cProcess1* ret = o3_new(cProcess1)(ctx) ;
             ret->m_p_info.dwProcessId = (DWORD) pid;
             ret->m_name = name;
             if(pid) {
@@ -175,58 +195,9 @@ namespace o3{
             //allow inheritable handles
             sa.bInheritHandle = TRUE;         
             
-            HANDLE hSaveStdout = NULL;
-            HANDLE hSaveStdin = NULL;
-
-            hSaveStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-            //create stdout pipe
-            if (!createPipeEx(&m_stdout_r,&m_stdout_w,&sa,0,FILE_FLAG_OVERLAPPED,0)) {
-                closeHandles();
-                return (DWORD) -1;
-            }
-
-            if( !SetStdHandle(STD_OUTPUT_HANDLE, m_stdout_w) ) {
-                closeHandles();
-                return (DWORD) -1;
-            }
-
-            HANDLE stdout_rddup;
-            if( ! DuplicateHandle(    GetCurrentProcess(), 
-                                    m_stdout_r,
-                                    GetCurrentProcess(),
-                                    &stdout_rddup,
-                                    0,
-                                    FALSE,
-                                    DUPLICATE_SAME_ACCESS ) ) {
-                closeHandles();
-                return (DWORD) -1;
-            }
-
-            CloseHandle( m_stdout_r );m_stdout_r = stdout_rddup;
-
-            //Save the handle to the current STDOUT.
-            hSaveStdin = GetStdHandle(STD_INPUT_HANDLE);
-
-            if (!createPipeEx(&m_stdin_r,&m_stdin_w,&sa,0,FILE_FLAG_OVERLAPPED,0))
-                return (DWORD) -1;
-
-            if( !SetStdHandle(STD_INPUT_HANDLE, m_stdin_r) ) {
-                closeHandles();
-                return (DWORD) -1;
-            }
-            HANDLE stdin_wrdup;
-            //Duplicate the write handle to the pipe so it is not inherited.
-            if( ! DuplicateHandle(  GetCurrentProcess(),
-                                    m_stdin_w,
-                                    GetCurrentProcess(),
-                                    &stdin_wrdup,
-                                    0,
-                                    FALSE,
-                                    DUPLICATE_SAME_ACCESS )) {
-                closeHandles();
-                return (DWORD) -1;
-            }
-            CloseHandle( m_stdin_w );m_stdin_w = stdin_wrdup;
+			setupPipe(&sa, &m_stdout_r, &m_stdout_w, STD_OUTPUT_HANDLE);
+			setupPipe(&sa, &m_stderr_r, &m_stderr_w, STD_ERROR_HANDLE);
+			setupPipe(&sa, &m_stdin_w, &m_stdin_r, STD_INPUT_HANDLE);
 
             ZeroMemory( &si, sizeof(STARTUPINFO) );
             si.cb = sizeof(STARTUPINFO);  
@@ -239,7 +210,7 @@ namespace o3{
             si.wShowWindow = SW_SHOWDEFAULT;//showflags;
             //set the new handles for the child process
             si.hStdOutput    = m_stdout_w;
-            si.hStdError    = m_stdout_w;     
+            si.hStdError    = m_stderr_w;     
             si.hStdInput    = m_stdin_r;
  
             //spawn the child process
@@ -256,25 +227,66 @@ namespace o3{
                 closeHandles();
                 return (DWORD) -1;
             }
-       
-            m_readevent = g_sys->createEvent();
-            ZeroMemory( &m_overlapped, sizeof(OVERLAPPED) );
-            m_overlapped.hEvent = m_readevent;
-            m_output.reserve(1);               
-            ReadFile(m_stdout_r, &m_first, 1,&m_av,&m_overlapped);
-            // int e = GetLastError();
+			int e = GetLastError();            
+            ZeroMemory( &m_overlapped_out, sizeof(OVERLAPPED) );
+            m_overlapped_out.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+			m_event_out = o3_new(cEvent)(m_overlapped_out.hEvent);                       
+            e = GetLastError();
 
-            m_r_listener = ctx->loop()->createListener(m_readevent.ptr(),0,
+			ZeroMemory( &m_overlapped_err, sizeof(OVERLAPPED) );
+            m_overlapped_err.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+			m_event_err = o3_new(cEvent)(m_overlapped_err.hEvent);                       
+			e = GetLastError();
+
+            m_listener_out = ctx->loop()->createListener(m_event_out.ptr(),0,
                     Delegate(this, &cProcess1::onReceive));
+			m_listener_err = ctx->loop()->createListener(m_event_err.ptr(),0,
+                    Delegate(this, &cProcess1::onError));
             m_hprocess = o3_new(cHandle)(m_p_info.hProcess);
-            m_e_listener = ctx->loop()->createListener(m_hprocess.ptr(), 0, 
-                    Delegate(this, &cProcess1::onDeath));
+            m_listener_term = ctx->loop()->createListener(m_hprocess.ptr(), 0, 
+                    Delegate(this, &cProcess1::onTerminate));
 
-            SetStdHandle(STD_INPUT_HANDLE, hSaveStdin);
-            SetStdHandle(STD_OUTPUT_HANDLE, hSaveStdout);
+			ReadFile(m_stdout_r, &m_first_out, 1,&m_av,&m_overlapped_out);
+			e = GetLastError();
+			ReadFile(m_stderr_r, &m_first_err, 1,&m_av,&m_overlapped_err);
+			e = GetLastError();
+            //SetStdHandle(STD_INPUT_HANDLE, hSaveStdin);
+            //SetStdHandle(STD_OUTPUT_HANDLE, hSaveStdout);
+			//SetStdHandle(STD_ERROR_HANDLE, hSaveStderr);
          
             return m_p_info.dwProcessId;
         }
+
+		int setupPipe( SECURITY_ATTRIBUTES* sa, HANDLE* toDup, HANDLE* toFetch, DWORD pipeid ) 
+		{
+			HANDLE hSave = GetStdHandle(pipeid);
+			//create stdout pipe
+			if (!createPipeEx(toDup,toFetch,sa,0,FILE_FLAG_OVERLAPPED,0)) {
+				closeHandles();
+				return (DWORD) -1;
+			}
+
+			if( !SetStdHandle(pipeid, toFetch) ) {
+				closeHandles();
+				return (DWORD) -1;
+			}
+
+			HANDLE rddup;
+			if( ! DuplicateHandle(    GetCurrentProcess(), 
+				*toDup,
+				GetCurrentProcess(),
+				&rddup,
+				0,
+				FALSE,
+				DUPLICATE_SAME_ACCESS ) ) {
+					int e = GetLastError();
+					closeHandles();
+					return (DWORD) -1;
+			}
+
+			CloseHandle( *toDup );*toDup = rddup;
+			SetStdHandle(pipeid, hSave);
+		}
 
         bool runElevated( iCtx* ctx, const wchar_t* path, const wchar_t* parameters = NULL, const wchar_t* dir = NULL ) 
         {
@@ -299,8 +311,8 @@ namespace o3{
 
             if (m_p_info.hProcess )
                 m_hprocess = o3_new(cHandle)(m_p_info.hProcess);
-                m_e_listener = ctx->loop()->createListener(m_hprocess.ptr(), 0, 
-                        Delegate(this, &cProcess1::onDeath));
+                m_listener_term = ctx->loop()->createListener(m_hprocess.ptr(), 0, 
+                        Delegate(this, &cProcess1::onTerminate));
 
             m_p_info.dwProcessId = (DWORD) -1;
             //TODO: procefss ID? 
@@ -337,94 +349,158 @@ namespace o3{
             if (m_stdin_w)  CloseHandle(m_stdin_w);
             if (m_stdout_r) CloseHandle(m_stdout_r);
             if (m_stdout_w) CloseHandle(m_stdout_w);
-            
-            m_stdin_r = 0;m_stdin_w = 0;m_stdout_r = 0;m_stdout_w = 0;
-        }
+            if (m_stderr_r) CloseHandle(m_stderr_r);
+            if (m_stderr_w) CloseHandle(m_stderr_w);
 
-        bool readResult() 
-        {
-            // unsigned long exit=0;  //process exit code
-            unsigned long bread;   //bytes read
-            unsigned long avail;   //bytes available
-
-            size_t oldsize = m_output.size();
-            m_output.reserve(oldsize+1); m_output.ptr()[oldsize] = m_first; m_output.resize(oldsize+1);            
-            PeekNamedPipe(m_stdout_r,0,0,0,&avail,NULL);
-            if (avail != 0) {
-                m_output.reserve(oldsize + avail+1);                
-                ReadFile(m_stdout_r, m_output.ptr() + oldsize + 1, avail,&bread,NULL);
-                m_output.resize(oldsize + bread + 1);
-                ZeroMemory( &m_overlapped, sizeof(OVERLAPPED) );
-                ResetEvent(m_readevent);                
-                m_overlapped.hEvent = m_readevent;
-                ReadFile(m_stdout_r, &m_first, 1,&m_av,&m_overlapped);
-            }
-            return true;            
+            m_stdin_r = m_stdin_w = m_stdout_r = m_stdout_w = m_stderr_r = m_stderr_w = 0;
         }
 
         void onReceive(iUnk*)
         {
-            readResult();
-                     
-            //casting it to strong ref first, then checking, then do the callback
-            if (m_onreceive) {
-                //onreceive->invoke(iScr::INVOKE_TYPE_CALL, 0, 0, 0, 0, g_sys);
-                Delegate(siCtx(m_ctx), m_onreceive)(this);
-                m_output.clear();
-            }
+			o3_assert(m_stdout_default);
+            unsigned long b_read;   //bytes read
+            unsigned long avail;   //bytes available			
+			siStream out = m_stdout_custom ? m_stdout_custom : m_stdout_default;
+			
+			// did we read the first char from the stdout of the child process successfully?
+			if(GetOverlappedResult( m_stdout_r, &m_overlapped_out,
+				&b_read, FALSE) && b_read)
+			{
+				// write out the first char
+				out->write(&m_first_out, 1);
+				PeekNamedPipe(m_stdout_r,0,0,0,&avail,NULL);
+				// read/write out the rest
+				Str buf(avail);
+				if (avail != 0) {
+					ReadFile(m_stdout_r, buf.ptr(), avail, &b_read,NULL);
+					buf.resize(b_read);
+					out->write(buf.ptr(),b_read);
+				}
+				
+				// continue listening
+				siHandle h = m_event_out;
+				ZeroMemory( &m_overlapped_out, sizeof(OVERLAPPED) );
+				ResetEvent(h->handle());                
+				m_overlapped_out.hEvent = h->handle();
+				ReadFile(m_stdout_r, &m_first_out, 1,&m_av,&m_overlapped_out);
+			}									
         }
 
-        void onDeath(iUnk*) 
+        void onError(iUnk*)
+        {
+			o3_assert(m_stderr_default);
+            unsigned long b_read;   //bytes read
+            unsigned long avail;   //bytes available			
+			siStream err = m_stderr_custom ? m_stderr_custom : m_stderr_default;
+			
+			// did we read the first char from the stderr of the child process successfully?
+			if(GetOverlappedResult( m_stderr_r, &m_overlapped_err,
+				&b_read, FALSE) && b_read)
+			{
+				// write out the first char
+				err->write(&m_first_err, 1);
+				PeekNamedPipe(m_stderr_r,0,0,0,&avail,NULL);
+				// read/write out the rest
+				Str buf(avail);
+				if (avail != 0) {
+					ReadFile(m_stderr_r, buf.ptr(), avail, &b_read,NULL);
+					buf.resize(b_read);
+					err->write(buf.ptr(),b_read);
+				}
+				
+				// continue listening
+				siHandle h = m_event_err;
+				ZeroMemory( &m_overlapped_err, sizeof(OVERLAPPED) );
+				ResetEvent(h->handle());                
+				m_overlapped_err.hEvent = h->handle();
+				ReadFile(m_stderr_r, &m_first_err, 1,&m_av,&m_overlapped_err);
+			}									
+        }
+
+		//void onSend(iUnk*)
+  //      {
+		//	o3_assert(m_stdin_stream);
+  //          unsigned long b_read;   //bytes read
+  //          unsigned long avail;   //bytes available			
+		//	siStream in = m_stdin_custom ? m_stdin_custom : m_stdin_default;
+		//	
+		//	if(GetOverlappedResult( m_stdin_r, &m_overlapped_in,
+		//		&b_read, FALSE) && b_read)
+		//	{
+		//		// write out the first char
+		//		WriteFile(m_stdin_w,&m_first_in,1,&b_read,NULL); 
+		//		PeekNamedPipe(in->unwrap(),0,0,0,&avail,NULL);
+		//		// read/write out the rest
+		//		Str buf(avail);
+		//		if (avail != 0) {
+		//			ReadFile(in->unwrap(), buf.ptr(), avail, &b_read,NULL);
+		//			buf.resize(b_read);
+		//			WriteFile(m_stdin_w,buf.ptr(),b_read,&b_read,NULL); 					
+		//		}
+		//		
+		//		// continue listening
+		//		ZeroMemory( &m_overlapped_in, sizeof(OVERLAPPED) );
+		//		ResetEvent(m_event_in.ptr());                
+		//		m_overlapped_in.hEvent = m_event_out.ptr();
+		//		ReadFile(in->unwrap(), &m_first_out, 1,&m_av,&m_overlapped_out);
+		//	}									
+  //      }
+
+
+        void onTerminate(iUnk*) 
         {
             DWORD outcode;
             int32_t ret = GetExitCodeProcess(m_hprocess->handle(),&outcode); 
-            m_outcode = (int) outcode;
+            m_exitcode = (int) outcode;
 
-            if (!ret || m_outcode != STILL_ACTIVE) {
-                m_dead = m_outcode < 0;
-                m_r_listener = 0;
-                m_e_listener = 0;
-                m_p_info.hProcess = 0;
+            if (!ret || m_exitcode != STILL_ACTIVE) {
+                m_terminated = m_exitcode < 0;
+                m_listener_out = 0;
+                m_listener_term = 0;
+                //m_listener_in = 0;
+				m_p_info.hProcess = 0;
                 m_hprocess = 0;
                 // DWORD error = GetLastError();                                       
             }     
 
-            if (m_ondeath)
-                Delegate(siCtx(m_ctx), m_ondeath)(this);
+            if (m_onterminate)
+                Delegate(siCtx(m_ctx), m_onterminate)(this);
 
         }
 
         // NOTE: These functions are only here to that the process component
         // will compile against the current base. We will have to decide later
         // on a common interface for the component on each platform.
-        siStream in()
+        siStream stdIn()
         {
-            return 0; // TODO: Implement
+			return siStream();
+            //return m_stdin_custom ? m_stdin_custom : m_stdin_default; 
         }
 
-        siStream setIn(iStream* in)
+        siStream setStdIn(iStream* in)
         {
-            return in;; // TODO: Implement
+			return in;
+            //return m_stdin_custom = in; 
         }
 
-        siStream out()
+        siStream stdOut()
         {
-            return 0; // TODO: Implement
+			return m_stdout_custom ? m_stdout_custom : m_stdout_default; 
         }
 
-        siStream setOut(iStream* out)
+        siStream setStdOut(iStream* out)
         {
-            return out; // TODO: Implement
+            return m_stdout_custom = out; 
         }
 
-        siStream err()
+        siStream stdErr()
         {
-            return 0; // TODO: Implement
+            return m_stderr_custom ? m_stderr_custom : m_stderr_default; 
         }
 
-        siStream setErr(iStream* err)
+        siStream setStdErr(iStream* err)
         {
-            return err; // TODO: Implement
+            return m_stderr_custom = err; 
         }
 
         void exec(const char* args)
@@ -432,6 +508,10 @@ namespace o3{
             // TODO: Implement
             args;
         }
+
+		o3_get int exitCode() {
+			return m_exitcode;
+		}
     };
 
 }

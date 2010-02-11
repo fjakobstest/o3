@@ -41,7 +41,7 @@ struct cFs1 : cFs1Base {
 
     o3_glue_gen();
 
-    static o3_ext("cO3") o3_fun siScr fs(iCtx* ctx)
+    static o3_ext("cO3") o3_get siScr fs(iCtx* ctx)
     {
         o3_trace3 trace;
         Var fs = ctx->value("fs");
@@ -51,7 +51,7 @@ struct cFs1 : cFs1Base {
         return fs.toScr();
     }
 
-    static o3_ext("cO3") o3_fun siScr cwd(iCtx* ctx)
+    static o3_ext("cO3") o3_get siScr cwd(iCtx* ctx)
     {
         o3_trace3 trace;
         Var cwd = ctx->value("cwd");
@@ -154,7 +154,7 @@ struct cFs1 : cFs1Base {
     {
         o3_trace trace;
 
-        return Str("/") + m_rel_path;
+        return m_rel_path;
     }
 
     siFs get(const char* path)
@@ -309,7 +309,7 @@ struct cFs1 : cFs1Base {
                     if (*src == '.') {
                         *dst++ = *src++;
                         if (!*src || *src == '/') {
-                            dst -= 3;
+                            dst -= 4;
                             if (dst == path.ptr())
                                 return false;
                             while (dst != path.ptr() && *dst != '/')

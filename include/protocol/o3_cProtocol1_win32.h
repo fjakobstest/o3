@@ -83,7 +83,7 @@ namespace o3 {
             return ret.toScr();
         }       
 
-        o3_fun bool addSource(iScr* source, const char*)
+        o3_fun bool addSource(iScr* source)
         {
             m_source = source;
             return true;

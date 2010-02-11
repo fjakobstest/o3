@@ -178,7 +178,7 @@ int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR arg, int show)
 
     host->displayURL(url);
         
-    //host->showWindow();
+    host->showWindow();
     host->start();
     OleUninitialize();
     return 0;

@@ -21,4 +21,13 @@
 #include "o3_cProcess1Base.h"
 #include "o3_cProcess1.h"
 
+#ifdef O3_WITH_GLUE
+#include "o3_scr_cProcess1Base.h"
+#ifdef O3_POSIX
+#include "o3_scr_cProcess1_posix.h"
+#else
+#include "o3_scr_cProcess1_win32.h"
+#endif // O3_POSIX
+#endif // O3_WITH_GLUE
+
 #endif // O3_PROCESS_H

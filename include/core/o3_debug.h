@@ -69,6 +69,12 @@ struct Trace { \
 #define o3_assert(pred) ((void) 0)
 #endif // O3_ASSERT
 
+#ifdef O3_LOG
+#define o3_log(...) o3::log(__VA_ARGS__)
+#else
+#define o3_log(...) ((void) 0)
+#endif // O3_LOG
+
 namespace o3 {
 
 inline void traceEnter(const char* file, int line);
@@ -76,6 +82,8 @@ inline void traceEnter(const char* file, int line);
 inline void traceLeave();
 
 inline void assert(const char* pred, const char* file, int line);
+
+inline void log(const char* format, ...);
 
 }
 

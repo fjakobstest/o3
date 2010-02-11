@@ -546,8 +546,15 @@ struct cSys : cSysBase {
 
     void assert(const char* pred, const char* file, int line)
     {
+        o3::log("Assertion %s failed in file %s on line %d\n", pred, file, line);
+        abort();
     }
 
+    void logfv(const char* format, va_list ap)
+    {
+        vfprintf(stderr, format, ap);
+    }
+    
     siModule loadModule(const char* name)
     {
         typedef bool (*o3_init_t)(iSys*);

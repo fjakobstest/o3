@@ -34,7 +34,7 @@ struct cScrBuf : cScr, iBuf {
         o3_add_iface(iBuf)
     o3_end_class()
 
-#include "o3_cScrBuf_scr.h"
+	o3_glue_gen()
 
     o3_get size_t length()
     {
@@ -67,7 +67,7 @@ struct cScrBuf : cScr, iBuf {
         return (size_t) index < m_buf.size();
     }
 
-    o3_fun uint8_t  __getter__(size_t index)
+    o3_fun int  __getter__(size_t index)
     {
         o3_trace3 trace;
 
@@ -76,7 +76,7 @@ struct cScrBuf : cScr, iBuf {
         return 0; 
     }
 
-    o3_fun uint8_t __setter__(size_t index, uint8_t b)
+    o3_fun int __setter__(size_t index, int b)
     {
         o3_trace3 trace;
 

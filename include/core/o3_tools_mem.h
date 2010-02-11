@@ -18,6 +18,7 @@
 #ifndef O3_TOOLS_MEM_H
 #define O3_TOOLS_MEM_H
 
+#include <stdio.h>
 #include <new>
 #include <string.h>
 
@@ -75,8 +76,8 @@ inline void* memSet(void* dst, const T& x, size_t n)
     T* dst1 = (T*) dst;
 
     for (; n > sizeof(T); n -= sizeof(T)) 
-        memCopy(dst1++, &x, sizeof(T));
-    memCopy(dst1, &x, n);
+        memCopy((void*) dst1++, &x, sizeof(T));
+    memCopy((void*) dst1, &x, n);
     return dst;
 }
 
@@ -134,7 +135,7 @@ inline size_t memFromBase64(void* ptr, const C* str)
     int n = 0;
     char c;
 
-    while ((c = *str++)) {
+    while (c = *str++) {
         int x;
 
         if (c == '=')
@@ -155,8 +156,8 @@ inline size_t memFromBase64(void* ptr, const C* str)
         } else
             bits <<= 6;
     }
-    if (c == '=') 
-        while (n--) {
+    if (c == '=' && n > 1) 
+        while (--n) {
             if (ptr1)
                 *ptr1++ = (uint8_t) (bits >> 16);
             ++size, bits <<= 8;

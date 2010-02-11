@@ -31,6 +31,8 @@
 #include "screen/o3_screen.h"
 #include "window/o3_window.h"
 #include "tools/o3_tools.h"
+#include "process/o3_process.h"
+#include "test/o3_test.h" 
 //#include "canvas/o3_cCanvas1_win32.h"
 
 
@@ -43,7 +45,7 @@ int main(int argc, char **argv) {
 
     cSys sys;
 
-    siMgr mgr = o3_new(cMgr1)();
+    siMgr mgr = o3_new(cMgr)();
     siCtx ctx = o3_new(cJs1)(mgr, --argc, ++argv);
    
     
@@ -58,6 +60,8 @@ int main(int argc, char **argv) {
     mgr->addExtTraits(cResource1::extTraits());
     mgr->addExtTraits(cResourceBuilder1::extTraits());
     mgr->addExtTraits(cScreen1::extTraits());
+	mgr->addExtTraits(cProcess1::extTraits());
+	mgr->addExtTraits(cTest1::extTraits());
 
     //WSADATA wsd;
     //int rc = WSAStartup(MAKEWORD(2,2), &wsd);
@@ -76,7 +80,7 @@ int main(int argc, char **argv) {
         // TODO: since this file is windows only, this fopen should be replaced by createFile
         in = fopen( argv[0] , "r");
         if (!in)
-            return -1;                                
+            return -2;                                
 
         const ::size_t DATA_SIZE = 1;
         char data[DATA_SIZE];
@@ -86,7 +90,7 @@ int main(int argc, char **argv) {
         while (!feof(in)) {
             size = fread(data, sizeof(char), DATA_SIZE, in);
             if (ferror(in)){                  
-                return -1;
+                return -3;
             }
 
             script.append(data, size);
@@ -97,13 +101,14 @@ int main(int argc, char **argv) {
         rval = ctx->eval(script);
         
         Str err = rval.toStr();
-        fprintf(stdout, "%s", err.ptr()); 
+        //fprintf(stdout, "%s", err.ptr()); 
         siCtx1(ctx)->tear();
     }
     
     CoUninitialize(); 
 
-   /// if(wait)getc(stdin);
+    // if(wait)
+	getc(stdin);
 
     //WSACleanup();
     return ret;

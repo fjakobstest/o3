@@ -27,7 +27,7 @@ struct cStreamBase : cScr, iStream {
         o3_add_iface(iStream)
     o3_end_class();
 
-#include "o3_cStreamBase_scr.h"
+	o3_glue_gen()
 
     virtual o3_get bool eof() = 0;
 

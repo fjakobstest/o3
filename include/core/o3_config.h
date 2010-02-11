@@ -41,9 +41,13 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#define O3_LOG
+#define O3_ASSERT
+
 #if defined(O3_DEBUG)
 #define O3_TRACE    0
 #define O3_ASSERT
+#define O3_LOG
 #endif
 
 #endif // O3_CONFIG_H

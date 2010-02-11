@@ -21,11 +21,11 @@
 
 using namespace o3;
 
-int main(int argc, char** argv)
+int main(int argc, char** argv, char** env)
 {
     cSys    sys;
     siMgr   mgr = o3_new(cMgr)();
-    siCtx   ctx = o3_new(cJs1)(mgr, argc - 1, argv + 1);
+    siCtx   ctx = o3_new(cJs1)(mgr, argc - 1, argv + 1, env);
     FILE*   stream;
     siEx    ex;
 

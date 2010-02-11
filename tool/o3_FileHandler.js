@@ -42,7 +42,6 @@ this.FileHandler = {
                 topNode.name, '\n');
             return;
         }
-        
         if (topNode.isFile) {
             Reporter.newFile(topNode.name);
             if (glueFile = checkFile(topNode))
@@ -50,8 +49,8 @@ this.FileHandler = {
 
         }
         else if(topNode.isDir) {
-            var i,l,children = topNode.children;
-            for (i=0, l=children.length; i<l; i++) {
+			var i,l,children = topNode.children;
+			for (i=0, l=children.length; i<l; i++) {
                 this.scanFiles(children[i]);
             }
         }
@@ -64,9 +63,10 @@ this.FileHandler = {
             scanned = Lexer.scan(srcFile.data),
             classes = Parser.parse(scanned.tree);
         
-        for (i=0, l=classes.length; i<l; i++)
-            result.push(Generator.run(classes[i].struct, classes[i].traits));
-        
+        for (i=0, l=classes.length; i<l; i++) {
+            if (classes[i].gen)
+				result.push(Generator.run(classes[i].struct, classes[i].traits));
+        }
         try{    
             glueFile.data = result.join('');   
         } catch(e) {

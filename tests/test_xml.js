@@ -1,5 +1,4 @@
-var xml_data = [],
-xml_text;
+var xml_data = [];
 xml_data.push(
 "<p:project name=\"Javeline PlatForm\" xmlns:p=\"http://www.javeline.com/2008/Processor\">\n",
 "    <p:settings\n",
@@ -304,14 +303,6 @@ xml_data.push(
 "\n",
 "    <!--<p:include src=\"\" />-->\n",
 "</p:project>");
-xml_text = xml_data.join("");
-
-var mxml = o3.xml.parseFromString(xml_text);
-
-var test = 'xml';
-var failed = function(message){
-	return "***FAILED* " + message + "\n";
-}
 
 diffNodes = function(node1, node2){
 	if (node1.nodeName != node2.nodeName) return "different nodeNames: " + node1.nodeName + " != " + node2.nodeName;
@@ -346,8 +337,19 @@ diffNodesRec = function(node1, node2){
 	}
 	return false;
 }
+var failed = function(message){
+	return "ERROR: " + test + ' ' + v + ' : ' + message + "\n";
+}
 
-var tests = {	
+var test = 'XML',
+	xml_text = xml_data.join(""),
+	mxml = o3.xml.parseFromString(xml_text),
+	v,
+	result, 
+	last = o3.argc > 1 ? o3.argv[1] : null, 
+	foundLast = last ? false : true, 
+	stdErr = o3.stdErr,
+	tests = {	
 	//node types : chardata, document, element
 	'xmlNodeBasic':function(){			
 			if (mxml.nodeType != 9) return failed("Document node should have a XML_DOCUMENT_NODE type (9)");
@@ -475,21 +477,24 @@ var tests = {
 			if (single.getAttribute("name") != "__JPFVERSION")
 				return failed("'name' attribute for selectSingleNode should be [__JPFVERSION] but was: [" + single.getAttribute("name") + "]");
 		return true;
-	},
-	'serialize':function(){
-        return "Test did not run, please remove this line if you want to run it (its slow)"
+	}/*,
+	'serialize':function(){        
 			var str = mxml.firstChild.xml;			
 			var mxml2 = o3.xml.parseFromString(str);			
 			if (e = diffNodesRec(mxml.firstChild, mxml2.firstChild)) return failed(e);
 		return true;	
+	}*/
+}
+
+for (v in tests) {
+    if(foundLast) {
+		o3.print(v + '\n');	
+		result = tests[v]().toString();
+		if (result != 'true')
+			stdErr.write(result);
+	}
+	else {
+		foundLast = (v == last);
 	}
 }
 
-
-for (var v in tests) {
-    o3.print("Test " + v + ": \n");
-    o3.print("    " + tests[v]().toString() + "\n");
-}
-
-
-o3.print("\n-----------------------------------END-----------------------------------\n");

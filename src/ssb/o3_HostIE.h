@@ -210,7 +210,7 @@ namespace o3 {
             m_wnd_proc = o3_new(cHostProc)(this);
             m_sink = o3_new(HostSink)(this);
             m_drop_target = o3_new(CDropTarget);
-            m_o3 = o3_new(cO3)(0,0);
+            m_o3 = o3_new(cO3)(0,0,0);
             Var v = siScr(m_o3);
             ctx->setValue("o3", v);
         }

@@ -44,6 +44,8 @@ struct cStream : cStreamBase {
         o3_add_iface(iStream)
     o3_end_class()
 
+	o3_glue_gen()
+
     HANDLE m_handle;
 
 public:
@@ -72,7 +74,7 @@ public:
 	    return (size_t) length;
     }
 
-    o3_fun virtual size_t write(const char* data) {
+    virtual size_t write(const char* data) {
         return write(data, strLen(data) * sizeof(char)); 
     }
 
@@ -89,11 +91,11 @@ public:
 	    return (size_t) ret.QuadPart;
     }
 
-    o3_get size_t pos() {				
+    size_t pos() {				
         return ::SetFilePointer(m_handle,0,0,FILE_CURRENT);
     }
 
-    o3_set size_t setPos(size_t pos) {
+    size_t setPos(size_t pos) {
 	    LARGE_INTEGER li;
 	    li.QuadPart = pos;
         li.LowPart = ::SetFilePointer(m_handle,li.LowPart,&li.HighPart,FILE_BEGIN);
@@ -104,7 +106,7 @@ public:
 	    return pos;
     }
 
-    o3_get bool eof() {
+    bool eof() {
 	    unsigned char buf[2];
 	    if (0 == read(buf,1))
 		    return true;
@@ -115,7 +117,7 @@ public:
 	    return false;
     }
 
-    o3_fun bool close() {
+    bool close() {
         BOOL res(TRUE);
         if (m_handle)
             res = ::CloseHandle(m_handle);
@@ -123,7 +125,7 @@ public:
 	    return res ? true : false;
     }
 
-    o3_fun bool flush() { 
+    bool flush() { 
         return true;
     }
 
@@ -132,13 +134,13 @@ public:
         return ret;
     }
 
-    o3_get bool error(){
+    bool error(){
         return false;
     }
 
     void* unwrap()
     {
-        return 0; // TODO: Implement
+        return m_handle; 
     }
 };
 

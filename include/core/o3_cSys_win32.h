@@ -676,6 +676,12 @@ namespace o3 {
             return o3_new(cMessageLoop)();
         }
 
+		virtual void logfv(const char* format, va_list ap)
+		{
+			vfprintf(stderr, format, ap);
+		}
+
+
          // reading self as a stream and finding/reading the resource header in it        
         void initResource()
         {           

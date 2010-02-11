@@ -27,7 +27,7 @@ struct cConsole1 : cScr {
 
     o3_glue_gen()
 
-    static o3_ext("cO3") o3_get siStream in(iCtx* ctx)
+    static o3_ext("cO3") o3_get siStream stdIn(iCtx* ctx)
     {
         o3_trace3 trace;
         Var in = ctx->value("in");
@@ -37,7 +37,7 @@ struct cConsole1 : cScr {
         return in.toScr();
     }
 
-    static o3_ext("cO3") o3_get siStream out(iCtx* ctx)
+    static o3_ext("cO3") o3_get siStream stdOut(iCtx* ctx)
     {
         o3_trace3 trace;
         Var out = ctx->value("out");
@@ -47,7 +47,7 @@ struct cConsole1 : cScr {
         return out.toScr();
     }
 
-    static o3_ext("cO3") o3_get siStream err(iCtx* ctx)
+    static o3_ext("cO3") o3_get siStream stdErr(iCtx* ctx)
     {
         o3_trace3 trace;
         Var err = ctx->value("err");
@@ -60,7 +60,7 @@ struct cConsole1 : cScr {
     static o3_ext("cO3") o3_fun void print(iCtx* ctx, const Str& str)
     {
         o3_trace3 trace;
-        siStream out = cConsole1::out(ctx);
+        siStream out = cConsole1::stdOut(ctx);
 
         out->write(str.ptr(), str.size());
         out->flush();
