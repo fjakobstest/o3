@@ -23,9 +23,9 @@ Trait* cConsole1::extTraits()
 {
       static Trait TRAITS[] = {
          {      0,      Trait::TYPE_BEGIN,      "cConsole1",          0,                    0,              0,      0                  },
-         {      0,      Trait::TYPE_GET,        "cO3",                "in",                 extInvoke,      0,      0                  },
-         {      1,      Trait::TYPE_GET,        "cO3",                "out",                extInvoke,      1,      0                  },
-         {      2,      Trait::TYPE_GET,        "cO3",                "err",                extInvoke,      2,      0                  },
+         {      0,      Trait::TYPE_GET,        "cO3",                "stdIn",              extInvoke,      0,      0                  },
+         {      1,      Trait::TYPE_GET,        "cO3",                "stdOut",             extInvoke,      1,      0                  },
+         {      2,      Trait::TYPE_GET,        "cO3",                "stdErr",             extInvoke,      2,      0                  },
          {      3,      Trait::TYPE_FUN,        "cO3",                "print",              extInvoke,      3,      0                  },
          {      0,      Trait::TYPE_END,        "cConsole1",          0,                    0,              0,      0                  },
       };
@@ -50,17 +50,17 @@ siEx cConsole1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
          case 0:
             if (argc != 0)
                return o3_new(cEx)("Invalid argument count.");
-            *rval = siStream(pthis1->in(ctx));
+            *rval = siStream(pthis1->stdIn(ctx));
             break;
          case 1:
             if (argc != 0)
                return o3_new(cEx)("Invalid argument count.");
-            *rval = siStream(pthis1->out(ctx));
+            *rval = siStream(pthis1->stdOut(ctx));
             break;
          case 2:
             if (argc != 0)
                return o3_new(cEx)("Invalid argument count.");
-            *rval = siStream(pthis1->err(ctx));
+            *rval = siStream(pthis1->stdErr(ctx));
             break;
          case 3:
             if (argc != 1)
