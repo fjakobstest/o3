@@ -46,7 +46,7 @@ Trait* cHttp1::extTraits()
 {
       static Trait TRAITS[] = {
          {      0,      Trait::TYPE_BEGIN,      "cHttp1",             0,                    0,              0,      0                  },
-         {      0,      Trait::TYPE_GET,        "cO3",                "http",               extInvoke,      0,      0                  },
+         {      0,      Trait::TYPE_FUN,        "cO3",                "http",               extInvoke,      0,      0                  },
          {      0,      Trait::TYPE_END,        "cHttp1",             0,                    0,              0,      0                  },
       };
 

@@ -1,3 +1,4 @@
+#!/bin/o3
 /*
  * Copyright (C) 2010 Javeline BV
  *
@@ -139,10 +140,13 @@ var tests = {
 		if ( ! node.isDir ) return failed("could not create Folder, node is not a folder");
 
 		node = wd.get("Fodler2/Folder3/Folder4/tmp.txt");
+        /*
 		try{ var a = node.data; return failed("Reading from a file that does not exist should report an error! " + a)}
 		catch(e){}
+        */
 		node.data = "this is a test";
-		if (node.data != "this is a test") return failed("recursive directory creation has failed");
+		if (node.data != "this is a test")
+            return failed("recursive directory creation has failed");
 		return true;
 	},	
 	'reposition':function(){

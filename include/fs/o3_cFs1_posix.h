@@ -30,11 +30,10 @@ struct cFs1 : cFs1Base {
     int64_t m_time;
     siTimer m_timer;
 
-    cFs1(const char* root_path = "", const char* rel_path = "")
+    cFs1(const char* root_path = "/", const char* rel_path = "/")
         : m_root_path(root_path), m_rel_path(rel_path)
     {
         m_valid = parsePath();
-		Str deb = localPath();
     }
 
     o3_begin_class(cFs1Base)
@@ -155,7 +154,7 @@ struct cFs1 : cFs1Base {
     {
         o3_trace trace;
 
-        return Str("/") + m_rel_path;
+        return m_rel_path;
     }
 
     siFs get(const char* path)
@@ -163,8 +162,8 @@ struct cFs1 : cFs1Base {
         o3_trace3 trace;
 
         return o3_new(cFs1)(m_root_path,
-                            *path == '/' ? Str(path + 1)
-							: m_rel_path.size() ? (m_rel_path + "/" + path) : Str(path));
+                            *path == '/' ? Str(path)
+							: (m_rel_path.size() > 1 ? m_rel_path : Str()) + "/" + path);
     }
 
     bool hasChildren()
@@ -267,6 +266,7 @@ struct cFs1 : cFs1Base {
         o3_trace3 trace;
         FILE* stream;
 
+        createFile();
         stream = ::fopen(localPath(), mode);
         if (!stream)
             return siStream();
@@ -310,8 +310,8 @@ struct cFs1 : cFs1Base {
                     if (*src == '.') {
                         *dst++ = *src++;
                         if (!*src || *src == '/') {
-                            dst -= 4;
-                            if (dst == path.ptr())
+                            dst -= 3;
+                            if (dst-- == path.ptr())
                                 return false;
                             while (dst != path.ptr() && *dst != '/')
                                 --dst;
@@ -331,10 +331,7 @@ struct cFs1 : cFs1Base {
 
     Str localPath()
     {
-		if (m_root_path.size() && m_rel_path.size())
-			return m_root_path + "/" + m_rel_path;
-		else
-			return m_root_path + m_rel_path;	
+        return (m_root_path.size() > 1 ? m_root_path : Str()) + m_rel_path;
     }
 };
 

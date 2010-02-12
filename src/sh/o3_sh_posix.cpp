@@ -21,23 +21,30 @@
 
 using namespace o3;
 
-int main(int argc, char** argv, char** env)
+void run(iCtx* ctx, const char* path)
 {
-    cSys    sys;
-    siMgr   mgr = o3_new(cMgr)();
-    siCtx   ctx = o3_new(cJs1)(mgr, argc - 1, argv + 1, env);
     FILE*   stream;
     siEx    ex;
 
-    if (argc < 2)
-        return -1;
-    stream = fopen(argv[1], "r");
+    stream = fopen(path, "r");
     if (!stream)
-        return -1;
+        exit(-1);
     ctx->eval(Str(Buf(siStream(o3_new(cStream)(stream)).ptr())), &ex);
     if (ex) {
-        printf("%s\n", ex->message().ptr());
-        return -1;
+        fprintf(stderr, "%s\n", ex->message().ptr());
+        exit(-1);
     }
+}
+
+int main(int argc, char** argv, char** envp)
+{
+    cSys    sys;
+    siMgr   mgr = o3_new(cMgr)();
+    siCtx   ctx = o3_new(cJs1)(mgr, argc - 1, argv + 1, envp);
+
+    if (argc < 2)
+        return -1;
+    run(ctx, "/bin/prelude.js");
+    run(ctx, argv[1]);
     return 0;
 }

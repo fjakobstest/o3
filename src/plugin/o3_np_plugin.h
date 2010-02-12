@@ -476,7 +476,7 @@ struct cCtx : cMgr, iCtx {
         m_timer = [[O3Timer alloc] initWithCtx:this];
 #endif
         m_loop = g_sys->createMessageLoop();
-		m_o3 = o3_new(cO3)(0, 0);
+		m_o3 = o3_new(cO3)(0, 0, 0);
 
         addExtTraits(cFs1::extTraits()); 
 	}

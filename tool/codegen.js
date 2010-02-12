@@ -1,3 +1,4 @@
+#!/bin/o3
 o3.loadModule('console');
 o3.loadModule('fs');
 var includeTrace = false, 

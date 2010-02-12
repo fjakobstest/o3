@@ -136,7 +136,7 @@ struct cHttp1 : cScr {
         READY_STATE_INTERACTIVE,
         READY_STATE_COMPLETED);
 
-    static o3_ext("cO3") o3_get siScr http()
+    static o3_ext("cO3") o3_fun siScr http()
     {
         o3_trace3 trace;
 
