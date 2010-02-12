@@ -142,6 +142,7 @@ inline void test_Str()
             {
                 Str str = buf;
 
+                printf("%d\n", str.size());
                 o3_assert(!buf.unique());
                 o3_assert(strEquals(str.ptr(), STR));
             }

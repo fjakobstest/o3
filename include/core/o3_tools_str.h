@@ -151,14 +151,14 @@ inline size_t strPrintfv(char* str, const char* format, va_list ap)
 {
     o3_trace0 trace;
 
-    return ::vsnprintf(str, str ? -1 : 0, format, ap);
+    return ::vsnprintf(str, str ? (size_t) -1 : 0, format, ap);
 }
 
 inline size_t strPrintfv(wchar_t* str, const wchar_t* format, va_list ap) 
 {
     o3_trace0 trace;
 
-    return ::vswprintf(str, str ? -1 : 0, format, ap);
+    return ::vswprintf(str, (size_t) -1, format, ap);
 }
 
 template<typename C>

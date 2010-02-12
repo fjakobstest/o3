@@ -64,7 +64,7 @@ class tStr {
 
         void flatten(C** out) const
         {
-            memCopy(*out, str.ptr() + pos, n);
+            memCopy(*out, str.ptr() + pos, n * sizeof(C));
             *out += n;
         }
 
@@ -142,7 +142,7 @@ class tStr {
         else if (isSubstr()) 
             substr()->flatten(out);
         else {
-            memCopy(*out, ptr(), size());
+            memCopy(*out, ptr(), size() * sizeof(C));
             *out += size();
         }
     }
@@ -272,7 +272,7 @@ public:
         size_t size = buf.size() / sizeof(C);
 
         new (m_buf) Buf(buf);
-        resize(size - ((const C*) buf.ptr() + size == 0));
+        resize(size - (((const C*) buf.ptr())[size - 1] == 0));
     }
 
     tStr(const tStr& that)
@@ -456,8 +456,12 @@ public:
     size_t find(size_t pos, const C* str, size_t n) const
     {
         o3_trace1 trace;
+        size_t index;
 
-        return buf().find(pos * sizeof(C), str, n * sizeof(C));
+        index = buf().find(pos * sizeof(C), str, n * sizeof(C));
+        if (index == NOT_FOUND)
+            return NOT_FOUND;
+        return index / sizeof(C);
     }
 
     size_t find(size_t pos, const C* str) const
