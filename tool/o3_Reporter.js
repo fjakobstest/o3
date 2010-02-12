@@ -3,7 +3,7 @@ this.Reporter = {
     logs   : {general:[]},        
     currentFile   : 'general',    
     logWriter : o3.print,
-    errorWriter: o3.out.write,
+    errorWriter: o3.stdOut.write,
     immediate: false,    
     
     reset : function() {

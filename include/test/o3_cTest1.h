@@ -34,37 +34,37 @@ struct cTest1 : cScr {
 
 	o3_glue_gen()
 
-    static o3_ext(cO3) o3_fun void testBuf()
+    static o3_ext("cO3") o3_fun void testBuf()
     {
         o3::test_Buf();
     }
 
-    static o3_ext(cO3) o3_fun void testVec()
+    static o3_ext("cO3") o3_fun void testVec()
     {
         o3::test_tVec();
     }
 
-    static o3_ext(cO3) o3_fun void testStr()
+    static o3_ext("cO3") o3_fun void testStr()
     {
         o3::test_Str();
     }
 
-    static o3_ext(cO3) o3_fun void testWStr()
+    static o3_ext("cO3") o3_fun void testWStr()
     {
         o3::test_WStr();
     }
 
-    static o3_ext(cO3) o3_fun void testVar()
+    static o3_ext("cO3") o3_fun void testVar()
     {
         o3::test_Var();
     }
 
-    static o3_ext(cO3) o3_fun void testList()
+    static o3_ext("cO3") o3_fun void testList()
     {
         o3::test_tList();
     }
 
-    static o3_ext(cO3) o3_fun void testMap()
+    static o3_ext("cO3") o3_fun void testMap()
     {
         o3::test_tMap();
     }

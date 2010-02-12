@@ -30,10 +30,11 @@ struct cFs1 : cFs1Base {
     int64_t m_time;
     siTimer m_timer;
 
-    cFs1(const char* root_path = "/", const char* rel_path = "")
+    cFs1(const char* root_path = "", const char* rel_path = "")
         : m_root_path(root_path), m_rel_path(rel_path)
     {
         m_valid = parsePath();
+		Str deb = localPath();
     }
 
     o3_begin_class(cFs1Base)
@@ -69,7 +70,7 @@ struct cFs1 : cFs1Base {
     {
         o3_trace3 trace;
 
-        return false;
+        return m_valid;
     }
 
     bool exists()
@@ -154,7 +155,7 @@ struct cFs1 : cFs1Base {
     {
         o3_trace trace;
 
-        return m_rel_path;
+        return Str("/") + m_rel_path;
     }
 
     siFs get(const char* path)
@@ -163,7 +164,7 @@ struct cFs1 : cFs1Base {
 
         return o3_new(cFs1)(m_root_path,
                             *path == '/' ? Str(path + 1)
-                                         : m_rel_path + "/" + path);
+							: m_rel_path.size() ? (m_rel_path + "/" + path) : Str(path));
     }
 
     bool hasChildren()
@@ -215,7 +216,7 @@ struct cFs1 : cFs1Base {
     bool createDir()
     {
         o3_trace trace;
-
+		Str deb = localPath();
         if (!exists()) 
             ((cFs1*) parent().ptr())->createDir();
         mkdir(localPath(), 0777);
@@ -330,7 +331,10 @@ struct cFs1 : cFs1Base {
 
     Str localPath()
     {
-        return m_root_path + m_rel_path;
+		if (m_root_path.size() && m_rel_path.size())
+			return m_root_path + "/" + m_rel_path;
+		else
+			return m_root_path + m_rel_path;	
     }
 };
 

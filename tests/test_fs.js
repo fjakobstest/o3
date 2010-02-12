@@ -19,7 +19,7 @@ o3.loadModule('console');
 o3.loadModule('fs');
 
 var setup = function(){
-	root = o3.cwd;
+	root = o3.cwd; //o3.fs;
 	wd_name = "testfs";
 	wd = root.get(wd_name);
 	wd.createDir();
@@ -308,7 +308,7 @@ for (v in tests) {
     if(foundLast) {
 		o3.print(v + '\n');	
 		result = setup();
-		if (result != true)
+		if (result != true) 
 			stdErr.write(result);
 		
 		result = tests[v]();

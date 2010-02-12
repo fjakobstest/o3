@@ -13,13 +13,6 @@ Trait* cTest1::clsTraits()
 {
       static Trait TRAITS[] = {
          {      0,      Trait::TYPE_BEGIN,      "cTest1",             0,                    0,              0,      cScr::clsTraits()  },
-         {      0,      Trait::TYPE_FUN,        "cTest1",             "testBuf",            clsInvoke,      0,      0                  },
-         {      1,      Trait::TYPE_FUN,        "cTest1",             "testVec",            clsInvoke,      1,      0                  },
-         {      2,      Trait::TYPE_FUN,        "cTest1",             "testStr",            clsInvoke,      2,      0                  },
-         {      3,      Trait::TYPE_FUN,        "cTest1",             "testWStr",           clsInvoke,      3,      0                  },
-         {      4,      Trait::TYPE_FUN,        "cTest1",             "testVar",            clsInvoke,      4,      0                  },
-         {      5,      Trait::TYPE_FUN,        "cTest1",             "testList",           clsInvoke,      5,      0                  },
-         {      6,      Trait::TYPE_FUN,        "cTest1",             "testMap",            clsInvoke,      6,      0                  },
          {      0,      Trait::TYPE_END,        "cTest1",             0,                    0,              0,      0                  },
       };
 
@@ -30,6 +23,13 @@ Trait* cTest1::extTraits()
 {
       static Trait TRAITS[] = {
          {      0,      Trait::TYPE_BEGIN,      "cTest1",             0,                    0,              0,      0                  },
+         {      0,      Trait::TYPE_FUN,        "cO3",                "testBuf",            extInvoke,      0,      0                  },
+         {      1,      Trait::TYPE_FUN,        "cO3",                "testVec",            extInvoke,      1,      0                  },
+         {      2,      Trait::TYPE_FUN,        "cO3",                "testStr",            extInvoke,      2,      0                  },
+         {      3,      Trait::TYPE_FUN,        "cO3",                "testWStr",           extInvoke,      3,      0                  },
+         {      4,      Trait::TYPE_FUN,        "cO3",                "testVar",            extInvoke,      4,      0                  },
+         {      5,      Trait::TYPE_FUN,        "cO3",                "testList",           extInvoke,      5,      0                  },
+         {      6,      Trait::TYPE_FUN,        "cO3",                "testMap",            extInvoke,      6,      0                  },
          {      0,      Trait::TYPE_END,        "cTest1",             0,                    0,              0,      0                  },
       };
 
@@ -37,6 +37,13 @@ Trait* cTest1::extTraits()
 }
 
 siEx cTest1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
+           const Var* argv, Var* rval)
+{
+      siEx ex;
+      return ex;
+}
+
+siEx cTest1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
            const Var* argv, Var* rval)
 {
       siEx ex;
@@ -79,13 +86,6 @@ siEx cTest1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             pthis1->testMap();
             break;
       }
-      return ex;
-}
-
-siEx cTest1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
-           const Var* argv, Var* rval)
-{
-      siEx ex;
       return ex;
 }
 
