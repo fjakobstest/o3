@@ -15,9 +15,13 @@
  * this library; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-
 #include <core/o3_core.h>
 #include <js/o3_js.h>
+#ifdef O3_STATIC
+#include <console/o3_console.h>
+#include <fs/o3_fs.h>
+#include <process/o3_process.h>
+#endif // O3_STATIC
 
 using namespace o3;
 
@@ -42,6 +46,9 @@ int main(int argc, char** argv, char** envp)
     siMgr   mgr = o3_new(cMgr)();
     siCtx   ctx = o3_new(cJs1)(mgr, argc - 1, argv + 1, envp);
 
+    mgr->addExtTraits(cConsole1::extTraits());
+    mgr->addExtTraits(cFs1::extTraits());
+    mgr->addExtTraits(cProcess1::extTraits());
     if (argc < 2)
         return -1;
     run(ctx, "/bin/prelude.js");
