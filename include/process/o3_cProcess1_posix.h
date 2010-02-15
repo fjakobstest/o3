@@ -18,22 +18,24 @@
 #ifndef O3_C_PROCESS1_POSIX_H
 #define O3_C_PROCESS1_POSIX_H
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 namespace o3 {
 
 struct cProcess1 : cProcess1Base {
-    Str m_name;
     siStream m_in;
     siStream m_out;
     siStream m_err;
+    Str m_name;
+    siTimer m_timer;
+    pid_t m_pid;
+    int m_stat;
 
-    cProcess1(const char* name) : m_name(name)
+    cProcess1() 
     {
-        m_in = o3_new(cStream)(stdin);
-        m_out = o3_new(cStream)(stdout);
-        m_err = o3_new(cStream)(stderr);
     }
 
     o3_begin_class(cProcess1Base)
@@ -41,39 +43,44 @@ struct cProcess1 : cProcess1Base {
 
 #include "o3_cProcess1_posix_scr.h"
 
-    static o3_fun o3_ext("cO3") siScr process(const char* name)
+    static o3_fun o3_ext("cO3") siScr process()
     {
         o3_trace3 trace;
 
-        return o3_new(cProcess1)(name);
+        return o3_new(cProcess1)();
     }
 
-    siStream in()
+    static o3_fun o3_ext("cO3") int system(const char* command)
+    {
+        return ::system(command);
+    }
+
+    siStream stdin()
     {
         return m_in;
     }
 
-    siStream setIn(iStream* in)
+    siStream setStdin(iStream* in)
     {
         return m_in = in;
     }
 
-    siStream out()
+    siStream stdout()
     {
         return m_out;
     }
 
-    siStream setOut(iStream* out)
+    siStream setStdout(iStream* out)
     {
         return m_out = out;
     }
 
-    siStream err()
+    siStream stderr()
     {
         return m_err;
     }
 
-    siStream setErr(iStream* err)
+    siStream setStderr(iStream* err)
     {
         return m_err = err;
     }
@@ -83,7 +90,6 @@ struct cProcess1 : cProcess1Base {
         tVec<Str> argv;
         tVec<char*> argv1;
 
-        argv1.push(m_name);
         if (args) {
             Str args1 = args;
             char* start;
@@ -109,9 +115,47 @@ struct cProcess1 : cProcess1Base {
                 argv1.push(argv[i].ptr());
         }
         argv1.push(0);
-        if (fork() == 0) {
-            execvp(m_name.ptr(), argv1.ptr());
+        m_pid = fork();
+        if (m_pid == 0) {
+            if (m_in)
+                dup2(fileno((FILE*) m_in->unwrap()), 0);            
+            if (m_out) 
+                dup2(fileno((FILE*) m_out->unwrap()), 1);            
+            if (m_err)
+                dup2(fileno((FILE*) m_err->unwrap()), 2);           
+            execvp(argv1[0], argv1.ptr());
         }
+    }
+
+    int exitStatus()
+    {
+        if (m_pid && waitpid(m_pid, &m_stat, WNOHANG) == m_pid) 
+            m_pid = 0;
+        return WIFEXITED(m_stat) ? WEXITSTATUS(m_stat) : -1;
+    }
+
+    void startListening()
+    {
+        m_timer = m_ctx->loop()->createTimer(10,
+                                             Delegate(this,
+                                                      &cProcess1::listen));
+    }
+
+    void stopListening()
+    {
+        m_timer = 0;
+    }
+
+    void listen(iUnk*)
+    {
+        if (m_pid && waitpid(m_pid, &m_stat, WNOHANG) == m_pid) 
+            m_pid = 0;
+        if (m_pid)
+            m_timer = m_ctx->loop()->createTimer(10,
+                                                 Delegate(this,
+                                                          &cProcess1::listen));
+        else
+            Delegate(siCtx(m_ctx), m_onterminate)(this);
     }
 };
 

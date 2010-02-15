@@ -23,24 +23,48 @@ namespace o3 {
 o3_cls(cProcess1Base);
 
 struct cProcess1Base : cScr {
+    siCtx m_ctx;
+    siScr m_onterminate;
+
     o3_begin_class(cScr)
     o3_end_class()
 
-	o3_glue_gen()
+#include "o3_cProcess1Base_scr.h"
 
-    virtual o3_get siStream stdIn() = 0;
+    virtual o3_get siStream stdin() = 0;
 
-    virtual o3_set siStream setStdIn(iStream* in) = 0;
+    virtual o3_get siStream setStdin(iStream* in) = 0;
 
-    virtual o3_get siStream stdOut() = 0;
+    virtual o3_get siStream stdout() = 0;
 
-    virtual o3_set siStream setStdOut(iStream* out) = 0;
+    virtual o3_get siStream setStdout(iStream* out) = 0;
 
-    virtual o3_get siStream stdErr() = 0;
+    virtual o3_get siStream stderr() = 0;
 
-    virtual o3_set siStream setStdErr(iStream* err) = 0;
+    virtual o3_get siStream setStderr(iStream* err) = 0;
+
+    virtual o3_get siScr onterminate()
+    {
+        return m_onterminate;
+    }
+
+    virtual o3_set siScr setOnterminate(iCtx* ctx, iScr* onterminate)
+    {
+        m_ctx = ctx;
+        if (m_onterminate = onterminate)
+            startListening();
+        else
+            stopListening();
+        return m_onterminate;
+    }
 
     virtual o3_fun void exec(const char* args) = 0;
+
+    virtual o3_get int exitStatus() = 0;
+
+    virtual void startListening() = 0;
+
+    virtual void stopListening() = 0;
 };
 
 }
