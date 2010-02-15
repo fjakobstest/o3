@@ -2,8 +2,8 @@ this.Reporter = {
     errors : {general:[]},
     logs   : {general:[]},        
     currentFile   : 'general',    
-    logWriter : o3.print,
-    errorWriter: o3.stdOut.write,
+    logWriter : o3.print,//o3.stdOut.write,
+    errorWriter: o3.print,//o3.stdOut.write,
     immediate: false,    
     
     reset : function() {
@@ -46,11 +46,13 @@ this.Reporter = {
         with(this) {
             var i,l;
             if (immediate)
-                    logWriter(currentFile + ': ');
+                    //o3.stdOut.write(currentFile + ': ');
+					logWriter(currentFile + ': ');
             for (i=0,l=arguments.length; i<l; i++) {
                 logs[currentFile].push(arguments[i]);
                 if (immediate)
-                    logWriter(arguments[i]);
+                    //o3.stdOut.write(arguments[i]);
+					logWriter(arguments[i]);
             }    
         }
     },

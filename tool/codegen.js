@@ -1,12 +1,14 @@
 #!/bin/o3
 o3.loadModule('console');
 o3.loadModule('fs');
+
 var includeTrace = false, 
     immLog = false, log = false;
     logFileName = 'codegenLog.txt',
     errFileName = 'codegenErr.txt';	
-var i,l,files = [], arguments = o3.args, arg, scriptFolder, scriptFilePath = arguments[0].replace(/\\/g, '/'); 
-if (o3.cwd.get(scriptFilePath).exists){
+var i,l,files = [], arguments = o3.args, arg, 
+	scriptFile, scriptFolder, scriptFilePath = arguments[0].replace(/\\/g, '/'); 
+if ((scriptFile = o3.cwd.get(scriptFilePath)) && scriptFile.exists){
 	scriptFolder = o3.cwd.get(scriptFilePath).parent;
 }
 else {
@@ -22,10 +24,10 @@ for (i=1, l=arguments.length; i<l; i++) {
 		case '-l':
 			log = true;
 			break;
-		case '-i':
+		case '-v':
 			immLog = true;
 			break;
-		case '-itrace':
+		case '-trace':
 			includeTrace = true;
 			break;
 		default:
@@ -58,8 +60,11 @@ include("o3_FileHandler.js");
 include("o3_Parser.js");
 include("o3_Generator.js");
 Reporter.immediate = immLog;
+Reporter.logWriter = o3.print;
+Reporter.errorWriter = o3.print;
+
 // by default it generates all glue in ../include
-if (files.length == 0) {	
+if (files.length == 0) {
 	FileHandler.scanFiles(
 		scriptFolder.get('../include'));
 }

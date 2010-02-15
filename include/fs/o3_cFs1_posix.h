@@ -59,7 +59,7 @@ struct cFs1 : cFs1Base {
         if (cwd.type() == Var::TYPE_VOID) {
             char* buf = getcwd(0, 0);
 
-            cwd = ctx->setValue("cwd", o3_new(cFs1)(buf));
+            cwd = ctx->setValue("cwd", o3_new(cFs1)("/", buf));
             free(buf);
         }
         return cwd.toScr();
@@ -204,10 +204,11 @@ struct cFs1 : cFs1Base {
 
         if (!dir)
             return names;
-        while (struct dirent* ent = readdir(dir))
+		while (struct dirent* ent = readdir(dir))
             if (!strEquals(ent->d_name, ".") &&
-                !strEquals(ent->d_name, "..")) 
-                names.push(get(ent->d_name));
+				!strEquals(ent->d_name, "..")) 
+                names.push(get(ent->d_name));				
+		
         closedir(dir);
         return names;
     }
@@ -215,9 +216,10 @@ struct cFs1 : cFs1Base {
     bool createDir()
     {
         o3_trace trace;
-		Str deb = localPath();
+		
         if (!exists()) 
-            ((cFs1*) parent().ptr())->createDir();
+            if ( ! ((cFs1*) parent().ptr())->createDir())
+				return false;
         mkdir(localPath(), 0777);
         return isDir();
     }
@@ -227,7 +229,8 @@ struct cFs1 : cFs1Base {
         o3_trace trace;
 
         if (!exists()) 
-            ((cFs1*) parent().ptr())->createDir();
+            if ( ! ((cFs1*) parent().ptr())->createDir())
+				return false;
         ::fclose(::fopen(localPath(), "a"));
         return isFile();
     }
@@ -237,7 +240,8 @@ struct cFs1 : cFs1Base {
         o3_trace trace;
 
         if (!exists()) 
-            ((cFs1*) parent().ptr())->createDir();
+            if ( ! ((cFs1*) parent().ptr())->createDir())
+				return false;
         link(localPath(), ((cFs1*) to)->localPath());
         return isLink();
     }
@@ -297,7 +301,7 @@ struct cFs1 : cFs1Base {
     }
 
     bool parsePath()
-    {
+    {		
         Str path = m_rel_path;
         const char* src = path.ptr();
         char* dst = path.ptr();
@@ -325,7 +329,7 @@ struct cFs1 : cFs1Base {
         }
         path.resize(dst - path.ptr());
         m_rel_path = path;
-        return true;
+		return true;
 
     }
 

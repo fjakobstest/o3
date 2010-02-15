@@ -23,7 +23,7 @@ Trait* cFs1::extTraits()
 {
       static Trait TRAITS[] = {
          {      0,      Trait::TYPE_BEGIN,      "cFs1",               0,                    0,              0,      0                  },
-         {      0,      Trait::TYPE_FUN,        "cO3",                "fs",                 extInvoke,      0,      0                  },
+         {      0,      Trait::TYPE_GET,        "cO3",                "fs",                 extInvoke,      0,      0                  },
          {      1,      Trait::TYPE_GET,        "cO3",                "cwd",                extInvoke,      1,      0                  },
          {      2,      Trait::TYPE_GET,        "cO3",                "programFiles",       extInvoke,      2,      0                  },
          {      3,      Trait::TYPE_GET,        "cO3",                "appData",            extInvoke,      3,      0                  },

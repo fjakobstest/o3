@@ -41,51 +41,51 @@ struct cProcess1 : cProcess1Base {
     o3_begin_class(cProcess1Base)
     o3_end_class()
 
-#include "o3_cProcess1_posix_scr.h"
+	o3_glue_gen()
 
-    static o3_fun o3_ext("cO3") siScr process()
+    static o3_ext("cO3") o3_fun siScr process()
     {
         o3_trace3 trace;
 
         return o3_new(cProcess1)();
     }
 
-    static o3_fun o3_ext("cO3") int system(const char* command)
+    static o3_ext("cO3") o3_fun int system(const char* command)
     {
         return ::system(command);
     }
 
-    siStream stdin()
+    siStream stdIn()
     {
         return m_in;
     }
 
-    siStream setStdin(iStream* in)
+    siStream setStdIn(iStream* in)
     {
         return m_in = in;
     }
 
-    siStream stdout()
+    siStream stdOut()
     {
         return m_out;
     }
 
-    siStream setStdout(iStream* out)
+    siStream setStdOut(iStream* out)
     {
         return m_out = out;
     }
 
-    siStream stderr()
+    siStream stdErr()
     {
         return m_err;
     }
 
-    siStream setStderr(iStream* err)
+    siStream setStdErr(iStream* err)
     {
         return m_err = err;
     }
 
-    void exec(const char* args)
+    void exec(iCtx*, const char* args)
     {
         tVec<Str> argv;
         tVec<char*> argv1;
@@ -127,7 +127,7 @@ struct cProcess1 : cProcess1Base {
         }
     }
 
-    int exitStatus()
+    int exitCode()
     {
         if (m_pid && waitpid(m_pid, &m_stat, WNOHANG) == m_pid) 
             m_pid = 0;

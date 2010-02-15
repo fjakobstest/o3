@@ -158,7 +158,11 @@ inline size_t strPrintfv(wchar_t* str, const wchar_t* format, va_list ap)
 {
     o3_trace0 trace;
 
-    return ::vswprintf(str, (size_t) -1, format, ap);
+#ifdef O3_WIN32
+    return ::vswprintf(str,  str ? (size_t) -1 : 0, format, ap);
+#else
+	return ::vswprintf(str, (size_t) -1, format, ap);
+#endif
 }
 
 template<typename C>

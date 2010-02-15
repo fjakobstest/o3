@@ -20,7 +20,7 @@ o3.loadModule('console');
 o3.loadModule('fs');
 
 var setup = function(){
-	root = o3.cwd; //o3.fs;
+	root = o3.cwd;
 	wd_name = "testfs";
 	wd = root.get(wd_name);
 	wd.createDir();

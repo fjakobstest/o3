@@ -74,9 +74,12 @@ inline void test_WStr()
 
         o3_assert(strEquals(WStr::fromDouble(123.456).ptr(), STR));
         o3_assert(strEquals(WStr::fromDouble(DBL_MIN).ptr(), STR1));
-        o3_assert(strEquals(WStr::fromDouble(DBL_MAX).ptr(), STR2));
-//        o3_assert(strEquals(WStr::fromDouble(-INFINITY).ptr(), STR3));
-//        o3_assert(strEquals(WStr::fromDouble(INFINITY).ptr(), STR4));
+
+#ifndef O3_WIN32
+		o3_assert(strEquals(WStr::fromDouble(DBL_MAX).ptr(), STR2));
+        o3_assert(strEquals(WStr::fromDouble(-INFINITY).ptr(), STR3));
+        o3_assert(strEquals(WStr::fromDouble(INFINITY).ptr(), STR4));
+#endif
     }
 
     o3_log("Testing static WStr WStr::fromHex(const void* ptr, size_t size)\n");
@@ -93,7 +96,9 @@ inline void test_WStr()
                                 L"61 00 00 00 7A 00 00 00 79 00 00 00 20 00 00 00 "
                                 L"64 00 00 00 6F 00 00 00 67 00 00 00 00 00 00 00";
 
-        o3_assert(strEquals(WStr::fromHex(WSTR, sizeof(WSTR)).ptr(), WSTR1));
+#ifndef O3_WIN32
+		o3_assert(strEquals(WStr::fromHex(WSTR, sizeof(WSTR)).ptr(), WSTR1));
+#endif
     }
 
     o3_log("Testing static WStr WStr::fromBase64(const void* ptr, size_t size)\n");

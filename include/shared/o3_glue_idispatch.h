@@ -383,10 +383,13 @@ namespace o3 {
 						return DISP_E_BADVARTYPE;
 				}
                 call_id = (int)id;
-			}							
+			}
+
+			siScrFun fun = m_bridge;
+			size_t call_argc = fun ? args.size()-1 : args.size();
 			Var ret(g_sys);						
             siEx ex = m_bridge->invoke(siCtx(m_ctx), call_type, call_id,
-                                (int) args.size(), args.ptr(), &ret);
+                                (int) call_argc, args.ptr(), &ret);
             if (ex) {
                 if (!ex) return DISP_E_BADCALLEE;
                 WStr msg(L"O3 callback for function returned an error : ");
@@ -534,11 +537,10 @@ namespace o3 {
 				out.lVal = in.toInt32();
 				break;
 
-            /* Disabled for the release
             case Var::TYPE_INT64:
-                out.vt = VT_BSTR;
-                out.bstrVal = SysAllocString(WStr::fromInt64(in.toInt64()).ptr()); 
-            */
+                out.vt = VT_I8;
+                out.llVal = in.toInt64(); 
+            
 
 			case Var::TYPE_DOUBLE:
 				out.vt = VT_R8;

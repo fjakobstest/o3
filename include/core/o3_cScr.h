@@ -301,12 +301,19 @@ struct cScr : cUnk, iScr {
     siScr createFun(iScr* scr, Trait::invoke_t invoke, int index);
 };
 
-struct cScrFun : cScr {
+o3_iid(iScrFun, 0x9ff368d, 0x29f, 0x426b, 0x9d, 
+	   0xe2, 0xfa, 0x3e, 0xac, 0xc6, 0x73, 0x34);
+
+struct iScrFun : iUnk {
+};
+
+struct cScrFun : cScr, iScrFun {
     siScr m_scr;
     Trait::invoke_t m_invoke;
     int m_index;
 
     o3_begin_class(cScr)
+		o3_add_iface(iScrFun)
     o3_end_class()
 
     cScrFun(iScr* scr, Trait::invoke_t invoke, int index) : m_scr(scr),

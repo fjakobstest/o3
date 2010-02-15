@@ -5,15 +5,15 @@ this.FileHandler = {
                 glueName,
                 glueFile,            
                 data = file.data;
-            
+
             if (data.indexOf('o3_glue_gen()') == -1) {
-                //Reporter.log('no need to gen glue for: ',name,'\n');
+				//Reporter.log('no need to gen glue for: ',name,'\n');
                 return 0;
             }
             
             glueName = name.substr(0,3) + 'scr_' + name.substr(3);
             glueFile = file.parent.get(glueName);
-            if (!glueFile.exists) {
+			if (!glueFile.exists) {
                 if (glueFile.createFile()) {
                     Reporter.log('created glue file: ',glueName,'\n');
                     return glueFile;
@@ -24,7 +24,7 @@ this.FileHandler = {
                     return 0;    
                 }
             }
-            
+
             // TODO: this should be '<'
             if (glueFile.modifiedTime != file.modifiedTime) {
                 Reporter.log('found old glue file, old time: '
@@ -35,7 +35,7 @@ this.FileHandler = {
             Reporter.log('glue file was uptodate: ',topNode.name,'\n');
             return 0;    
         }            
-        
+
         var glueFile;
         if (!topNode.exists) {
             Reporter.globalError('filehandler: file does not exist? ', 
@@ -58,7 +58,7 @@ this.FileHandler = {
             Reporter.globalError('invalid file node: ',topNode.name,'\n');
         }            
    },
-   genGlue : function(srcFile, glueFile) {                        
+   genGlue : function(srcFile, glueFile) {     
         var i,l,result = [],
             scanned = Lexer.scan(srcFile.data),
             classes = Parser.parse(scanned.tree);

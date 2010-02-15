@@ -626,9 +626,8 @@ namespace o3 {
 
         void assert(const char* pred, const char* file, int line)
         {
-            pred;
-            file;
-            line;
+			o3::log("Assertion %s failed in file %s on line %d\n", pred, file, line);
+			abort();
         }
 
         siModule loadModule(const char* name)

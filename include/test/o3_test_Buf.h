@@ -62,9 +62,11 @@ inline void test_Buf()
                                   "AAAAIAAAAGQAAABvAAAAZwAAAAAAAAA=");
 
         o3_assert(buf.capacity() == 256);
-        o3_assert(buf.size() == sizeof(WSTR));
+#ifndef O3_WIN32
+		o3_assert(buf.size() == sizeof(WSTR));
         o3_assert(memEquals(buf.ptr(), WSTR, sizeof(WSTR)));
-    }
+#endif
+	}
 
     o3_log("Testing static Buf Buf::fromBase64(const wchar_t*, iAlloc*)\n");
     {
@@ -77,8 +79,10 @@ inline void test_Buf()
                                   L"AAAAIAAAAGQAAABvAAAAZwAAAAAAAAA=");
 
         o3_assert(buf.capacity() == 256);
-        o3_assert(buf.size() == sizeof(WSTR));
+#ifndef O3_WIN32
+		o3_assert(buf.size() == sizeof(WSTR));
         o3_assert(memEquals(buf.ptr(), WSTR, sizeof(WSTR)));
+#endif
     }
 
     o3_log("Testing explicit Buf::Buf(size_t, iAlloc*)\n");

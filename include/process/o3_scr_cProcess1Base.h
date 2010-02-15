@@ -14,12 +14,15 @@ Trait* cProcess1Base::clsTraits()
       static Trait TRAITS[] = {
          {      0,      Trait::TYPE_BEGIN,      "cProcess1Base",      0,                    0,              0,      cScr::clsTraits()  },
          {      0,      Trait::TYPE_GET,        "cProcess1Base",      "stdIn",              clsInvoke,      0,      0                  },
-         {      0,      Trait::TYPE_SET,        "cProcess1Base",      "stdIn",              clsInvoke,      1,      0                  },
-         {      1,      Trait::TYPE_GET,        "cProcess1Base",      "stdOut",             clsInvoke,      2,      0                  },
-         {      1,      Trait::TYPE_SET,        "cProcess1Base",      "stdOut",             clsInvoke,      3,      0                  },
-         {      2,      Trait::TYPE_GET,        "cProcess1Base",      "stdErr",             clsInvoke,      4,      0                  },
-         {      2,      Trait::TYPE_SET,        "cProcess1Base",      "stdErr",             clsInvoke,      5,      0                  },
-         {      3,      Trait::TYPE_FUN,        "cProcess1Base",      "exec",               clsInvoke,      6,      0                  },
+         {      1,      Trait::TYPE_GET,        "cProcess1Base",      "setStdIn",           clsInvoke,      1,      0                  },
+         {      2,      Trait::TYPE_GET,        "cProcess1Base",      "stdOut",             clsInvoke,      2,      0                  },
+         {      3,      Trait::TYPE_GET,        "cProcess1Base",      "setStdOut",          clsInvoke,      3,      0                  },
+         {      4,      Trait::TYPE_GET,        "cProcess1Base",      "stdErr",             clsInvoke,      4,      0                  },
+         {      5,      Trait::TYPE_GET,        "cProcess1Base",      "setStdErr",          clsInvoke,      5,      0                  },
+         {      6,      Trait::TYPE_GET,        "cProcess1Base",      "onterminate",        clsInvoke,      6,      0                  },
+         {      6,      Trait::TYPE_SET,        "cProcess1Base",      "onterminate",        clsInvoke,      7,      0                  },
+         {      7,      Trait::TYPE_FUN,        "cProcess1Base",      "exec",               clsInvoke,      8,      0                  },
+         {      8,      Trait::TYPE_GET,        "cProcess1Base",      "exitCode",           clsInvoke,      9,      0                  },
          {      0,      Trait::TYPE_END,        "cProcess1Base",      0,                    0,              0,      0                  },
       };
 
@@ -74,9 +77,24 @@ siEx cProcess1Base::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             *rval = siStream(pthis1->setStdErr(siStream (argv[0].toScr())));
             break;
          case 6:
+            if (argc != 0)
+               return o3_new(cEx)("Invalid argument count.");
+            *rval = pthis1->onterminate();
+            break;
+         case 7:
             if (argc != 1)
                return o3_new(cEx)("Invalid argument count.");
-            pthis1->exec(argv[0].toStr());
+            *rval = pthis1->setOnterminate(ctx,argv[0].toScr());
+            break;
+         case 8:
+            if (argc != 1)
+               return o3_new(cEx)("Invalid argument count.");
+            pthis1->exec(ctx,argv[0].toStr());
+            break;
+         case 9:
+            if (argc != 0)
+               return o3_new(cEx)("Invalid argument count.");
+            *rval = pthis1->exitCode();
             break;
       }
       return ex;

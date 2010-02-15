@@ -74,9 +74,12 @@ inline void test_Str()
 
         o3_assert(strEquals(Str::fromDouble(123.456).ptr(), STR));
         o3_assert(strEquals(Str::fromDouble(DBL_MIN).ptr(), STR1));
-        o3_assert(strEquals(Str::fromDouble(DBL_MAX).ptr(), STR2));
-        //o3_assert(strEquals(Str::fromDouble(-INFINITY).ptr(), STR3));
-        //o3_assert(strEquals(Str::fromDouble(INFINITY).ptr(), STR4));
+
+#ifndef O3_WIN32        
+		o3_assert(strEquals(Str::fromDouble(DBL_MAX).ptr(), STR2));
+        o3_assert(strEquals(Str::fromDouble(-INFINITY).ptr(), STR3));
+        o3_assert(strEquals(Str::fromDouble(INFINITY).ptr(), STR4));
+#endif
     }
 
     o3_log("Testing static Str Str::fromHex(const void* ptr, size_t size)\n");
@@ -92,9 +95,10 @@ inline void test_Str()
                            "68 00 00 00 65 00 00 00 20 00 00 00 6C 00 00 00 "
                            "61 00 00 00 7A 00 00 00 79 00 00 00 20 00 00 00 "
                            "64 00 00 00 6F 00 00 00 67 00 00 00 00 00 00 00";
-
+#ifndef O3_WIN32
         o3_assert(strEquals(Str::fromHex(WSTR, sizeof(WSTR)).ptr(), STR));
-    }
+#endif
+	}
 
     o3_log("Testing static Str Str::fromBase64(const void* ptr, size_t size)\n");
     {
@@ -142,7 +146,6 @@ inline void test_Str()
             {
                 Str str = buf;
 
-                printf("%d\n", str.size());
                 o3_assert(!buf.unique());
                 o3_assert(strEquals(str.ptr(), STR));
             }

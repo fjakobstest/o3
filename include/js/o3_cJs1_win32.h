@@ -196,8 +196,7 @@ namespace o3{
                     Str(excepinfo.bstrDescription).ptr(), 
                     ",   line: ", ulLineNumber, ",   char: ", ichCharPosition);
                 
-                //fprintf(stdout, "%s%s%s%d%s%d\n", "    ScriptError ", Str(excepinfo.bstrDescription).ptr(), " line: ",
-                //    ulLineNumber, " char: ", ichCharPosition);                
+                printf(m_pthis->m_error.ptr());                
                 //return E_FAIL;
                 return S_OK;
 			}

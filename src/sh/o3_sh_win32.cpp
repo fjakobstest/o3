@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
     CoUninitialize(); 
 
     // if(wait)
-	getc(stdin);
+	// getc(stdin);
 
     //WSACleanup();
     return ret;

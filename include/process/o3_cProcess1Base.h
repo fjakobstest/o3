@@ -29,19 +29,19 @@ struct cProcess1Base : cScr {
     o3_begin_class(cScr)
     o3_end_class()
 
-#include "o3_cProcess1Base_scr.h"
+	o3_glue_gen()
 
-    virtual o3_get siStream stdin() = 0;
+    virtual o3_get siStream stdIn() = 0;
 
-    virtual o3_get siStream setStdin(iStream* in) = 0;
+    virtual o3_get siStream setStdIn(iStream* in) = 0;
 
-    virtual o3_get siStream stdout() = 0;
+    virtual o3_get siStream stdOut() = 0;
 
-    virtual o3_get siStream setStdout(iStream* out) = 0;
+    virtual o3_get siStream setStdOut(iStream* out) = 0;
 
-    virtual o3_get siStream stderr() = 0;
+    virtual o3_get siStream stdErr() = 0;
 
-    virtual o3_get siStream setStderr(iStream* err) = 0;
+    virtual o3_get siStream setStdErr(iStream* err) = 0;
 
     virtual o3_get siScr onterminate()
     {
@@ -58,9 +58,9 @@ struct cProcess1Base : cScr {
         return m_onterminate;
     }
 
-    virtual o3_fun void exec(const char* args) = 0;
+    virtual o3_fun void exec(iCtx* ctx, const char* args) = 0;
 
-    virtual o3_get int exitStatus() = 0;
+    virtual o3_get int exitCode() = 0;
 
     virtual void startListening() = 0;
 

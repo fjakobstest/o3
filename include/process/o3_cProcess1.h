@@ -25,4 +25,14 @@
 #include "o3_cProcess1_win32.h"
 #endif // O3_WIN32
 
+#ifdef O3_WITH_GLUE
+#include "o3_scr_cProcess1Base.h"
+#ifdef O3_POSIX
+#include "o3_scr_cProcess1_posix.h"
+#endif
+#ifdef O3_WIN32
+#include "o3_scr_cProcess1_win32.h"
+#endif // O3_POSIX
+#endif // O3_WITH_GLUE
+
 #endif // O3_C_PROCESS1_H

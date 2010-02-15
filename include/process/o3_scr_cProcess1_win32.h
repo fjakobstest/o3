@@ -19,10 +19,9 @@ Trait* cProcess1::clsTraits()
          {      3,      Trait::TYPE_FUN,        "cProcess1",          "runSimple",          clsInvoke,      3,      0                  },
          {      4,      Trait::TYPE_GET,        "cProcess1",          "valid",              clsInvoke,      4,      0                  },
          {      5,      Trait::TYPE_GET,        "cProcess1",          "pid",                clsInvoke,      5,      0                  },
-         {      6,      Trait::TYPE_SET,        "cProcess1",          "onterminate",        clsInvoke,      6,      0                  },
-         {      7,      Trait::TYPE_FUN,        "cProcess1",          "send",               clsInvoke,      7,      0                  },
-         {      8,      Trait::TYPE_FUN,        "cProcess1",          "kill",               clsInvoke,      8,      0                  },
-         {      9,      Trait::TYPE_GET,        "cProcess1",          "exitCode",           clsInvoke,      9,      0                  },
+         {      6,      Trait::TYPE_FUN,        "cProcess1",          "send",               clsInvoke,      6,      0                  },
+         {      7,      Trait::TYPE_FUN,        "cProcess1",          "kill",               clsInvoke,      7,      0                  },
+         {      8,      Trait::TYPE_GET,        "cProcess1",          "exitCode",           clsInvoke,      8,      0                  },
          {      0,      Trait::TYPE_END,        "cProcess1",          0,                    0,              0,      0                  },
       };
 
@@ -78,21 +77,16 @@ siEx cProcess1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             *rval = pthis1->pid();
             break;
          case 6:
-            if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
-            pthis1->setOnterminate(ctx,argv[0].toScr());
-            break;
-         case 7:
             if (argc != 2)
                return o3_new(cEx)("Invalid argument count.");
             pthis1->send(argv[0].toStr(),argv[1].toInt32());
             break;
-         case 8:
+         case 7:
             if (argc != 0)
                return o3_new(cEx)("Invalid argument count.");
             pthis1->kill();
             break;
-         case 9:
+         case 8:
             if (argc != 0)
                return o3_new(cEx)("Invalid argument count.");
             *rval = pthis1->exitCode();

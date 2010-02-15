@@ -143,7 +143,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "process", "process", "{9E8C
 		..\include\process\o3_cProcess1_posix.h = ..\include\process\o3_cProcess1_posix.h
 		..\include\process\o3_cProcess1_win32.h = ..\include\process\o3_cProcess1_win32.h
 		..\include\process\o3_cProcess1Base.h = ..\include\process\o3_cProcess1Base.h
-		..\include\process\o3_process.h = ..\include\process\o3_process.h
 	EndProjectSection
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"

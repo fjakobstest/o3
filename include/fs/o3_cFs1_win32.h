@@ -194,7 +194,7 @@ public:
 
 public:
 
-        static o3_ext("cO3") o3_fun siFs fs(iCtx* ctx) 
+        static o3_ext("cO3") o3_get siFs fs(iCtx* ctx) 
         {            
             return siFs(o3_new(cFs1(ctx->mgr()->root(), "")));
         }
