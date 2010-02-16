@@ -90,7 +90,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
     int                 m_color;
     bool                m_done;
 
-    // TODO: get rid of this ASAP:
+	o3_enum("FontStyles", BOLD=1, ITALIC=2, UNDERLINE=4, STRIKEOUT=8);
 
     static o3_ext("cO3") o3_get siWindow window(iCtx* ctx)
     {
@@ -109,7 +109,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         return ret;
     }
 
-    static o3_ext("cO3") o3_fun siWindow createWindow(iUnk*, const char* caption, int x, int y, 
+    static o3_ext("cO3") o3_fun siWindow createWindow(o3_tgt iScr* tgt, const char* caption, int x, int y, 
         int width, int height, int style = 0)
     {            
         return create(0, caption, x, y, width, height, style);
@@ -420,13 +420,13 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         return(DefWindowProc(hwnd, uMsg, wParam, lParam));
     }
 
-    static void sendKeyUp(BYTE VKey) 
+    static void keyUp(BYTE VKey) 
     {
         BYTE ScanCode = LOBYTE(::MapVirtualKey(VKey, 0));
         keyboardEvent(VKey, ScanCode, KEYEVENTF_KEYUP);
     }
 
-    static void sendKeyDown(BYTE VKey, bool GenUpMsg) 
+    static void keyDown(BYTE VKey, bool GenUpMsg) 
     {
         BYTE ScanCode = 0;
         // Get scancode
@@ -457,22 +457,40 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
       return true;
     }
 
-    static void sendKey(BYTE VKey, BYTE flags) 
+    static void keyPress(BYTE VKey, BYTE flags) 
     {           
-        if (flags&SHIFT) sendKeyDown(VK_SHIFT, false);
-        if (flags&CTRL) sendKeyDown(VK_CONTROL, false);
-        if (flags&ALT) sendKeyDown(VK_MENU, false);
-        if (flags&ESC) sendKeyDown(VK_ESCAPE, false);
-        sendKeyDown(VKey, true);
-        if (flags&SHIFT) sendKeyUp(VK_SHIFT);
-        if (flags&CTRL) sendKeyUp(VK_CONTROL);
-        if (flags&ALT) sendKeyUp(VK_MENU);
-        if (flags&ESC) sendKeyUp(VK_ESCAPE);
+        if (flags&SHIFT) keyDown(VK_SHIFT, false);
+        if (flags&CTRL) keyDown(VK_CONTROL, false);
+        if (flags&ALT) keyDown(VK_MENU, false);
+        if (flags&ESC) keyDown(VK_ESCAPE, false);
+        keyDown(VKey, true);
+        if (flags&SHIFT) keyUp(VK_SHIFT);
+        if (flags&CTRL) keyUp(VK_CONTROL);
+        if (flags&ALT) keyUp(VK_MENU);
+        if (flags&ESC) keyUp(VK_ESCAPE);
     }
+
+	static o3_ext("cO3") o3_fun void sendKeyDown(int keycode) {
+		int win_keycode = mapJsKeyCodes(keycode);
+		if (win_keycode > 0)
+			keyDown(win_keycode, false);
+	}
+
+	static o3_ext("cO3") o3_fun void sendKeyUp(int keycode) {
+		int win_keycode = mapJsKeyCodes(keycode);
+		if (win_keycode > 0)
+			keyUp(win_keycode);
+	}
+
+	static o3_ext("cO3") o3_fun void sendKey(int keycode) {
+		int win_keycode = mapJsKeyCodes(keycode);
+		if (win_keycode > 0)
+			keyDown(win_keycode, true);
+	}
 
     // sending key event, the virtual key events sent out will be handled by the window
     // in focus
-    static o3_ext("cO3") o3_fun void sendKeyEvent(const char* keys) 
+    static o3_ext("cO3") o3_fun void sendAsKeyEvents(const char* keys) 
     {           				        
         const char* d = keys; 
 		BYTE buf_new[256];
@@ -512,7 +530,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
                 lparm|=0x20000000;
 
 
-            sendKey((BYTE) vkey, flags);
+            keyPress((BYTE) vkey, flags);
 			flags = 0;
 			
 			d++; 
@@ -620,6 +638,59 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         m_ctx = ctx;
         return m_onend =  onend;
     }
+
+	static int mapJsKeyCodes(int js_code) {
+		switch(js_code){
+			case 8: return VK_BACK;		//backspace  	
+			case 9: return VK_TAB;  	//tab 	
+			case 13: return VK_RETURN;	//enter 	13
+			case 16: return VK_SHIFT;	//shift 	16
+			case 17: return VK_CONTROL;	//ctrl 	17
+			case 18: return VK_MENU;	//alt 	18
+			case 19: return VK_PAUSE;	//pause/break 	19
+			case 20: return VK_CAPITAL; //caps lock 	20
+			case 27: return VK_ESCAPE;  //escape 	27
+			case 33: return VK_PRIOR;	//page up 	33
+			case 34: return VK_NEXT;	//page down 	34
+			case 35: return	VK_END;		//end 	35
+			case 36: return VK_HOME;	//home 	36
+			case 37: return VK_LEFT;	//left arrow 	37
+			case 38: return VK_UP;		//up arrow 	38
+			case 39: return VK_RIGHT;	//right arrow 	39
+			case 40: return VK_DOWN;	//down arrow 	40
+			case 45: return	VK_INSERT;	//insert 	45
+			case 46: return VK_DELETE;	//delete 	46
+			case 144: return VK_NUMLOCK;//num lock 	144
+			case 145: return VK_SCROLL;//scroll lock 	145
+			default: 
+				//numpad 0 	96	
+				//numpad 9 	105
+				if (js_code >= 96 && js_code <= 105) {
+					return VK_NUMPAD0 + js_code - 96;
+				}						
+				//f1 	112
+				//f12 	123
+				if (js_code >= 112 && js_code <= 123) {
+					return VK_F1 + js_code - 112;
+				}						
+				//0 	48
+				//9 	57
+				if (js_code >= 48 && js_code <= 57) {
+					return 30 + js_code - 48;
+				}						
+				//a 	65
+				//z 	90
+				if (js_code >= 65 && js_code <= 90) {
+					return 41 + js_code - 65;
+				}
+
+				// key not supported:
+				return -1;
+		}
+
+	}
+
+
 };
 
 }

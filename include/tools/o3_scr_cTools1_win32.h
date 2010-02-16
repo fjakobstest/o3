@@ -57,62 +57,62 @@ siEx cTools1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( tempPath )");
             *rval = pthis1->tempPath();
             break;
          case 1:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( selfPath )");
             *rval = pthis1->selfPath();
             break;
          case 2:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( checkIfInstalled )");
             *rval = pthis1->checkIfInstalled(argv[0].toStr());
             break;
          case 3:
             if (argc != 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( regDll )");
             *rval = pthis1->regDll(argv[0].toStr(),argv[1].toBool());
             break;
          case 4:
             if (argc != 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( unregDll )");
             *rval = pthis1->unregDll(argv[0].toStr(),argv[1].toBool());
             break;
          case 5:
             if (argc != 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( regUninstaller )");
             *rval = pthis1->regUninstaller(ctx,argv[0].toBool(),argv[1].toScr());
             break;
          case 6:
             if (argc != 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( unregUninstaller )");
             *rval = pthis1->unregUninstaller(argv[0].toBool(),argv[1].toStr());
             break;
          case 7:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( getUninstPath )");
             *rval = pthis1->getUninstPath(argv[0].toStr());
             break;
          case 8:
             if (argc != 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( regMozillaPlugin )");
             *rval = pthis1->regMozillaPlugin(ctx,argv[0].toBool(),argv[1].toScr());
             break;
          case 9:
             if (argc != 4)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( unregMozillaPlugin )");
             *rval = pthis1->unregMozillaPlugin(argv[0].toBool(),argv[1].toStr(),argv[2].toStr(),argv[3].toStr());
             break;
          case 10:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( adminUser )");
             *rval = pthis1->adminUser();
             break;
          case 11:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( winVersionMajor )");
             *rval = pthis1->winVersionMajor();
             break;
       }

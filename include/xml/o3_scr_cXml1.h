@@ -40,7 +40,7 @@ siEx cXml1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc < 1 && argc > 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( parseFromString )");
             *rval = siXmlNode(pthis1->parseFromString(ctx,argv[0].toStr(),argc > 1 ? argv[1].toStr() : "text/xml"));
             break;
       }
@@ -56,7 +56,7 @@ siEx cXml1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( xml )");
             *rval = siXml(pthis1->xml(ctx));
             break;
       }

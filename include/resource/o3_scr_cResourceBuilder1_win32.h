@@ -42,12 +42,12 @@ siEx cResourceBuilder1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc < 1 && argc > 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( addAsResource )");
             *rval = pthis1->addAsResource(siFs (argv[0].toScr()),argc > 1 ? argv[1].toStr() : 0);
             break;
          case 1:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( buildAndAppend )");
             pthis1->buildAndAppend(siFs (argv[0].toScr()),&ex);
             break;
       }
@@ -63,12 +63,12 @@ siEx cResourceBuilder1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( resourceBuilder )");
             *rval = pthis1->resourceBuilder();
             break;
          case 1:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( removeResource )");
             *rval = pthis1->removeResource(siFs (argv[0].toScr()));
             break;
       }

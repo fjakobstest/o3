@@ -46,42 +46,42 @@ siEx cWindow1Base::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( x )");
             *rval = pthis1->x();
             break;
          case 1:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( setX )");
             *rval = pthis1->setX(argv[0].toInt32());
             break;
          case 2:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( y )");
             *rval = pthis1->y();
             break;
          case 3:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( setY )");
             *rval = pthis1->setY(argv[0].toInt32());
             break;
          case 4:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( width )");
             *rval = pthis1->width();
             break;
          case 5:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( setWidth )");
             *rval = pthis1->setWidth(argv[0].toInt32());
             break;
          case 6:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( height )");
             *rval = pthis1->height();
             break;
          case 7:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( setHeight )");
             *rval = pthis1->setHeight(argv[0].toInt32());
             break;
       }

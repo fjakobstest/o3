@@ -44,32 +44,32 @@ siEx cXmlDocument1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( documentElement )");
             *rval = siXmlElement(pthis1->documentElement(ctx));
             break;
          case 1:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( createElement )");
             *rval = siXmlElement(pthis1->createElement(ctx,argv[0].toStr()));
             break;
          case 2:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( createTextNode )");
             *rval = siXmlText(pthis1->createTextNode(ctx,argv[0].toStr()));
             break;
          case 3:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( createComment )");
             *rval = siXmlComment(pthis1->createComment(ctx,argv[0].toStr()));
             break;
          case 4:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( createCDATASection )");
             *rval = siXmlCDATASection(pthis1->createCDATASection(ctx,argv[0].toStr()));
             break;
          case 5:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( createAttribute )");
             *rval = siXmlAttr(pthis1->createAttribute(ctx,argv[0].toStr()));
             break;
       }

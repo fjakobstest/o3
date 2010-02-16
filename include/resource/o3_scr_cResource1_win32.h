@@ -43,22 +43,22 @@ siEx cResource1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( unpack )");
             pthis1->unpack(ctx,siFs (argv[0].toScr()),&ex);
             break;
          case 1:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( list )");
             *rval = o3_new(tScrVec<Str>)(pthis1->list());
             break;
          case 2:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( get )");
             *rval = o3_new(cScrBuf)(pthis1->get(argv[0].toStr()));
             break;
          case 3:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( protocolOpen )");
             *rval = siStream(pthis1->protocolOpen(argv[0].toStr()));
             break;
       }
@@ -74,7 +74,7 @@ siEx cResource1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( resources )");
             *rval = pthis1->resources(ctx);
             break;
       }

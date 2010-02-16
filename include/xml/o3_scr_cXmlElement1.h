@@ -49,57 +49,57 @@ siEx cXmlElement1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc < 1 && argc > 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( selectSingleNode )");
             *rval = siXmlNode(pthis1->selectSingleNode(ctx,argv[0].toStr(),argc > 1 ? argv[1].toScr() : 0));
             break;
          case 1:
             if (argc < 1 && argc > 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( selectNodes )");
             *rval = siXmlNodeArray(pthis1->selectNodes(argv[0].toStr(),argc > 1 ? argv[1].toScr() : 0));
             break;
          case 2:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( tagName )");
             *rval = pthis1->tagName();
             break;
          case 3:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( getAttribute )");
             *rval = pthis1->getAttribute(ctx,argv[0].toStr());
             break;
          case 4:
             if (argc != 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( setAttribute )");
             pthis1->setAttribute(ctx,argv[0].toStr(),argv[1].toStr());
             break;
          case 5:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( removeAttribute )");
             pthis1->removeAttribute(ctx,argv[0].toStr());
             break;
          case 6:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( getAttributeNode )");
             *rval = siXmlAttr(pthis1->getAttributeNode(ctx,argv[0].toStr()));
             break;
          case 7:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( setAttributeNode )");
             *rval = siXmlAttr(pthis1->setAttributeNode(siXmlAttr (argv[0].toScr())));
             break;
          case 8:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( removeAttributeNode )");
             *rval = siXmlAttr(pthis1->removeAttributeNode(siXmlAttr (argv[0].toScr())));
             break;
          case 9:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( getElementsByTagName )");
             *rval = siXmlNodeList(pthis1->getElementsByTagName(argv[0].toStr()));
             break;
          case 10:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( normalize )");
             pthis1->normalize();
             break;
       }

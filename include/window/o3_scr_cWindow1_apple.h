@@ -46,7 +46,7 @@ siEx cWindow1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( window )");
             *rval = pthis1->window(ctx);
             break;
       }

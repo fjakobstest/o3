@@ -40,12 +40,12 @@ siEx cScreen1Base::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( width )");
             *rval = pthis1->width();
             break;
          case 1:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( height )");
             *rval = pthis1->height();
             break;
       }

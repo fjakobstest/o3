@@ -49,22 +49,22 @@ siEx cFs1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( fs )");
             *rval = siFs(pthis1->fs(ctx));
             break;
          case 1:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( cwd )");
             *rval = siFs(pthis1->cwd());
             break;
          case 2:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( programFiles )");
             *rval = siFs(pthis1->programFiles());
             break;
          case 3:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( appData )");
             *rval = siFs(pthis1->appData());
             break;
       }

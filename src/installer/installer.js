@@ -127,17 +127,24 @@ function dialogStart(){
 }
 
 var processRunning = true;
-function waitForProcess(proc_to_run){
-    var ret = "";
-    proc_to_run.ondeath = function(procref) {
+function runProcess(proc_to_run, command, mode) {
+    proc_to_run.onterminate = function(procref) {
         processRunning = false;
     }
+	switch(mode) {
+		case 'selfElevated' : 
+			proc_to_run.runSelfElevated(command); 
+			break;
+		case 'simple' : 			
+			break;	
+		default:	
+			proc_to_run.exec(command);
+	}
     
     while (processRunning) {
-        ret += proc_to_run.receive(1);
+        o3.wait(5);
     }
     processRunning = true;
-    return ret;
 }
 
 var installer = {
@@ -295,11 +302,9 @@ var installer = {
             if (o3.adminUser && o3.winVersionMajor == 5)
                 return this.run(true);
             
-            var proc = o3.createProcess();
-            if (!proc.runSelfElevated("-a"))
-                return -5;
-            waitForProcess(proc);
-            return proc.outcode;
+            var proc = o3.process();            
+            runProcess(proc, "-a", "selfElevated");
+            return proc.exitCode;
         }
         else {
             return this.run(false);
@@ -317,20 +322,17 @@ var installer = {
             cancel = true;
         }
         else {
-            var proc = o3.createProcess();
+            var proc = o3.process();
             uninargs = uninfull.substring(idx);
             uninpath = uninfull.substring(0, idx);
             //tmp copy of the uninstaller and run it (otherwise we can not delete the files)
             var thisFile = o3.fs().get(uninpath),
                 tmppath  = o3.tempPath + appInfo.fullId + ".exe";
             thisFile.copy(o3.fs().get(tmppath));
-
-            proc.run(tmppath + uninargs + " -f -t");
-            //proc.receive(-1);
-            waitForProcess(proc);
+            runProcess(proc, tmppath + uninargs + " -f -t");
             //if the uninstall process returns with an error code it means that the
             //uninstall failed and the user gave up retrying it...
-            if (proc.outcode < 0)
+            if (proc.exitCode < 0)
                 cancel = true;
         }
     },
@@ -520,7 +522,7 @@ var uninstaller = {
             tmpcpy   = o3.fs().get(tmppath);
         tmpcpy.remove(true);
         tmpcpy = thisFile.copy(tmpcpy);
-        o3.createProcess().runSimple(tmppath + " " + args + " -t");
+        o3.process().runSimple(tmppath + " " + args + " -t");
     },
     
     run: function(all_usr, reinstall) {
@@ -569,12 +571,9 @@ var uninstaller = {
             if (o3.adminUser && o3.winVersionMajor == 5)
                 return this.run(true, reinstall);
 
-            var proc = o3.createProcess();
-            if (!proc.runSelfElevated("-u -a -t -e" + (reinstall ? " -r" : "")))
-                return -5;
-            //proc.receive(-1);
-            waitForProcess(proc);
-            return proc.outcode;
+            var proc = o3.process();
+            runProcess(proc, "-u -a -t -e" + (reinstall ? " -r" : ""), "selfElevated");
+            return proc.exitCode;
         }
         else {
             return this.run(false, reinstall);

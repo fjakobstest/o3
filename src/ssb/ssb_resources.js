@@ -16,7 +16,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-var mode = o3.args[2];
+var mode = o3.args[1];
 
 function checkFile(file) {
     if (!file.exists) {    

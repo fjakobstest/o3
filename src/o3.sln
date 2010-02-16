@@ -172,6 +172,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "window", "window", "{5049F6
 		..\include\window\o3_cWindow1_apple.h = ..\include\window\o3_cWindow1_apple.h
 		..\include\window\o3_cWindow1_win32.h = ..\include\window\o3_cWindow1_win32.h
 		..\include\window\o3_cWindow1Base.h = ..\include\window\o3_cWindow1Base.h
+		..\include\window\o3_scr_cButton1_win32.h = ..\include\window\o3_scr_cButton1_win32.h
+		..\include\window\o3_scr_cStaticCtrl1_win32.h = ..\include\window\o3_scr_cStaticCtrl1_win32.h
+		..\include\window\o3_scr_cWindow1_apple.h = ..\include\window\o3_scr_cWindow1_apple.h
+		..\include\window\o3_scr_cWindow1_win32.h = ..\include\window\o3_scr_cWindow1_win32.h
+		..\include\window\o3_scr_cWindow1Base.h = ..\include\window\o3_scr_cWindow1Base.h
 		..\include\window\o3_window.h = ..\include\window\o3_window.h
 	EndProjectSection
 	ProjectSection(WebsiteProperties) = preProject

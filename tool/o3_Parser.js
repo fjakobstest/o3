@@ -238,7 +238,7 @@ this.Parser = {
         }
         return 0;    
     },
-    readEnum : function(tree, index, traits) {
+    readEnum : function(tree, index, traits) {	
         var subtree = tree[index+1].subtree,i,j,l,enumName,value=-1;
         
         enumName = subtree[1].plain_text.replace(/\"/g, '');
@@ -270,7 +270,6 @@ this.Parser = {
             
             i=j;
         }
-        
         return 1;
     },
     

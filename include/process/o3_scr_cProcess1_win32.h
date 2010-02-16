@@ -32,7 +32,7 @@ Trait* cProcess1::extTraits()
 {
       static Trait TRAITS[] = {
          {      0,      Trait::TYPE_BEGIN,      "cProcess1",          0,                    0,              0,      0                  },
-         {      0,      Trait::TYPE_FUN,        "cO3",                "createProcess",      extInvoke,      0,      0                  },
+         {      0,      Trait::TYPE_FUN,        "cO3",                "process",            extInvoke,      0,      0                  },
          {      0,      Trait::TYPE_END,        "cProcess1",          0,                    0,              0,      0                  },
       };
 
@@ -48,47 +48,47 @@ siEx cProcess1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( run )");
             *rval = pthis1->run(ctx,argv[0].toStr());
             break;
          case 1:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( runSelf )");
             *rval = pthis1->runSelf(ctx);
             break;
          case 2:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( runSelfElevated )");
             pthis1->runSelfElevated(ctx);
             break;
          case 3:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( runSimple )");
             pthis1->runSimple(argv[0].toStr());
             break;
          case 4:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( valid )");
             *rval = pthis1->valid();
             break;
          case 5:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( pid )");
             *rval = pthis1->pid();
             break;
          case 6:
             if (argc != 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( send )");
             pthis1->send(argv[0].toStr(),argv[1].toInt32());
             break;
          case 7:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( kill )");
             pthis1->kill();
             break;
          case 8:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( exitCode )");
             *rval = pthis1->exitCode();
             break;
       }
@@ -104,8 +104,8 @@ siEx cProcess1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc > 2)
-               return o3_new(cEx)("Invalid argument count.");
-            *rval = pthis1->createProcess(ctx,argc > 0 ? argv[0].toStr() : 0,argc > 1 ? argv[1].toInt32() : 0);
+               return o3_new(cEx)("Invalid argument count. ( process )");
+            *rval = pthis1->process(ctx,argc > 0 ? argv[0].toStr() : 0,argc > 1 ? argv[1].toInt32() : 0);
             break;
       }
       return ex;

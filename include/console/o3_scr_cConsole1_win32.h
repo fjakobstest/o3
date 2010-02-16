@@ -49,22 +49,22 @@ siEx cConsole1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( stdIn )");
             *rval = siStream(pthis1->stdIn(ctx));
             break;
          case 1:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( stdOut )");
             *rval = siStream(pthis1->stdOut(ctx));
             break;
          case 2:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( stdErr )");
             *rval = siStream(pthis1->stdErr(ctx));
             break;
          case 3:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( print )");
             pthis1->print(ctx,argv[0].toStr());
             break;
       }

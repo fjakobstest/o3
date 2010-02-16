@@ -48,24 +48,24 @@ siEx cStaticCtrl1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
 
       switch(index) {
          case 0:
-            if (argc < 6 && argc > 8)
-               return o3_new(cEx)("Invalid argument count.");
-            *rval = siWindow(pthis1->createTextbox(siUnk (argv[0].toScr()),argv[1].toStr(),argv[2].toInt32(),argv[3].toInt32(),argv[4].toInt32(),argv[5].toInt32(),argc > 6 ? argv[6].toInt32() : 16,argc > 7 ? argv[7].toInt32() : 0));
+            if (argc < 5 && argc > 7)
+               return o3_new(cEx)("Invalid argument count. ( createTextbox )");
+            *rval = siWindow(pthis1->createTextbox(pthis,argv[0].toStr(),argv[1].toInt32(),argv[2].toInt32(),argv[3].toInt32(),argv[4].toInt32(),argc > 5 ? argv[5].toInt32() : 16,argc > 6 ? argv[6].toInt32() : 0));
             break;
          case 1:
-            if (argc != 5)
-               return o3_new(cEx)("Invalid argument count.");
-            *rval = siWindow(pthis1->createBlank(siUnk (argv[0].toScr()),argv[1].toInt32(),argv[2].toInt32(),argv[3].toInt32(),argv[4].toInt32()));
+            if (argc != 4)
+               return o3_new(cEx)("Invalid argument count. ( createBlank )");
+            *rval = siWindow(pthis1->createBlank(pthis,argv[0].toInt32(),argv[1].toInt32(),argv[2].toInt32(),argv[3].toInt32()));
             break;
          case 2:
-            if (argc != 4)
-               return o3_new(cEx)("Invalid argument count.");
-            *rval = siWindow(pthis1->createSeparator(siUnk (argv[0].toScr()),argv[1].toInt32(),argv[2].toInt32(),argv[3].toInt32()));
+            if (argc != 3)
+               return o3_new(cEx)("Invalid argument count. ( createSeparator )");
+            *rval = siWindow(pthis1->createSeparator(pthis,argv[0].toInt32(),argv[1].toInt32(),argv[2].toInt32()));
             break;
          case 3:
-            if (argc != 6)
-               return o3_new(cEx)("Invalid argument count.");
-            *rval = siWindow(pthis1->createImgbox(siUnk (argv[0].toScr()),argv[1].toStr(),argv[2].toInt32(),argv[3].toInt32(),argv[4].toInt32(),argv[5].toInt32()));
+            if (argc != 5)
+               return o3_new(cEx)("Invalid argument count. ( createImgbox )");
+            *rval = siWindow(pthis1->createImgbox(pthis,argv[0].toStr(),argv[1].toInt32(),argv[2].toInt32(),argv[3].toInt32(),argv[4].toInt32()));
             break;
       }
       return ex;

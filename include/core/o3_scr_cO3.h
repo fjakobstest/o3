@@ -44,32 +44,32 @@ siEx cO3::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( args )");
             *rval = o3_new(tScrVec<Str>)(pthis1->args());
             break;
          case 1:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( envs )");
             *rval = o3_new(tScrVec<Str>)(pthis1->envs());
             break;
          case 2:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( loadModule )");
             *rval = pthis1->loadModule(ctx,argv[0].toStr());
             break;
          case 3:
             if (argc > 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( wait )");
             pthis1->wait(ctx,argc > 0 ? argv[0].toInt32() : -1);
             break;
          case 4:
             if (argc > 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( exit )");
             pthis1->exit(argc > 0 ? argv[0].toInt32() : 0);
             break;
          case 5:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( versionInfo )");
             *rval = pthis1->versionInfo();
             break;
       }

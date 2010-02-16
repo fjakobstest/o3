@@ -58,102 +58,102 @@ siEx cXmlNode1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( replaceNode )");
             *rval = siXmlNode(pthis1->replaceNode(ctx,siXmlNode (argv[0].toScr())));
             break;
          case 1:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( xml )");
             *rval = pthis1->xml();
             break;
          case 2:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( nodeName )");
             *rval = pthis1->nodeName();
             break;
          case 3:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( nodeValue )");
             *rval = pthis1->nodeValue();
             break;
          case 4:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( setNodeValue )");
             pthis1->setNodeValue(argv[0].toStr());
             break;
          case 5:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( nodeType )");
             *rval = pthis1->nodeType();
             break;
          case 6:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( parentNode )");
             *rval = siXmlNode(pthis1->parentNode(ctx));
             break;
          case 7:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( childNodes )");
             *rval = siXmlNodeList(pthis1->childNodes());
             break;
          case 8:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( firstChild )");
             *rval = siXmlNode(pthis1->firstChild(ctx));
             break;
          case 9:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( lastChild )");
             *rval = siXmlNode(pthis1->lastChild(ctx));
             break;
          case 10:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( previousSibling )");
             *rval = siXmlNode(pthis1->previousSibling(ctx));
             break;
          case 11:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( nextSibling )");
             *rval = siXmlNode(pthis1->nextSibling(ctx));
             break;
          case 12:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( attributes )");
             *rval = siXmlNamedNodeMap(pthis1->attributes());
             break;
          case 13:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( ownerDocument )");
             *rval = siXmlDocument(pthis1->ownerDocument(ctx));
             break;
          case 14:
             if (argc != 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( insertBefore )");
             *rval = siXmlNode(pthis1->insertBefore(siXmlNode (argv[0].toScr()),siXmlNode (argv[1].toScr())));
             break;
          case 15:
             if (argc != 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( replaceChild )");
             *rval = siXmlNode(pthis1->replaceChild(siXmlNode (argv[0].toScr()),siXmlNode (argv[1].toScr())));
             break;
          case 16:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( removeChild )");
             *rval = siXmlNode(pthis1->removeChild(siXmlNode (argv[0].toScr())));
             break;
          case 17:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( appendChild )");
             *rval = siXmlNode(pthis1->appendChild(siXmlNode (argv[0].toScr())));
             break;
          case 18:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( hasChildNodes )");
             *rval = pthis1->hasChildNodes();
             break;
          case 19:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( cloneNode )");
             *rval = siXmlNode(pthis1->cloneNode(ctx,argv[0].toBool()));
             break;
       }

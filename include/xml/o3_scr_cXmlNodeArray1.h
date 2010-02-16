@@ -41,17 +41,17 @@ siEx cXmlNodeArray1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( __query__ )");
             *rval = pthis1->__query__(argv[0].toInt32());
             break;
          case 1:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( __getter__ )");
             *rval = siXmlNode(pthis1->__getter__(ctx,argv[0].toInt32(),&ex));
             break;
          case 2:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( length )");
             *rval = pthis1->length();
             break;
       }

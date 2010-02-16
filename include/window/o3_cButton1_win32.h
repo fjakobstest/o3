@@ -41,19 +41,19 @@ struct cButton1 : cWindow1
     WNDPROC         m_def_proc;
     siScr           m_onclick;
 
-    static o3_ext("cWindow1") o3_fun siWindow createButton(iUnk* target, const char* text, 
+    static o3_ext("cWindow1") o3_fun siWindow createButton(o3_tgt iScr* target, const char* text, 
         int x, int y, int w, int h, int font_size = 16, int font_style = 0)
     {              
         return create(TYPE_PUSH,target,text,x,y,w,h,font_size,font_style, 0);
     }
 
-    static o3_ext("cWindow1") o3_fun siWindow createRButton(iUnk* target, const char* text, 
+    static o3_ext("cWindow1") o3_fun siWindow createRButton(o3_tgt iScr* target, const char* text, 
         int x, int y, int w, int h, int font_size = 16, int font_style = 0, int bkcolor = 0)
     {
         return create(TYPE_RADIO,target,text,x,y,w,h,font_size,font_style, bkcolor);
     }
 
-    static siWindow create(ButtonType type, iUnk* target, const char* text,
+    static siWindow create(ButtonType type, iScr* target, const char* text,
         int x, int y, int w, int h, int font_size, int font_style, int bkcolor)
     {
         // create the component

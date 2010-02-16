@@ -43,31 +43,31 @@ struct cStaticCtrl1 : cWindow1
     WNDPROC         m_def_proc;
     HBITMAP         m_bitmap;    
 
-    static o3_ext("cWindow1") o3_fun siWindow createTextbox(iUnk* target, const char* text, 
+    static o3_ext("cWindow1") o3_fun siWindow createTextbox(o3_tgt iScr* target, const char* text, 
         int x, int y, int w, int h, int font_size = 16, int font_style = 0)
     {
         return createStatic(TYPE_TEXTBOX,target,text,x,y,w,h,font_size,font_style);
     }
 
-    static o3_ext("cWindow1") o3_fun siWindow createBlank(iUnk* target,  
+    static o3_ext("cWindow1") o3_fun siWindow createBlank(o3_tgt iScr* target,  
         int x, int y, int w, int h)
     {
         return createStatic(TYPE_BLANK,target,0,x,y,w,h);
     }
 
-    static o3_ext("cWindow1") o3_fun siWindow createSeparator(iUnk* target, 
+    static o3_ext("cWindow1") o3_fun siWindow createSeparator(o3_tgt iScr* target, 
         int x, int y, int w)
     {
         return createStatic(TYPE_SEPARATOR,target,0,x,y,w,3);
     }
 
-    static o3_ext("cWindow1") o3_fun siWindow createImgbox(iUnk* target, const char* img_name, 
+    static o3_ext("cWindow1") o3_fun siWindow createImgbox(o3_tgt iScr* target, const char* img_name, 
         int x, int y, int w, int h)
     {
         return createStatic(TYPE_IMAGEBOX,target,img_name,x,y,w,h);
     }
 
-    static siWindow createStatic(StaticType type, iUnk* target,
+    static siWindow createStatic(StaticType type, iScr* target,
         const char* text_data, int x, int y, int w, int h, int font_size = 16, int font_style = 0)
     {
         // create component

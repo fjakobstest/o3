@@ -48,52 +48,52 @@ siEx cProcess1Base::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( stdIn )");
             *rval = siStream(pthis1->stdIn());
             break;
          case 1:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( setStdIn )");
             *rval = siStream(pthis1->setStdIn(siStream (argv[0].toScr())));
             break;
          case 2:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( stdOut )");
             *rval = siStream(pthis1->stdOut());
             break;
          case 3:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( setStdOut )");
             *rval = siStream(pthis1->setStdOut(siStream (argv[0].toScr())));
             break;
          case 4:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( stdErr )");
             *rval = siStream(pthis1->stdErr());
             break;
          case 5:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( setStdErr )");
             *rval = siStream(pthis1->setStdErr(siStream (argv[0].toScr())));
             break;
          case 6:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( onterminate )");
             *rval = pthis1->onterminate();
             break;
          case 7:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( setOnterminate )");
             *rval = pthis1->setOnterminate(ctx,argv[0].toScr());
             break;
          case 8:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( exec )");
             pthis1->exec(ctx,argv[0].toStr());
             break;
          case 9:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( exitCode )");
             *rval = pthis1->exitCode();
             break;
       }

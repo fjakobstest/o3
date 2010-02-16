@@ -41,7 +41,7 @@ siEx cButton1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( setOnclick )");
             *rval = pthis1->setOnclick(ctx,argv[0].toScr());
             break;
       }
@@ -56,14 +56,14 @@ siEx cButton1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
 
       switch(index) {
          case 0:
-            if (argc < 6 && argc > 8)
-               return o3_new(cEx)("Invalid argument count.");
-            *rval = siWindow(pthis1->createButton(siUnk (argv[0].toScr()),argv[1].toStr(),argv[2].toInt32(),argv[3].toInt32(),argv[4].toInt32(),argv[5].toInt32(),argc > 6 ? argv[6].toInt32() : 16,argc > 7 ? argv[7].toInt32() : 0));
+            if (argc < 5 && argc > 7)
+               return o3_new(cEx)("Invalid argument count. ( createButton )");
+            *rval = siWindow(pthis1->createButton(pthis,argv[0].toStr(),argv[1].toInt32(),argv[2].toInt32(),argv[3].toInt32(),argv[4].toInt32(),argc > 5 ? argv[5].toInt32() : 16,argc > 6 ? argv[6].toInt32() : 0));
             break;
          case 1:
-            if (argc < 6 && argc > 9)
-               return o3_new(cEx)("Invalid argument count.");
-            *rval = siWindow(pthis1->createRButton(siUnk (argv[0].toScr()),argv[1].toStr(),argv[2].toInt32(),argv[3].toInt32(),argv[4].toInt32(),argv[5].toInt32(),argc > 6 ? argv[6].toInt32() : 16,argc > 7 ? argv[7].toInt32() : 0,argc > 8 ? argv[8].toInt32() : 0));
+            if (argc < 5 && argc > 8)
+               return o3_new(cEx)("Invalid argument count. ( createRButton )");
+            *rval = siWindow(pthis1->createRButton(pthis,argv[0].toStr(),argv[1].toInt32(),argv[2].toInt32(),argv[3].toInt32(),argv[4].toInt32(),argc > 5 ? argv[5].toInt32() : 16,argc > 6 ? argv[6].toInt32() : 0,argc > 7 ? argv[7].toInt32() : 0));
             break;
       }
       return ex;

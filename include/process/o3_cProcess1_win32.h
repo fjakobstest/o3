@@ -71,7 +71,6 @@ namespace o3{
 		siHandle                m_hprocess;
         PROCESS_INFORMATION     m_p_info;
         DWORD                   m_av;
-        siScr                   m_onterminate;
         siStream				m_stdout_default;
 		siStream				m_stdout_custom;
         siStream				m_stderr_default;
@@ -106,8 +105,7 @@ namespace o3{
         o3_fun void runSelfElevated(iCtx* ctx) 
         {
             m_ctx = ctx;
-            if (!runElevated( ctx, getSelfPath().ptr() ))
-                return;
+            runElevated( ctx, getSelfPath().ptr() );
         }
 
         o3_fun void runSimple(const char* cmd) 
@@ -156,7 +154,7 @@ namespace o3{
             }            
         }
 
-        static o3_ext("cO3") o3_fun siScr createProcess(iCtx* ctx, const char* name = 0, int pid = 0) 
+        static o3_ext("cO3") o3_fun siScr process(iCtx* ctx, const char* name = 0, int pid = 0) 
         {
             cProcess1* ret = o3_new(cProcess1)(ctx) ;
             ret->m_p_info.dwProcessId = (DWORD) pid;

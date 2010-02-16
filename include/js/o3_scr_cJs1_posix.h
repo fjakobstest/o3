@@ -40,7 +40,7 @@ siEx cJs1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( eval )");
             *rval = pthis1->eval(argv[0].toStr(),&ex);
             break;
       }
@@ -56,7 +56,7 @@ siEx cJs1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( js )");
             *rval = pthis1->js(ctx);
             break;
       }

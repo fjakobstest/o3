@@ -15,7 +15,7 @@
  * this library; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-var mode = o3.args[2];
+var mode = o3.args[1];
 
 var src1 = o3.cwd.get("o3_installer_header.bmp");
 var src2 = o3.cwd.get("o3_installer_left.bmp");

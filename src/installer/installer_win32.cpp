@@ -65,10 +65,11 @@ int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR arg, int show)
         char x[MAX_PATH];
         GetModuleFileNameA(0, x, MAX_PATH);
         
-        char* args[2];
+        char* args[3];
         args[0] = x;
         // TODO: need a command line parser...
         args[1] = arg;
+		args[2] = 0;
 
         siCtx js = o3_new(cJs1)(mgr, 2, args);
 

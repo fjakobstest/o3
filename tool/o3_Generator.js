@@ -217,7 +217,7 @@ this.Generator = {
             if (trait.type == 'get')
                 return {call:trait.member};
             
-            return genArgsForCall([{type:trait.ret}]);     
+            return genArgsForCall({args: [{type:trait.ret}]});     
         };
         function genEnumCall(trait) {            
             return trait.value;
@@ -259,8 +259,8 @@ this.Generator = {
             }
         };
         // arguments for the function call + arg count check    
-        function genArgsForCall(args) {
-            var i, min=-1, max=0, fetch='', spec_arg=false, def_start='', def_close='', 
+        function genArgsForCall(trait) {
+            var args = trait.args, i, min=-1, max=0, fetch='', spec_arg=false, def_start='', def_close='', 
             wrap_start='', wrap_close='', argc_check=[], call = [],info;    
             
             for (i=0; i<args.length; i++) {
@@ -321,10 +321,10 @@ this.Generator = {
         else if (trait.enu)
             t.push(ws, wrapper.start, genEnumCall(trait), wrapper.close)
         else { 
-            args = genArgsForCall(trait.args);
+            args = genArgsForCall(trait);
             if (check)             
                 t.push(ws, 'if (', args.argc_check, ')\n', ws, '   ', 
-                    'return o3_new(cEx)("Invalid argument count.");\n');
+                    'return o3_new(cEx)("Invalid argument count. ( ',trait.name,' )");\n');
             
             t.push(ws, wrapper.start, 'pthis1->',
                 trait.name, '(', args.call, ')' , wrapper.close);

@@ -46,42 +46,42 @@ siEx cXmlCharacterData1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( data )");
             *rval = pthis1->data();
             break;
          case 1:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( setData )");
             pthis1->setData(argv[0].toStr());
             break;
          case 2:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( length )");
             *rval = pthis1->length();
             break;
          case 3:
             if (argc != 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( substringData )");
             *rval = pthis1->substringData(argv[0].toInt32(),argv[1].toInt32(),&ex);
             break;
          case 4:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( appendData )");
             pthis1->appendData(argv[0].toStr());
             break;
          case 5:
             if (argc != 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( insertData )");
             pthis1->insertData(argv[0].toInt32(),argv[1].toStr(),&ex);
             break;
          case 6:
             if (argc != 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( deleteData )");
             pthis1->deleteData(argv[0].toInt32(),argv[1].toInt32(),&ex);
             break;
          case 7:
             if (argc != 3)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( replaceData )");
             pthis1->replaceData(argv[0].toInt32(),argv[1].toInt32(),argv[2].toStr(),&ex);
             break;
       }

@@ -71,17 +71,17 @@ siEx cBlob1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             break;
          case 3:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( fromString )");
             *rval = o3_new(cScrBuf)(pthis1->fromString(argv[0].toStr()));
             break;
          case 4:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( fromHex )");
             *rval = o3_new(cScrBuf)(pthis1->fromHex(argv[0].toStr()));
             break;
          case 5:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( fromBase64 )");
             *rval = o3_new(cScrBuf)(pthis1->fromBase64(argv[0].toStr()));
             break;
       }
@@ -97,22 +97,22 @@ siEx cBlob1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( blob )");
             *rval = pthis1->blob(ctx);
             break;
          case 1:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( toString )");
             *rval = pthis1->toString(pthis);
             break;
          case 2:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( toHex )");
             *rval = pthis1->toHex(pthis);
             break;
          case 3:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( toBase64 )");
             *rval = pthis1->toBase64(pthis);
             break;
          case 4:
@@ -135,7 +135,7 @@ siEx cBlob1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             break;
          case 6:
             if (argc != 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( replaceUtf16 )");
             pthis1->replaceUtf16(pthis,argv[0].toWStr(),argv[1].toWStr());
             break;
       }
