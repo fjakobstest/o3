@@ -202,11 +202,11 @@
             break;
         case 38:
             if (siStream stream = argv[0].toScr())
-                *rval = (int) pthis1->fseek(stream, argv[0].toInt());
+                *rval = (int) pthis1->fseek(stream, argv[0].toInt32());
             break;
         case 39:
             if (siStream stream = argv[0].toScr())
-                *rval = pthis1->fread(stream, argv[0].toInt());
+                *rval = pthis1->fread(stream, argv[0].toInt32());
             break;
         case 40:
             if (siStream stream = argv[0].toScr())
