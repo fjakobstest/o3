@@ -48,7 +48,7 @@ namespace o3 {
     // smart pointers for win32 COM objects
     mscom_ptr(IUnknown);
     mscom_ptr(IWebBrowser2);
-    mscom_ptr(IClassFactory);
+    //mscom_ptr(IClassFactory);
     mscom_ptr(IOleObject);
     mscom_ptr(IOleInPlaceFrame);
     mscom_ptr(IOleInPlaceObject);
@@ -309,21 +309,9 @@ namespace o3 {
 
         bool initProtocol()
         {
-		    IInternetSecurityManager *pSecurityManager = NULL;
-		    if (SUCCEEDED(CoCreateInstance( CLSID_InternetSecurityManager, NULL, 
-                CLSCTX_INPROC_SERVER,IID_IInternetSecurityManager,(void **)&pSecurityManager )))
-		    {
-			    HRESULT res = pSecurityManager->SetZoneMapping(URLZONE_TRUSTED,L"o3",SZM_CREATE);
-			    pSecurityManager->Release();
-		    }
+			m_proto_factory = o3_new(ProtocolIE)(m_ctx);
+			ProtocolIE::registerProtocol(m_proto_factory.ptr());
 
-	        IInternetSession *ses;
-	        CoInternetGetSession( 0, &ses, 0 );
-	        m_proto_factory = o3_new(ProtocolIE)(m_ctx);
-
-	        ses->RegisterNameSpace( SIClassFactory(m_proto_factory), 
-                IID_IInternetProtocol /*IID_IProtocolIE*/, L"o3", 0 ,0 ,0 );
-	        ses->Release();	        
             return true;
         }
 

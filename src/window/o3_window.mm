@@ -16,22 +16,5 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include <core/o3_core.h>
-#include <window/o3_window.h>
+#include "o3_window.cpp"
 
-using namespace o3;
-
-extern "C" {
-
-bool o3_init(iSys* sys)
-{
-    g_sys = sys;
-    return true;
-}
-
-void o3_reg(iMgr* mgr)
-{
-    mgr->addExtTraits(cWindow1::extTraits());
-}
-
-}

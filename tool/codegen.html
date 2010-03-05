@@ -17,8 +17,8 @@ window.onload=function(){
             product : 'O3Demo'     
         } ), result, glueName, sourceName, sourceFile,
         driveC = o3obj.cwd.get('../../..'),
-        sourceFile = driveC.get('Development/o3codegen/o3/include/window/o3_cWindow1_win32.h');
-        source = sourceFile.data,
+        sourceFile = driveC.get('Development/scannerMergeTo/include/image/o3_cImage1.h');
+        //source = sourceFile.data,
         sourceName = sourceFile.name;
         glueName = sourceName.substr(0,3) + 'scr_' + sourceName.substr(3);        
         Reporter.logWriter = Reporter.errorWriter = logw;
@@ -81,7 +81,17 @@ struct cO3 : cScr {\n\
     {        \n\
     }\n\
 \n\
-    o3_enum(\"Type\", NULLA, EGY, NEGY=4, OT); \n\
+		o3_fun siScr __self__() \n\
+		{\n\
+			o3_trace3 trace;\n\
+			return o3_new(cImage1)();\n\
+		}\n\
+\n\
+		o3_fun siScr __self__(size_t w, size_t h, const Str &mode = Str(\"argb\") )\n\
+		{\n\
+			return o3_new(cImage1)(w,h,mode);\n\
+		}\n\
+\n\
     o3_get virtual tVec<Str> args()\n\
     {\n\
         return m_args;\n\
@@ -126,6 +136,12 @@ struct cO3 : cScr {\n\
     {\n\
         return 42;\n\
     }\n\
+	o3_fun bool loadModules(iCtx* ctx, Var* argv, int argc, siEx* ex) \n\
+	{\n\
+		o3_trace3 trace;\n\
+\n\
+		return ctx->mgr()->loadModule(name);\n\
+	}\n\
 \n\
     o3_get Str versionInfo()\n\
     {\n\

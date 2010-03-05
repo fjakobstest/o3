@@ -23,20 +23,7 @@
 
 namespace o3 {
 
-struct cHttp1 : cScr {
-    enum ReadyState {
-        READY_STATE_UNINITIALIZED,
-        READY_STATE_LOADING,
-        READY_STATE_LOADED,
-        READY_STATE_INTERACTIVE,
-        READY_STATE_COMPLETED
-    };
-
-    enum Method {
-        METHOD_GET,
-        METHOD_POST,
-        METHOD_PUT
-    };
+struct cHttp1 : cScr, iHttp {
 
     static size_t read(void* ptr, size_t size, size_t nmemb, void *stream)
     {
@@ -107,7 +94,9 @@ struct cHttp1 : cScr {
     siCtx m_ctx;
     siScr m_onreadystatechange;
     siScr m_onprogress;
-    siEvent m_event;
+	Delegate m_dg_onreadystatechange;
+	Delegate m_dg_onprogress;
+	siEvent m_event;
     bool m_pending;
 
     cHttp1()
@@ -125,6 +114,7 @@ struct cHttp1 : cScr {
     }
 
     o3_begin_class(cScr)
+		o3_add_iface(iHttp)
     o3_end_class()
 
     o3_glue_gen()
@@ -142,6 +132,11 @@ struct cHttp1 : cScr {
 
         return o3_new(cHttp1)();
     }
+
+	static siUnk factory(iCtx*)
+	{
+		return http();
+	}
 
     virtual o3_get ReadyState readyState()
     {
@@ -282,11 +277,20 @@ struct cHttp1 : cScr {
         return m_onreadystatechange;
     }
 
-    virtual o3_set siScr setOnreadystatechange(iScr* onreadystatechange)
+	virtual void setOnreadystatechange(Delegate onreadystatechange)
+	{
+		o3_trace3 trace;
+		Lock lock(m_mutex);
+
+		m_dg_onprogress = onreadystatechange;
+	}
+
+    virtual o3_set siScr setOnreadystatechange(iCtx* ctx, iScr* onreadystatechange)
     {
         o3_trace3 trace;
-        Lock lock(m_mutex);
+		setOnreadystatechange(Delegate(ctx, onreadystatechange));
 
+		Lock lock(m_mutex);
         return m_onreadystatechange = onreadystatechange;
     }
 
@@ -298,11 +302,20 @@ struct cHttp1 : cScr {
         return m_onprogress;
     }
 
-    virtual o3_set siScr setOnprogress(iScr* onprogress)
+	virtual void setOnprogress(Delegate onprogress)
+	{
+		o3_trace3 trace;
+		Lock lock(m_mutex);
+
+		m_dg_onprogress = onprogress;
+	}
+
+    virtual o3_set siScr setOnprogress(iCtx* ctx, iScr* onprogress)
     {
         o3_trace3 trace;
-        Lock lock(m_mutex);
+		setOnprogress(Delegate(ctx, onprogress));
 
+        Lock lock(m_mutex);
         return m_onprogress = onprogress;
     }
 
@@ -358,9 +371,11 @@ struct cHttp1 : cScr {
         Delegate fun;
 
         {
+			// copy the delegate so we don't have to keep the mutex
+			// locked for the whole callback
             Lock lock(m_mutex);
 
-            fun = Delegate(m_ctx, m_onreadystatechange);
+            fun = m_dg_onreadystatechange;
         }
         fun(this);
         m_event->signal();
@@ -373,7 +388,7 @@ struct cHttp1 : cScr {
         {
             Lock lock(m_mutex);
 
-            fun = Delegate(m_ctx, m_onprogress);
+            fun = m_dg_onreadystatechange;
         }
         fun(this);
         m_pending = false;

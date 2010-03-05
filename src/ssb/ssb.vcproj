@@ -186,10 +186,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\o3_protocolIE.h"
-			>
-		</File>
-		<File
 			RelativePath=".\ssb_win32.cpp"
 			>
 		</File>

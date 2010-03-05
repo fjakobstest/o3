@@ -17,6 +17,7 @@
  */
 
 #define O3_PLUGIN 1
+
 #include <core/o3_core.h>
 #include <shared/o3_tools_win32.h> 
 #include "o3_np_plugin.h"

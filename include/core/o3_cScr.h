@@ -61,7 +61,7 @@ struct cEx : cUnk, iEx {
     {
     }
 
-	static iEx* fmt(iEx **ex, const char *fmt, ...){
+	static iEx* fmt(siEx *ex, const char *fmt, ...){
 		if(!ex) return 0;
 		cEx *x = o3_new(cEx);
 		x->addRef();

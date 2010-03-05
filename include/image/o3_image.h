@@ -20,4 +20,8 @@
 
 #include "o3_cImage1.h"
 
+#ifdef O3_WITH_GLUE
+#include "o3_scr_cImage1.h"
+#endif // O3_WITH_GLUE	
+
 #endif // O3_IMAGE_H

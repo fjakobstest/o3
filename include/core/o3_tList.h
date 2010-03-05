@@ -274,10 +274,13 @@ public:
     tList& operator=(const tList& that)
     {
         o3_trace1 trace;
-        tList tmp = that;
+		
+		if (this != &that) {
+			tList tmp(that);
 
-        swap(tmp, that);
-        return *this;
+			swap(*this, tmp);
+		}
+		return *this;
     }
 
     ~tList()

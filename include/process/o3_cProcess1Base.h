@@ -33,15 +33,15 @@ struct cProcess1Base : cScr {
 
     virtual o3_get siStream stdIn() = 0;
 
-    virtual o3_get siStream setStdIn(iStream* in) = 0;
+    virtual o3_set siStream setStdIn(iStream* in) = 0;
 
     virtual o3_get siStream stdOut() = 0;
 
-    virtual o3_get siStream setStdOut(iStream* out) = 0;
+    virtual o3_set siStream setStdOut(iStream* out) = 0;
 
     virtual o3_get siStream stdErr() = 0;
 
-    virtual o3_get siStream setStdErr(iStream* err) = 0;
+    virtual o3_set siStream setStdErr(iStream* err) = 0;
 
     virtual o3_get siScr onterminate()
     {

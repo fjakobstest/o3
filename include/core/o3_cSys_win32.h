@@ -680,6 +680,11 @@ namespace o3 {
 			vfprintf(stderr, format, ap);
 		}
 
+		virtual bool approvalBox(const char* msg, const char* caption)
+		{
+			int ret = MessageBoxA(NULL, msg, caption, MB_OKCANCEL);
+			return (ret == IDOK);
+		}
 
          // reading self as a stream and finding/reading the resource header in it        
         void initResource()
@@ -746,7 +751,7 @@ namespace o3 {
 
             // TODO: stream::size() is not implemented for posix yet
             // read the last size_t data from the end of the file
-            m_stream->setPos(((cStream*) m_stream.ptr())->size() - sizeof(size_t));
+            m_stream->setPos(m_stream->size() - sizeof(size_t));
             if (sizeof(size_t) != m_stream->read((void*)&buf, sizeof(size_t)))
                 return false;
 

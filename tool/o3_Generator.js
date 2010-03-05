@@ -261,12 +261,23 @@ this.Generator = {
         // arguments for the function call + arg count check    
         function genArgsForCall(trait) {
             var args = trait.args, i, min=-1, max=0, fetch='', spec_arg=false, def_start='', def_close='', 
-            wrap_start='', wrap_close='', argc_check=[], call = [],info;    
+            wrap_start='', wrap_close='', argc_check=[], call = [],info,arglist=false;    
             
             for (i=0; i<args.length; i++) {
                 if (!(info = ArgInfo[args[i].type]))
                     info = ArgInfo.si(args[i].type)
-                    
+                 
+				if (info.arglist) {
+					arglist=true;
+					call.push(info.fetch);					
+					call.push(',');
+					if (!args[i+1] || args[i+1].type != 'int')
+						Reporter.error('generator: genArgsForCall failed: Var* as '
+							+'function argument must be followed by an int argument (argc)');
+					i++; 
+					continue;
+				}
+				 
                 fetch = args[i].tgt ? 'pthis' : info.fetch;
                 wrap_start = info.wrap ? info.wrap + '(' : '';
                 wrap_close = info.wrap ? ')' : '';
@@ -302,7 +313,7 @@ this.Generator = {
             }
             if (args.length > 0)
                 call.pop(); // remove last ',' 
-            
+            			
             if (min>0)
                 argc_check.push('argc < ', min, ' && ');
             if (min==-1)
@@ -310,7 +321,11 @@ this.Generator = {
             else
                 argc_check.push('argc > ', max );
             
-            return {call:call.join(''), argc_check:argc_check.join('')};
+            return {
+					call: call.join(''), 
+					argc_check: arglist ? null : argc_check.join('')
+				};
+					
             // like: {call: 'ctx, argv[0].toInt(), &ex', argc_check: 'argc!=1'}
         };    
         
@@ -348,7 +363,7 @@ this.Generator = {
                     arg.varType = varInfo.type;
                     scr.push(arg);
                     if (arg.def)
-                        found_def = true;                    
+                        foundDef = true;                    
                     max++;
                     if (!foundDef)
                         min++;
@@ -367,13 +382,16 @@ this.Generator = {
         // compares two array of overloads
         function funListEqual(funs1, funs2) {
             diff = false;
-            if (funs1.length == funs2.length)
+            if (funs1.length == funs2.length) {
                 for (var j=0; j<funs1.length; j++) 
                     if (funs1[j] != funs2[j]) {
                         diff = true;
                         break;        
                     }
-            return diff;        
+			}		
+			else 
+				diff = true;		
+            return !diff;        
         };
         // grouping overloads based on their possible argument counts
         // example: with 1 arg overload1 and overload2 can be called,
@@ -543,7 +561,8 @@ this.ArgInfo = {
     'const wchar_t *'   : {fetch:'toWStr()',    type:'WSTR'},
 	'const Var &'		: {fetch:'', 			type:'VAR', 
 		direct: true},
-    'const WStr &'      : {fetch:'toWStr()',    type:'WSTR'},
+    'Var *'				: {fetch:'argv,argc',	arglist: true},
+	'const WStr &'      : {fetch:'toWStr()',    type:'WSTR'},
     'const Buf &'       : {fetch:'toScr()',     type:'SCR', 
         wrap : 'siBuf', wrap2 : 'Buf'},
     'iScr *'            : {fetch:'toScr()',     type:'SCR'},

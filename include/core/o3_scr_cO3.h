@@ -16,9 +16,11 @@ Trait* cO3::clsTraits()
          {      0,      Trait::TYPE_GET,        "cO3",                "args",               clsInvoke,      0,      0                  },
          {      1,      Trait::TYPE_GET,        "cO3",                "envs",               clsInvoke,      1,      0                  },
          {      2,      Trait::TYPE_FUN,        "cO3",                "loadModule",         clsInvoke,      2,      0                  },
-         {      3,      Trait::TYPE_FUN,        "cO3",                "wait",               clsInvoke,      3,      0                  },
-         {      4,      Trait::TYPE_FUN,        "cO3",                "exit",               clsInvoke,      4,      0                  },
-         {      5,      Trait::TYPE_GET,        "cO3",                "versionInfo",        clsInvoke,      5,      0                  },
+         {      3,      Trait::TYPE_FUN,        "cO3",                "require",            clsInvoke,      3,      0                  },
+         {      4,      Trait::TYPE_FUN,        "cO3",                "loadModules",        clsInvoke,      4,      0                  },
+         {      5,      Trait::TYPE_FUN,        "cO3",                "wait",               clsInvoke,      5,      0                  },
+         {      6,      Trait::TYPE_FUN,        "cO3",                "exit",               clsInvoke,      6,      0                  },
+         {      7,      Trait::TYPE_GET,        "cO3",                "versionInfo",        clsInvoke,      7,      0                  },
          {      0,      Trait::TYPE_END,        "cO3",                0,                    0,              0,      0                  },
       };
 
@@ -58,16 +60,26 @@ siEx cO3::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             *rval = pthis1->loadModule(ctx,argv[0].toStr());
             break;
          case 3:
+            if (argc != 1)
+               return o3_new(cEx)("Invalid argument count. ( require )");
+            pthis1->require(ctx,argv[0].toStr());
+            break;
+         case 4:
+            if (argc != 1)
+               return o3_new(cEx)("Invalid argument count. ( loadModules )");
+            pthis1->loadModules(ctx,argv[0].toScr());
+            break;
+         case 5:
             if (argc > 1)
                return o3_new(cEx)("Invalid argument count. ( wait )");
             pthis1->wait(ctx,argc > 0 ? argv[0].toInt32() : -1);
             break;
-         case 4:
+         case 6:
             if (argc > 1)
                return o3_new(cEx)("Invalid argument count. ( exit )");
             pthis1->exit(argc > 0 ? argv[0].toInt32() : 0);
             break;
-         case 5:
+         case 7:
             if (argc != 0)
                return o3_new(cEx)("Invalid argument count. ( versionInfo )");
             *rval = pthis1->versionInfo();

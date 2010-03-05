@@ -121,7 +121,7 @@ struct cTools1 : cScr{
     static o3_ext("cO3") o3_fun Str getUninstPath(const Str& name) 
     {
         WStr wname = WStr(name);
-        return uninstallerPath(wname);    
+        return uninstallerString(wname);    
     }
 
     static o3_ext("cO3") o3_fun bool regMozillaPlugin(iCtx* ctx, bool all_usr, iScr* iobj) 

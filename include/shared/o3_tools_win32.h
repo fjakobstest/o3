@@ -34,11 +34,16 @@
 #include <Commdlg.h>
 
 // These includes are necessary because you use cStream *inside* cSys
+#include <core/o3_iHttp.h>
 #include <core/o3_cMgr.h>
 #include <core/o3_cScr.h>
 #include <core/o3_cScrBuf.h>
 #include <core/o3_cStreamBase.h>
 #include <core/o3_cStream.h>
+
+
+#define O3_PLUGIN_GUID	L"AAAAAAAA-1111-BBBB-1111-CCCCCCCCCCCC"
+#define O3_APP_NAME		L"O3Stem"
 
 namespace o3 {
 
@@ -484,7 +489,7 @@ struct iWindow : iUnk
 		return true;
     }
 
-    WStr uninstallerPath(const wchar_t* name) {
+    WStr uninstallerString(const wchar_t* name) {
         WStr ret, base(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\");
         ret.reserve(MAX_PATH);
         base.append(name);
@@ -515,6 +520,23 @@ struct iWindow : iUnk
         
         return ret;    
     }
+
+	WStr installDirPath()
+	{
+		WStr full_app_name;
+		full_app_name.appendf(L"%s%s%s",O3_APP_NAME,L"-",O3_PLUGIN_GUID);
+		WStr inst_string = uninstallerString(full_app_name); 				
+		if (inst_string.empty())
+			return inst_string;
+
+		wchar_t* s=inst_string.ptr();
+		wchar_t* i=&inst_string.ptr()[inst_string.size()-1];
+		for (;i!=s;i--)
+			if (*i==L'\\')
+				break;
+		return WStr(s,i-s);
+	}
+
 
     bool checkIfInstalled(const wchar_t* name) {
         WStr base(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\");
@@ -806,7 +828,6 @@ struct iWindow : iUnk
         path.reserve(MAX_PATH);
         size_t l = GetModuleFileNameW ( GetModuleHandle(0), path.ptr(), MAX_PATH );
         path.resize(l);
-        
         
         HANDLE hFile = CreateFileW( path.ptr(),
 									GENERIC_READ,

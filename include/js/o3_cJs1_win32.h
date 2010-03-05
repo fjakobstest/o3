@@ -196,7 +196,7 @@ namespace o3{
                     Str(excepinfo.bstrDescription).ptr(), 
                     ",   line: ", ulLineNumber, ",   char: ", ichCharPosition);
                 
-                printf(m_pthis->m_error.ptr());                
+                fprintf(stderr,m_pthis->m_error.ptr());                
                 //return E_FAIL;
                 return S_OK;
 			}
@@ -443,6 +443,12 @@ namespace o3{
         {
             return 0;
         }
+
+		bool scriptError() 
+		{
+			return m_error.size() > 0;
+		}
+		
 
 
         tMSComPtr<CAScript>         m_ascript;     

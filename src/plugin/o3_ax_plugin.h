@@ -23,6 +23,7 @@
 #include <SHLGUID.h>    
 
 #include "shared/o3_glue_idispatch.h"
+#include "protocol/o3_protocol.h"
 
 
 DEFINE_GUID(IID_IJAxCtrl, 0xddbbe8d1, 0x8ee4, 0x4037, 0x81, 
@@ -31,8 +32,8 @@ DEFINE_GUID(IID_IJAxCtrl, 0xddbbe8d1, 0x8ee4, 0x4037, 0x81,
 GUID CLSID_IJAxCtrl ={0xAAAAAAAA,0x1111,0xBBBB,{0x11, 0x11, 
     0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC}};
 
-wchar_t stemGUID[] = L"AAAAAAAA-1111-BBBB-1111-CCCCCCCCCCCC";
-wchar_t baseAppName[] = L"O3Stem";
+wchar_t stemGUID[] = O3_PLUGIN_GUID;
+wchar_t baseAppName[] = O3_APP_NAME;
 
 
 
@@ -152,10 +153,17 @@ namespace o3 {
             m_advise_cookie = 0;
     #endif
 
+			m_proto_factory = o3_new(ProtocolIE)(m_ctx);
+			ProtocolIE::registerProtocol(m_proto_factory.ptr());
         }
         
-        virtual ~CJAxCtrl(){            
-            if(m_bridge) {
+        virtual ~CJAxCtrl(){          
+			if (m_proto_factory) {
+				ProtocolIE::unregisterProtocol(m_proto_factory.ptr());
+				m_proto_factory = 0;
+			}
+
+			if(m_bridge) {
                 m_bridge = 0;
                 if (m_ctx)
                     siCtx1(m_ctx)->tear();
@@ -198,6 +206,7 @@ namespace o3 {
         siCtx                       m_ctx;
         SIDispBridge                m_bridge;
         HiddenWindow                m_hidden_window;
+		SIProtocolIE				m_proto_factory;
 
     #ifdef DROP_TARGET
         tList<cDropTarget*> m_ie_drop_targets;    
@@ -318,9 +327,11 @@ namespace o3 {
                 hret = srvprov2->QueryService(SID_SWebBrowserApp, IID_IWebBrowser2, (void **)(&webbrowser));
             }
 
-            BSTR out;
-            webbrowser->get_LocationURL(&out);
-            SysFreeString(out);
+            BSTR url;
+            webbrowser->get_LocationURL(&url);
+            Str url2 = Str(WStr(url));
+			m_ctx->mgr()->setCurrentUrl(url2);
+			SysFreeString(url);
 
             if (srvprov) srvprov->Release();
             if (srvprov2) srvprov2->Release();        
@@ -414,6 +425,11 @@ namespace o3 {
                 m_connection_point->Release();
             }
     #endif
+			if (m_proto_factory) {
+				ProtocolIE::unregisterProtocol(m_proto_factory.ptr());
+				m_proto_factory = 0;
+			}
+
             if (m_ctx)
                 siCtx1(m_ctx)->tear();
                            

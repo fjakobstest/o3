@@ -63,9 +63,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib libxml2d.lib"
+				AdditionalDependencies="Ws2_32.lib libxml2d.lib urlmon.lib"
 				OutputFile="$(OutDir)\npplugin_dbg.dll"
-				LinkIncremental="2"
+				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../external/lib/win32"
 				ModuleDefinitionFile="plugin.def"
 				GenerateDebugInformation="true"
@@ -95,6 +95,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -142,7 +143,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib libxml2.lib"
+				AdditionalDependencies="Ws2_32.lib libxml2.lib urlmon.lib"
 				OutputFile="$(OutDir)\npplugin.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../external/lib/win32"

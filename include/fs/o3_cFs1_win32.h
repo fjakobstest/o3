@@ -93,7 +93,7 @@ namespace o3 {
                     : full_path.appendf("%s", root_path);
             
             //validate path, set m_local_path
-            m_valid = parseFullPath(full_path);            
+            m_valid = parseFullPath(full_path);            			
         }
 
         //used only from childNodes()
@@ -619,7 +619,16 @@ public:
             m_change = 0;
             m_mod_time = 0;            
         }              
-    };
+
+		static siUnk installDir(iCtx*) 
+		{
+			Str path = installDirPath();
+			backslash2slash(path.ptr());
+			return siFs(o3_new(cFs1(path.ptr(), "")));	
+		}
+
+	};
+
 }
 
 #endif // O3_C_FS1_WIN32_H

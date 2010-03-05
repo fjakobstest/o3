@@ -77,17 +77,17 @@ siEx cHttp1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             break;
          case 5:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( readyState )");
             *rval = pthis1->readyState();
             break;
          case 6:
             if (argc < 2 && argc > 3)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( open )");
             pthis1->open(argv[0].toStr(),argv[1].toStr(),argc > 2 ? argv[2].toBool() : true);
             break;
          case 7:
             if (argc != 2)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( setRequestHeader )");
             pthis1->setRequestHeader(argv[0].toStr(),argv[1].toStr());
             break;
          case 8:
@@ -110,68 +110,68 @@ siEx cHttp1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             break;
          case 10:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( statusText )");
             *rval = pthis1->statusText();
             break;
          case 11:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( statusCode )");
             *rval = pthis1->statusCode();
             break;
          case 12:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( getAllResponseHeaders )");
             *rval = pthis1->getAllResponseHeaders();
             break;
          case 13:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( getResponseHeader )");
             *rval = pthis1->getResponseHeader(argv[0].toStr());
             break;
          case 14:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( bytesTotal )");
             *rval = pthis1->bytesTotal();
             break;
          case 15:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( bytesReceived )");
             *rval = pthis1->bytesReceived();
             break;
          case 16:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( responseBlob )");
             *rval = o3_new(cScrBuf)(pthis1->responseBlob());
             break;
          case 17:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( responseText )");
             *rval = pthis1->responseText();
             break;
          case 18:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( abort )");
             pthis1->abort();
             break;
          case 19:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( onreadystatechange )");
             *rval = pthis1->onreadystatechange();
             break;
          case 20:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
-            *rval = pthis1->setOnreadystatechange(argv[0].toScr());
+               return o3_new(cEx)("Invalid argument count. ( setOnreadystatechange )");
+            *rval = pthis1->setOnreadystatechange(ctx,argv[0].toScr());
             break;
          case 21:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( onprogress )");
             *rval = pthis1->onprogress();
             break;
          case 22:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count.");
-            *rval = pthis1->setOnprogress(argv[0].toScr());
+               return o3_new(cEx)("Invalid argument count. ( setOnprogress )");
+            *rval = pthis1->setOnprogress(ctx,argv[0].toScr());
             break;
       }
       return ex;
@@ -186,7 +186,7 @@ siEx cHttp1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc != 0)
-               return o3_new(cEx)("Invalid argument count.");
+               return o3_new(cEx)("Invalid argument count. ( http )");
             *rval = pthis1->http();
             break;
       }

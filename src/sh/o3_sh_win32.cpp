@@ -33,6 +33,14 @@
 #include "tools/o3_tools.h"
 #include "process/o3_process.h"
 #include "test/o3_test.h" 
+
+#include "image/o3_image.h"
+#include "scanner/o3_scan.h"
+#include "barcode/o3_barcode.h"
+
+#include "rsa/o3_rsa.h"
+#include "sha1/o3_sha1.h"
+#include "md5/o3_md5.h"
 //#include "canvas/o3_cCanvas1_win32.h"
 
 
@@ -63,47 +71,59 @@ int main(int argc, char **argv) {
 	mgr->addExtTraits(cProcess1::extTraits());
 	mgr->addExtTraits(cTest1::extTraits());
 
+	mgr->addExtTraits(cImage1::extTraits());
+	mgr->addExtTraits(cBarcode1::extTraits());
+	mgr->addExtTraits(cScan1::extTraits());
+
+	mgr->addExtTraits(cRSA1::extTraits());
+	mgr->addExtTraits(cSHA1Hash1::extTraits());
+	mgr->addExtTraits(cMD5Hash1::extTraits());
+
+	mgr->addFactory("fs", &cFs1::installDir);
+	mgr->addFactory("http", &cHttp1::factory);
+
     //WSADATA wsd;
     //int rc = WSAStartup(MAKEWORD(2,2), &wsd);
-
+	int ret = 0;
     bool wait = true;
-    int ret = 0;
     {// scope the local vars        
         for(int i = 0; i < argc;i++){
             if(strEquals(argv[i],"-w")) wait = true;
-        }
-                
-        FILE* in;
-        if (argc<1)
-            return -1;
+        }	
 
-        // TODO: since this file is windows only, this fopen should be replaced by createFile
-        in = fopen( argv[0] , "r");
-        if (!in)
-            return -2;                                
+		HANDLE prelude_file = CreateFileA("prelude.js",GENERIC_READ,
+			FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
+			NULL,OPEN_EXISTING,0,NULL);			
 
-        const ::size_t DATA_SIZE = 1;
-        char data[DATA_SIZE];
-        ::size_t size;
-        
-        Str script;
-        while (!feof(in)) {
-            size = fread(data, sizeof(char), DATA_SIZE, in);
-            if (ferror(in)){                  
-                return -3;
-            }
+		if (INVALID_HANDLE_VALUE != prelude_file) {
+			unsigned long size,high,read;
+			Str prelude(size = GetFileSize(prelude_file, &high));
+			ReadFile(prelude_file,prelude.ptr(), size, &read, 0);
+			prelude.resize(read);
+			ctx->eval(prelude);
+			if (((cJs1*)ctx.ptr())->scriptError())
+				return -1;
+		}
 
-            script.append(data, size);
-        }
+		HANDLE script_file = CreateFileA(argv[0],GENERIC_READ,
+			FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
+			NULL,OPEN_EXISTING,0,NULL);		
 
-        //EVAL SCRIPT
-        Var rval;
-        rval = ctx->eval(script);
-        
-        Str err = rval.toStr();
-        //fprintf(stdout, "%s", err.ptr()); 
+		if (INVALID_HANDLE_VALUE == script_file) {
+			return -1;
+		}
+	
+		unsigned long size,high,read;		
+		Str script(size = GetFileSize(script_file, &high));
+		ReadFile(script_file,script.ptr(), size, &read, 0);
+		script.resize(read);
+		ctx->eval(script);
+		if (((cJs1*)ctx.ptr())->scriptError())
+			ret = -1;
+		
+
         siCtx1(ctx)->tear();
-    }
+	}
     
     CoUninitialize(); 
 

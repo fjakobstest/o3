@@ -26,7 +26,70 @@ o3_iid(iFs, 0x9F96A731,
             0xA5, 0x75, 0xFB, 0x5D, 0xD3, 0x43, 0xB3, 0xB4);
 
 struct iFs : iUnk {
-    virtual siStream open(const char* mode, siEx* ex = 0) = 0;
+
+	enum Type {
+		TYPE_INVALID,
+		TYPE_DIR,
+		TYPE_FILE,
+		TYPE_LINK,
+		TYPE_NOTFOUND
+	};
+
+	virtual bool valid() = 0;
+
+	virtual bool exists() = 0;
+
+	virtual Type type() = 0;
+
+	virtual bool isDir() = 0;
+
+	virtual bool isFile() = 0;
+
+	virtual bool isLink() = 0;
+
+	virtual int64_t accessedTime() = 0;
+
+	virtual int64_t modifiedTime() = 0;
+
+	virtual int64_t createdTime() = 0;
+
+	virtual size_t size() = 0;
+
+	virtual Str path() = 0;
+
+	virtual Str name() = 0;
+
+	virtual siFs get(const char* path) = 0;
+
+	virtual tVec<siFs> children() = 0;
+
+	virtual bool createDir() = 0;
+
+	virtual bool createFile() = 0;
+
+	virtual bool createLink(iFs* tos) = 0;
+
+	virtual bool remove(bool deep = true) = 0;
+
+	virtual siFs copy(iFs* to) = 0;
+
+	virtual siFs move(iFs* to) = 0;
+
+	virtual siStream open(const char* mode, siEx* ex = 0) = 0;
+
+	virtual Buf blob() = 0;
+
+	virtual Buf setBlob(const Buf& buf) = 0;
+
+	virtual Buf setBlob(iStream* stream) = 0;
+
+	virtual Str data() = 0;
+
+	virtual Str setData(const Str& str) = 0;
+
+	virtual siScr onchange() = 0;
+
+	virtual siScr setOnchange(iCtx* ctx, iScr* scr) = 0;
 };
 
 }

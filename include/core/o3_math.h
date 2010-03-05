@@ -30,10 +30,10 @@ namespace o3
 			x = y = 0;
 		};
 
-		V2(T _x, T _y)
+		template <typename C> V2(C _x, C _y)
 		{
-			x = _x;
-			y = _y;
+			x = (T)_x;
+			y = (T)_y;
 		};
 
 		
@@ -75,15 +75,17 @@ namespace o3
 
 		void setTranslation(T x, T y)
 		{
-			SetIdentity();
+			setIdentity();
 			M[2][0] = x;
 			M[2][1] = y;
 		};
 
-		void setScale(T scale)
+		void setScale(T scalex, T scaley)
 		{
 
-			M[0][0] = M[1][1] = M[2][2] = scale;
+			M[0][0] = scalex;
+			M[1][1] = scaley;
+			M[2][2] = 1.0f;
 			M[0][1] = M[0][2] = M[1][0] = 
 			M[1][2] = M[2][0] = M[2][1] = 0.0f;
 		};

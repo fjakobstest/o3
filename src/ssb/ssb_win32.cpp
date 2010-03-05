@@ -30,7 +30,6 @@
 #include "protocol/o3_protocol.h"
 #include "screen/o3_screen.h"
 
-#include "o3_protocolIE.h"
 #include "o3_HostIE.h"
 
 namespace o3 {

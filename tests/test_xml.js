@@ -1,3 +1,6 @@
+o3.loadModule('xml');
+include("test_prelude.js");
+
 var xml_data = [];
 xml_data.push(
 "<p:project name=\"Javeline PlatForm\" xmlns:p=\"http://www.javeline.com/2008/Processor\">\n",
@@ -305,97 +308,162 @@ xml_data.push(
 "</p:project>");
 
 diffNodes = function(node1, node2){
-	if (node1.nodeName != node2.nodeName) return "different nodeNames: " + node1.nodeName + " != " + node2.nodeName;
-	if (node1.nodeValue != node2.nodeValue) return "different nodeValues";
-	if (node1.nodeType != node2.nodeType) return "different nodeTypes";
-	if (node1.parentNode.nodeName != node2.parentNode.nodeName) return "different parent nodeNames";
-	if (node1.childNodes.length != node2.childNodes.length) return "different child numbers";
-	if (node1.firstChild.nodeName != node2.firstChild.nodeName) return "different firstChild names";
-	if (node1.attributes.length != node2.attributes.length) return "different attribute numbers"
-	return false;
+	return (
+			assert(node1.nodeName == node2.nodeName,	"different nodeNames: " + node1.nodeName + " != " + node2.nodeName)
+		||	assert(node1.nodeValue == node2.nodeValue,	"different nodeValues")
+		||	assert(node1.nodeType == node2.nodeType,	"different nodeTypes")
+		||	assert(node1.parentNode.nodeName == node2.parentNode.nodeName,	"different parent nodeNames")
+		||	assert(node1.childNodes.length == node2.childNodes.length,		"different child numbers")
+		||	assert(node1.firstChild.nodeName == node2.firstChild.nodeName,	"different firstChild names")
+		||	assert(node1.attributes.length == node2.attributes.length,		"different attribute numbers")
+		||	false
+	);
 }
 
 diffNodesRec = function(node1, node2){
-	var l, i, e, a, b;
-	if (node1.nodeName != node2.nodeName) return "different nodeNames: " + node1.nodeName + " != " + node2.nodeName;
-	if (node1.nodeValue != node2.nodeValue) return "different nodeValues";
-	if (node1.nodeType != node2.nodeType) return "different nodeTypes";
-//	if (node1.parentNode.nodeName != node2.parentNode.nodeName) return "different parent nodeNames";
-	l = node1.childNodes.length;
-	if (l != node2.childNodes.length) return "different child numbers";
-	for (i=l-1; i>=0; i--) {
-		if (e = diffNodesRec(node1.childNodes[i], node2.childNodes[i])) return e;
-	}
-	if (node1.attributes || node2.attributes) {
-		l = node1.attributes.length
-		if (l != node2.attributes.length) return "different attribute numbers"
+	var l, i, a, b;
+	function compareChildren(node1, node2) {
+		var i,l,e;
 		for (i=l-1; i>=0; i--) {
-			a = node1.attributes[i];
-			b = node2.attributes[i];
-			if ( (a.name != b.name) || (a.value != b.value) ) return "different attributes: [" + a.name + ", " + a.value + "] != [" + b.name + ", " + b.value + "].";
+			if (e = diffNodesRec(node1.childNodes[i], node2.childNodes[i])) 
+				return e;
 		}
+		return false;
 	}
-	return false;
-}
-var failed = function(message){
-	return "ERROR: " + test + ' ' + v + ' : ' + message + "\n";
+	
+	function compareAttributes(node1, node2) {
+		if (node1.attributes || node2.attributes) {
+			l = node1.attributes.length
+			if (l != node2.attributes.length) 
+				return "different attribute numbers"
+			for (i=l-1; i>=0; i--) {
+				a = node1.attributes[i];
+				b = node2.attributes[i];
+				if ( (a.name != b.name) || (a.value != b.value) ) 
+					return "different attributes: [" + a.name + ", " + a.value + "] != [" + b.name + ", " + b.value + "].";
+			}
+		}
+		return false;	
+	}
+	
+	return (
+			assert(node1.nodeName 	== node2.nodeName,	"different nodeNames: " + node1.nodeName + " != " + node2.nodeName)
+		||	assert(node1.nodeValue 	== node2.nodeValue,	"different nodeValues")
+		||	assert(node1.nodeType 	== node2.nodeType,	"different nodeTypes")	
+		|| 
+		(			
+			l = node1.childNodes.length,
+			assert(l == node2.childNodes.length,"different child numbers")
+		)
+		||	compareChildren(node1, node2)
+		||	compareAttributes()	
+		||	true
+	);	
 }
 
 var test = 'XML',
 	xml_text = xml_data.join(""),
-	mxml = o3.xml.parseFromString(xml_text),
-	v,
-	result, 
-	last = o3.argc > 1 ? o3.argv[1] : null, 
-	foundLast = last ? false : true, 
-	stdErr = o3.stdErr,
+	mxml = o3.xml.parseFromString(xml_text),	
 	tests = {	
 	//node types : chardata, document, element
 	'xmlNodeBasic':function(){			
-			if (mxml.nodeType != 9) return failed("Document node should have a XML_DOCUMENT_NODE type (9)");
-			var node = mxml.firstChild;
-			if (node.nodeType != 1) return failed("First child should have a XML_ELEMENT_NODE type (1)");			
-		    var str = node.nodeName;
-			if (mxml.ownerDocument.type == 9) return failed("(on doc. node) ownerDocument does not return a document");
-			if (node.ownerDocument.type == 9) return failed("(on elem. node) ownerDocument does not return a document");
-			if (str != "project") return failed("name of the root node should be [p:project] but it is: [" + str + "]");
-			node = node.attributes[0];
-			if (node.ownerDocument.type == 9) return failed("(attr. node) ownerDocument does not return a document");
-			if (node.nodeType != 2) return failed("Attribute node should have a XML_ATTRIBUTE_NODE type (2)");
-			str = node.nodeValue;						
-			if (str != "Javeline PlatForm") return failed("name of the first attribute should be [Javeline PlatForm] but it is: [" + str + "]");
-            node.nodeValue = "JP";
-			str = node.nodeValue;
-			if (str != "JP") return failed("new value of attribute should be: [JP] but it is: [" + str + "]");			                        
-
-		return true;
+			var node, str;
+			return (
+					assert(mxml.nodeType == 9,
+						"Document node should have a XML_DOCUMENT_NODE type (9)")
+				|| (
+					node = mxml.firstChild,
+					assert(node.nodeType == 1,
+						"First child should have a XML_ELEMENT_NODE type (1)")	
+				)
+				|| (
+					str = node.nodeName,
+					assert(mxml.ownerDocument.nodeType == 9,
+						"(on doc. node) ownerDocument does not return a document, returned type: " + mxml.ownerDocument.type)
+				)
+				||	assert(node.ownerDocument.nodeType == 9
+						,"(on elem. node) ownerDocument does not return a document, returned type: " + node.ownerDocument.type)
+				||	assert(str == "project",
+						"name of the root node should be [p:project] but it is: [" + str + "]")
+				|| (
+					node = node.attributes[0],
+					assert(node.ownerDocument.nodeType == 9,
+						"(attr. node) ownerDocument does not return a document, returned type: " + node.ownerDocument.type)
+				)
+				||	assert(node.nodeType == 2,
+						"Attribute node should have a XML_ATTRIBUTE_NODE type (2)")
+				|| (
+					str = node.nodeValue,
+					assert(str == "Javeline PlatForm",
+						"name of the first attribute should be [Javeline PlatForm] but it is: [" + str + "]")
+				)
+				|| (
+					node.nodeValue = "JP",
+					str = node.nodeValue,
+					assert(str == "JP",
+						"new value of attribute should be: [JP] but it is: [" + str + "]")
+				)
+				|| true
+			);	
 	},
 	'xmlNodeTraverse':function(){		
-            var childern, parent, str, leafnode,i;
-			if (! mxml.hasChildNodes) return failed("Document node should have children...");
-			parent = mxml.firstChild;
-			if (! parent.hasChildNodes) return failed("First child of the doc element should have children...");
-			children = parent.childNodes;
-			i = children.length;
-			if (parent.firstChild.name != children[0].name) return failed("First child is not consistent (children[0] != firstChild)");			
-            if (parent.lastChild.name != children[i-1].name) return failed("Last child is not consistent (children[length - 1] != lastChild)");								
-            if (parent.firstChild.nextSibling.name != children[1].name) return failed("First child is not consistent (children[1] != firstChildnextSibling)");			
-            if (parent.lastChild.previousSibling.name != children[i-2].name) return failed("Last child is not consistent (children[length - 2] != lastChild.previousSibling)");			
-			str = parent.name;
-			i--;           
-            for (; i>0; --i) {
-				if (children[i].parentNode.name != str) return failed("child " + i + ": parent node is incorrect");
-				if (! children[i].hasChildNodes) 
-					if (children[i].childNodes.length != 0) return failed("child " + i + ": hasChildNode is inconsistent");					
-			}         
+            var childern, parent, i;
+			
+			function assertChildren(parent, children) {
+				var str, i = parent.childNodes.length-1;
+				str = parent.name;   
+				for (; i>0; --i) {
+					if (ret = assert(children[i].parentNode.name == str,"child " + i + ": parent node is incorrect"))
+						return ret;
+					if (! children[i].hasChildNodes) {
+						if (ret = assert(children[i].childNodes.length == 0,"child " + i + ": hasChildNode is inconsistent"))						
+							return ret;	
+					}
+				}         
+			}
+			
+			return (
+					assert(mxml.hasChildNodes,	"Document node should have children...")
+				|| (
+					parent = mxml.firstChild,
+					assert(parent.hasChildNodes,"First child of the doc element should have children...")
+				)
+				|| (
+					children = parent.childNodes,
+					i = children.length,
+					assert(parent.firstChild.name == children[0].name,
+						"First child is not consistent (children[0] != firstChild)")
+				)
+				||	assert(parent.lastChild.name == children[i-1].name,
+						"Last child is not consistent (children[length - 1] != lastChild)")
+				||	assert(parent.firstChild.nextSibling.name == children[1].name,
+						"First child is not consistent (children[1] != firstChildnextSibling)")
+				||	assert(parent.lastChild.previousSibling.name == children[i-2].name,
+						"Last child is not consistent (children[length - 2] != lastChild.previousSibling)")
+				||	assertChildren(parent, children)
+				||	true
+			);
+			
 		return true;
 	},
 	'attributes':function(){
-			var node, attr,attr2, attributes, str, attrname, value, i = 0, name;
+			var node, attr,attr2, attributes, str, attrname, value, i = 0, name,settings = [];
+
+			function checkAttr() {
+	            var name, ret;
+				for (i = attributes.length - 1; i>=0; --i) {
+					name = attributes[i].name;
+						if (ret = assert(settings[name] == attributes[i].value,  
+								i + ". attribute on element node \"settings\" is: \n[" 
+								+ name + ":" + attributes[i].value + "] instead of: \n["
+								+ name + ":" + settings[name] + "]")) 
+									return ret;							
+					}
+			}
+			
 			attrname = "verbose";		
 			node = mxml.firstChild.childNodes[1];
 			attributes = node.attributes;
-			var settings = [];
 			settings["buildnr"]  = "{String(++cwd.get('jpfbuildnr.txt').data).pad('0', 4) && ''}"
 			settings["verbose"]  = "2"
 			settings["version"]  = "1.0.{buildnr}.RC1"
@@ -405,33 +473,48 @@ var test = 'XML',
 			settings["tmp"]      = "/Development/processor/processor/tmp"
 			settings["platform"] = "/Development/processor/processor/var/jpf"
 			settings["release"]  = "~";		
-            for (i = attributes.length - 1; i>=0; --i) {
-            name = attributes[i].name;
-				if (settings[name] != attributes[i].value) 
-				    return failed(i + ". attribute on element node \"settings\" is: \n[" 
-				        + name + ":" + attributes[i].value + "] instead of: \n["
-				        + name + ":" + settings[name] + "]");
-			}
-			attr = attributes.getNamedItem(attrname);
-            attr2 = node.getAttributeNode(attrname);
-			if (attr.name != attrname)	return failed("attribute [" + attrname + "] could not be found");
-            if (attr.value != 2)	    return failed("attribute [" + attrname + "] has invalid value, it should be [2] but it is: [" + attr.value +"]");
-            if (attr2.name != attrname)	return failed("attribute [" + attrname + "] could not be found (via ElementNode)");
-            if (attr2.value != 2)	    return failed("attribute [" + attrname + "] has invalid value (via ElementNode), it should be [2] but it is: [" + attr2.value +"]");					
-            if (node.getAttribute(attrname) != 2)	    return failed("attribute [" + attrname + "] has invalid value (via ElementNode.getAttribute), it should be [2] but it is: [" + node.getAttribute("verbose") +"]");				
-			node.setAttribute(attrname, 5);
-			attr = attributes.getNamedItem(attrname);           
-			attr2 = node.getAttributeNode(attrname);
-			if (attr.name != attrname)	return failed("attribute [" + attrname + "] could not be found after its value has been changed");
-			if (attr.value != 5)	    return failed("attribute [" + attrname + "] has invalid value, it has been changed to [5] but it is: [" + attr.value +"]");			
-			if (attr2.value != 5)	    return failed("attribute [" + attrname + "] has invalid value (via ElementNode), it has been changed to [5] but it is: [" + attr2.value +"]");			
-			if (node.getAttribute(attrname) != 5)	    return failed("attribute [" + attrname + "] has invalid value (via ElementNode.getAttribute), it has been changed to [5] but it is: [" + node.getAttribute("verbose") +"]");							
-            node.removeAttribute(attrname);
-			attr = attributes.getNamedItem(attrname);		
-            if (attr)	return failed("attribute [" + attrname + "] can be found after it has been removed");		
-            if (node.getAttributeNode(attrname)) return failed("attribute [" + attrname + "] can be found after it has been removed (via getAttributeNode)");		
-            if (node.getAttribute(attrname)) return failed("attribute [" + attrname + "] can be found after it has been removed (via getAttribute)");	
-		return true;
+			return (
+					checkAttr(attributes)
+				|| (
+					attr = attributes.getNamedItem(attrname),
+					attr2 = node.getAttributeNode(attrname),
+					assert(attr.name == attrname,
+						"attribute [" + attrname + "] could not be found")
+				)
+				||	assert(attr.value == 2,
+						"attribute [" + attrname + "] has invalid value, it should be [2] but it is: [" + attr.value +"]")
+				||	assert(attr2.name == attrname,
+						"attribute [" + attrname + "] could not be found (via ElementNode)")
+				||	assert(attr2.value == 2,
+						"attribute [" + attrname + "] has invalid value (via ElementNode), it should be [2] but it is: [" + attr2.value +"]")
+				||	assert(node.getAttribute(attrname) == 2,
+						"attribute [" + attrname + "] has invalid value (via ElementNode.getAttribute), it should be [2] but it is: [" 
+						+ node.getAttribute("verbose") +"]")
+				|| (
+					node.setAttribute(attrname, 5),
+					attr = attributes.getNamedItem(attrname),
+					attr2 = node.getAttributeNode(attrname),
+					assert(attr.name == attrname,
+						"attribute [" + attrname + "] could not be found after its value has been changed")
+				)
+				||	assert(attr.value == 5,
+						"attribute [" + attrname + "] has invalid value, it has been changed to [5] but it is: [" + attr.value +"]")
+				||	assert(attr2.value == 5,
+						"attribute [" + attrname + "] has invalid value (via ElementNode), it has been changed to [5] but it is: [" + attr2.value +"]")
+				||	assert(node.getAttribute(attrname) == 5,
+						"attribute [" + attrname + "] has invalid value (via ElementNode.getAttribute), it has been changed to [5] but it is: [" + node.getAttribute("verbose") +"]")
+				|| (	
+					node.removeAttribute(attrname),
+					attr = attributes.getNamedItem(attrname),
+					assert(!attr,
+						"attribute [" + attrname + "] can be found after it has been removed")
+				)
+				||	assert(!node.getAttributeNode(attrname),
+						"attribute [" + attrname + "] can be found after it has been removed (via getAttributeNode)")
+				||	assert(!node.getAttribute(attrname),
+						"attribute [" + attrname + "] can be found after it has been removed (via getAttribute)")
+				||	true
+			);	
 	},
 	'xmlNodeModify':function(){
 			var node, removed, project, i, e;
@@ -439,44 +522,52 @@ var test = 'XML',
 			node = project.childNodes[1]; //settings
             removed = project.removeChild(node);
 			project.insertBefore(removed, project.childNodes[3]);
-			if ((project.childNodes[0].nodeName != "text")
-			 || (project.childNodes[1].nodeName != "text")
-			 || (project.childNodes[2].nodeName != "process")
-			 || (project.childNodes[3].nodeName != "settings"))
-				return failed("removing node \"settings\" and adding it back after node \"process\" failed.");
-			
-			node = project.childNodes[2].cloneNode(true);
-			project.replaceChild(node, project.firstChild);
-			if (e = diffNodes(project.firstChild, project.childNodes[2])) 
-				return failed("Cloning node \"process\" and replacing the first text node with it failed. " + e);
-			
-            node = project.childNodes[2].cloneNode(true);
-			project.childNodes[1].replaceNode(node);
-			if (e = diffNodes(project.childNodes[1], project.childNodes[2])) 
-				return failed("Cloning node \"process\" and replacing the second text node with it failed. " + e);
-			
-			node = project.childNodes[3].cloneNode(true);
-			project.appendChild(node);
-			if (e = diffNodes(project.lastChild, project.childNodes[3])) 
-				return failed("Cloning node \"settings\" and appending it to node \"project\" failed. " + e);	
-		return true;	
+			return (
+					assert( (project.childNodes[0].nodeName == "text")
+							|| (project.childNodes[1].nodeName == "text")
+							|| (project.childNodes[2].nodeName == "process")
+							|| (project.childNodes[3].nodeName == "settings"),
+								"removing node \"settings\" and adding it back after node \"process\" failed.")
+				|| (				
+					node = project.childNodes[2].cloneNode(true),
+					project.replaceChild(node, project.firstChild),
+					e = diffNodes(project.firstChild, project.childNodes[2]),
+					assert(!e, "Cloning node \"process\" and replacing the first text node with it failed. " + e) 
+				)
+				|| (						
+					node = project.childNodes[2].cloneNode(true),
+					project.childNodes[1].replaceNode(node),
+					e = diffNodes(project.childNodes[1], project.childNodes[2]),
+					assert(!e, "Cloning node \"process\" and replacing the second text node with it failed. " + e) 
+				)
+				|| (			
+					node = project.childNodes[3].cloneNode(true),
+					project.appendChild(node),
+					e = diffNodes(project.lastChild, project.childNodes[3]),
+					assert(!e, "Cloning node \"settings\" and appending it to node \"project\" failed. " + e) 
+				)
+				||	true
+			);			
 	},
 	'XPATH':function(){
 			var node, selectedNodes, single, i, l;
 			node = mxml.firstChild;
 			selectedNodes = node.selectNodes("//p:define");
 			l = selectedNodes.length;
-			if (selectedNodes[0].getAttribute("name") != "__JPFVERSION") 
-				return failed("'name' attribute for the first selected node should be [__JPFVERSION] but was: [" + selectedNodes[0].getAttribute("name") + "]");
-			if (selectedNodes[77].getAttribute("name") != "__WITH_XMLDATABASE") 
-				return failed("'name' attribute for the first selected node should be [__WITH_XMLDATABASE] but was: [" + selectedNodes[77].getAttribute("name") + "]");
-			if (selectedNodes[l-2].getAttribute("name") != "__ENABLE_TABSCROLL") 
-				return failed("'name' attribute for the first selected node should be [__ENABLE_TABSCROLL] but was: [" + selectedNodes[l-2].getAttribute("name") + "]");	
-			
-			single = node.selectSingleNode("//p:define");
-			if (single.getAttribute("name") != "__JPFVERSION")
-				return failed("'name' attribute for selectSingleNode should be [__JPFVERSION] but was: [" + single.getAttribute("name") + "]");
-		return true;
+			return (
+					assert(selectedNodes[0].getAttribute("name") == "__JPFVERSION", 
+						"'name' attribute for the first selected node should be [__JPFVERSION] but was: [" + selectedNodes[0].getAttribute("name") + "]") 
+				||	assert(selectedNodes[77].getAttribute("name") == "__WITH_XMLDATABASE",
+						"'name' attribute for the first selected node should be [__WITH_XMLDATABASE] but was: [" + selectedNodes[77].getAttribute("name") + "]")
+				||	assert(selectedNodes[l-2].getAttribute("name") == "__ENABLE_TABSCROLL",
+						"'name' attribute for the first selected node should be [__ENABLE_TABSCROLL] but was: [" + selectedNodes[l-2].getAttribute("name") + "]")
+				|| (
+					single = node.selectSingleNode("//p:define"),
+					assert(single.getAttribute("name") == "__JPFVERSION",
+						"'name' attribute for selectSingleNode should be [__JPFVERSION] but was: [" + single.getAttribute("name") + "]")
+				)
+				||	true
+			);	
 	}/*,
 	'serialize':function(){        
 			var str = mxml.firstChild.xml;			
@@ -486,15 +577,5 @@ var test = 'XML',
 	}*/
 }
 
-for (v in tests) {
-    if(foundLast) {
-		o3.print(v + '\n');	
-		result = tests[v]().toString();
-		if (result != 'true')
-			stdErr.write(result);
-	}
-	else {
-		foundLast = (v == last);
-	}
-}
+runScript(tests);
 

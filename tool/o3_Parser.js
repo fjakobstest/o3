@@ -10,7 +10,7 @@ this.Lexer = {
             lines = []          // array of linepositions
             
         data.replace(TokRegexp, function(token, rx_lut, rx_ws, rx_word, rx_misc, pos) {
-            // check the type
+			// check the type
             if (rx_lut)
                 type = TokenType[rx_lut];
             else if (rx_ws)
@@ -45,7 +45,9 @@ this.Lexer = {
                         // check if the bracket match with the starting bracket
                         if (tree[0].token != TokClose[token])  {                            
                           // report error: brackets dont match
-                          Reporter.error("lexer: closure token did not match!!!\n");
+                          Reporter.error("lexer: closure token did not match, ' opened: '", 
+						  tree[0].token, "' closed: '", token, "' position : ", 
+							position(lines, pos).toString(),"\n");						  
                         }
                         else {
                             tree[tree.length] = {type: type, pos: pos, token: token};
@@ -186,13 +188,17 @@ this.Parser = {
             // at this point j is the pos of the next ',' or trailing ')'                
             
             if (eq) {
-                name_pos = eq - 1;
-                if (subtree[eq+1].plain_text)
+                name_pos = eq - 1;                
+				if (subtree[eq+1].plain_text)
                     def = subtree[eq+1].plain_text;
                 else {
                     def = subtree[eq+1].token;
 					if (def == '-')
-						def += subtree[eq+2].token
+						def += subtree[eq+2].token;
+					else if(def == 'Str')
+						def += subtree[eq+2].token + 
+							   subtree[eq+2].subtree[1].plain_text +
+							   subtree[eq+3].token;
 				}	
             } 
             else if (op_count + mod_count + 1 == j-i ) {
@@ -403,3 +409,13 @@ this.TokenType = {
 this.TokClose = {'}': '{', ']': '[', ')': '('};
 this.TokRegexp = /(["'{(\[\])}\]]|\r?[\n]|\/[\/*]|\*\/)|([ \t]+)|([\w._])+|(\\?[\w._?,:;!=+-\\\/^&|*"'[\]{}()%$#@~`<>])/g;
  
+function posToString(){
+	return 'Ln : ' + this.line + ', Col : ' + this.col;
+}
+
+function position(lines,pos) {
+	for (var i = 0, j = lines.length; i < j && lines[i] < pos; i++);
+	return {line: i+1, col: pos - lines[i - 1], toString: posToString};
+};
+	
+	

@@ -25,8 +25,15 @@ struct Trait;
 template<typename C>
 class tStr;
 
+template<typename K, typename V>
+class tMap;
+
+
 typedef tStr<char> Str;
 typedef tStr<wchar_t> WStr;
+
+struct iCtx;
+typedef siUnk (*factory_t)(iCtx*);
 
 o3_iid(iMgr, 0x184F9D2C,
              0xCC8D,
@@ -43,6 +50,18 @@ struct iMgr : iUnk {
     virtual siThreadPool pool() = 0;
 
     virtual Str root() = 0;
+
+	virtual void addFactory(const Str& name, factory_t factory) = 0;
+
+	virtual factory_t factory(const Str& name) = 0;
+
+	virtual Str currentUrl() = 0;
+
+	virtual void setCurrentUrl(const Str& url) = 0;
+
+	virtual tMap<Str, int> readSettings() = 0;
+
+	virtual void writeSettings(const tMap<Str, int>& settings) = 0;
 };
 
 }

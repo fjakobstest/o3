@@ -23,13 +23,7 @@ namespace o3 {
 o3_cls(cFs1Base);
 
 struct cFs1Base : cScr, iFs {
-    enum Type {
-        TYPE_INVALID,
-        TYPE_DIR,
-        TYPE_FILE,
-        TYPE_LINK
-    };    
-
+   
     siWeak m_ctx;
     siScr m_onchange;
 

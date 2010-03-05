@@ -20,6 +20,14 @@
 #include <npfunctions.h>
 
 #include <fs/o3_fs.h>
+#include <window/o3_window.h>
+//#include <image/o3_image.h>
+//#include <scanner/o3_scan.h>
+//#include <barcode/o3_barcode.h>
+
+#include <md5/o3_md5.h>
+#include <rsa/o3_rsa.h>
+#include <sha1/o3_sha1.h>
 
 #ifdef O3_WIN32    
     #define O3_STDCALL __stdcall
@@ -52,7 +60,7 @@ struct cCtx : cMgr, iCtx {
 		}
 		
 		bool hasMethod(NPIdentifier identifier)
-		{
+		{			
 			cCtx* ctx = (cCtx*) m_npp->pdata;
 			Var rval(ctx);
 			
@@ -478,7 +486,11 @@ struct cCtx : cMgr, iCtx {
         m_loop = g_sys->createMessageLoop();
 		m_o3 = o3_new(cO3)(0, 0, 0);
 
-        addExtTraits(cFs1::extTraits()); 
+        addExtTraits(cFs1::extTraits());
+		addExtTraits(cWindow1::extTraits());
+//		addExtTraits(cImage1::extTraits());
+//		addExtTraits(cScan1::extTraits());
+//		addExtTraits(cBarcode1::extTraits());
 	}
 	
 	~cCtx()
