@@ -4,6 +4,97 @@
 namespace o3 {
 
 
+Trait* cLoadProgress::select()
+{
+   return clsTraits();
+}
+
+Trait* cLoadProgress::clsTraits()
+{
+      static Trait TRAITS[] = {
+         {      0,      Trait::TYPE_BEGIN,      "cLoadProgress",      0,                    0,              0,      cScr::clsTraits()  },
+         {      0,      Trait::TYPE_GET,        "cLoadProgress",      "READY_STATE_UNINITIALIZED",clsInvoke,      0,      0                  },
+         {      1,      Trait::TYPE_GET,        "cLoadProgress",      "READY_STATE_LOADING",clsInvoke,      1,      0                  },
+         {      2,      Trait::TYPE_GET,        "cLoadProgress",      "READY_STATE_LOADED", clsInvoke,      2,      0                  },
+         {      3,      Trait::TYPE_GET,        "cLoadProgress",      "READY_STATE_INTERACTIVE",clsInvoke,      3,      0                  },
+         {      4,      Trait::TYPE_GET,        "cLoadProgress",      "READY_STATE_COMPLETED",clsInvoke,      4,      0                  },
+         {      5,      Trait::TYPE_GET,        "cLoadProgress",      "bytesReceived",      clsInvoke,      5,      0                  },
+         {      6,      Trait::TYPE_GET,        "cLoadProgress",      "readyState",         clsInvoke,      6,      0                  },
+         {      7,      Trait::TYPE_GET,        "cLoadProgress",      "fileName",           clsInvoke,      7,      0                  },
+         {      0,      Trait::TYPE_END,        "cLoadProgress",      0,                    0,              0,      0                  },
+      };
+
+      return TRAITS;
+}
+
+Trait* cLoadProgress::extTraits()
+{
+      static Trait TRAITS[] = {
+         {      0,      Trait::TYPE_BEGIN,      "cLoadProgress",      0,                    0,              0,      0                  },
+         {      0,      Trait::TYPE_END,        "cLoadProgress",      0,                    0,              0,      0                  },
+      };
+
+      return TRAITS;
+}
+
+siEx cLoadProgress::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
+           const Var* argv, Var* rval)
+{
+      siEx ex;
+      cLoadProgress* pthis1 = (cLoadProgress*) pthis;
+
+      switch(index) {
+         case 0:
+            *rval = 0;
+            break;
+         case 1:
+            *rval = 1;
+            break;
+         case 2:
+            *rval = 2;
+            break;
+         case 3:
+            *rval = 3;
+            break;
+         case 4:
+            *rval = 4;
+            break;
+         case 5:
+            if (argc != 0)
+               return o3_new(cEx)("Invalid argument count. ( bytesReceived )");
+            *rval = pthis1->bytesReceived();
+            break;
+         case 6:
+            if (argc != 0)
+               return o3_new(cEx)("Invalid argument count. ( readyState )");
+            *rval = pthis1->readyState();
+            break;
+         case 7:
+            if (argc != 0)
+               return o3_new(cEx)("Invalid argument count. ( fileName )");
+            *rval = pthis1->fileName();
+            break;
+      }
+      return ex;
+}
+
+siEx cLoadProgress::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
+           const Var* argv, Var* rval)
+{
+      siEx ex;
+      return ex;
+}
+
+}
+#endif
+#pragma warning(default : 4100)
+#pragma warning(default : 4189)
+#ifdef O3_WITH_GLUE
+#pragma warning( disable : 4100)
+#pragma warning( disable : 4189)
+namespace o3 {
+
+
 Trait* cO3::select()
 {
    return clsTraits();
@@ -65,9 +156,9 @@ siEx cO3::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             pthis1->require(ctx,argv[0].toStr());
             break;
          case 4:
-            if (argc != 1)
+            if (argc < 1 && argc > 2)
                return o3_new(cEx)("Invalid argument count. ( loadModules )");
-            pthis1->loadModules(ctx,argv[0].toScr());
+            pthis1->loadModules(ctx,argv[0].toScr(),argc > 1 ? argv[1].toScr() : 0);
             break;
          case 5:
             if (argc > 1)

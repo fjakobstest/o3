@@ -35,7 +35,7 @@
 #include "test/o3_test.h" 
 
 #include "image/o3_image.h"
-#include "scanner/o3_scan.h"
+//#include "scanner/o3_scan.h"
 #include "barcode/o3_barcode.h"
 
 #include "rsa/o3_rsa.h"
@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
 
 	mgr->addExtTraits(cImage1::extTraits());
 	mgr->addExtTraits(cBarcode1::extTraits());
-	mgr->addExtTraits(cScan1::extTraits());
+	//mgr->addExtTraits(cScan1::extTraits());
 
 	mgr->addExtTraits(cRSA1::extTraits());
 	mgr->addExtTraits(cSHA1Hash1::extTraits());

@@ -45,8 +45,8 @@ struct iHttp : iUnk {
 	virtual void open(const char* method, const char* url,
 		bool async = true) = 0;
 	virtual void setRequestHeader(const char* name, const char* value) = 0;
-	virtual void send(iCtx* ctx, const Buf& buf) = 0;
-	virtual void send(iCtx* ctx, const Str& str) = 0;
+	virtual void send(iCtx* ctx, const Buf& buf, bool blocking) = 0;
+	virtual void send(iCtx* ctx, const Str& str, bool blocking) = 0;
 	virtual Str statusText() = 0;
 	virtual Str getAllResponseHeaders() = 0;
 	virtual Str getResponseHeader(const char* name) = 0;

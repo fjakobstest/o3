@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib libxml2d.lib urlmon.lib"
+				AdditionalDependencies="libcurld.lib wldap32.lib ws2_32.lib libxml2d.lib urlmon.lib"
 				OutputFile="$(OutDir)\npplugin_dbg.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../external/lib/win32"

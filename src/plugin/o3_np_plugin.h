@@ -20,6 +20,7 @@
 #include <npfunctions.h>
 
 #include <fs/o3_fs.h>
+#include <http/o3_http.h>
 #include <window/o3_window.h>
 //#include <image/o3_image.h>
 //#include <scanner/o3_scan.h>
@@ -491,6 +492,9 @@ struct cCtx : cMgr, iCtx {
 //		addExtTraits(cImage1::extTraits());
 //		addExtTraits(cScan1::extTraits());
 //		addExtTraits(cBarcode1::extTraits());
+	
+		addFactory("fs", &cFs1::installDir);
+		addFactory("http", &cHttp1::factory);	
 	}
 	
 	~cCtx()

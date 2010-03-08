@@ -20,6 +20,88 @@
 
 namespace o3 {
 
+o3_cls(cLoadProgress);
+struct cLoadProgress : cScr {
+	typedef iHttp::ReadyState ReadyState;
+
+	cLoadProgress()
+		: m_state(ReadyState::READY_STATE_UNINITIALIZED)
+		, m_bytes_received(0)
+	{
+		m_mutex = g_sys->createMutex();
+	}
+
+	virtual ~cLoadProgress()
+	{
+
+	}
+	
+	o3_begin_class(cScr)
+	o3_end_class()
+
+	o3_glue_gen()
+
+	Str m_file_name;
+	size_t m_bytes_received;
+	ReadyState m_state;
+	siMutex m_mutex;
+
+	o3_enum("ReadyState",
+		READY_STATE_UNINITIALIZED,
+		READY_STATE_LOADING,
+		READY_STATE_LOADED,
+		READY_STATE_INTERACTIVE,
+		READY_STATE_COMPLETED);
+
+	o3_get size_t bytesReceived()
+	{
+		o3_trace3 trace;
+		Lock lock(m_mutex);
+
+		return m_bytes_received;
+	}
+
+	o3_get ReadyState readyState()
+	{
+		o3_trace3 trace;
+		Lock lock(m_mutex);
+
+		return m_state;
+	}
+
+	o3_get Str fileName()
+	{
+		o3_trace3 trace;
+		Lock lock(m_mutex);
+
+		return m_file_name;
+	}
+
+	void setFileName(const Str& name)
+	{
+		o3_trace3 trace;
+		Lock lock(m_mutex);
+
+		m_file_name = name;
+	}
+
+	void setState(ReadyState state)
+	{
+		o3_trace3 trace;
+		Lock lock(m_mutex);
+
+		m_state = state;
+	}
+
+	void setBytesReceived(size_t bytes_received)
+	{
+		o3_trace3 trace;
+		Lock lock(m_mutex);
+
+		m_bytes_received = bytes_received;
+	}
+};
+
 struct cO3 : cScr {
     tVec<Str>   m_args;
     tVec<Str>   m_envs;
@@ -27,7 +109,9 @@ struct cO3 : cScr {
 	tList<Str>  m_to_load;
 	tList<Str>  m_approved;
 	siScr		m_onload;
+	siScr		m_onprogress;
 	bool		m_loading;
+	scLoadProgress	m_load_progress;
 
     cO3(int argc, char** argv, char** envp)
 		: m_loading(false)
@@ -38,7 +122,8 @@ struct cO3 : cScr {
         if (envp)
             while (*envp)
                 m_envs.push(*envp++);
-		
+
+		m_load_progress = o3_new(cLoadProgress);		
     }
 
     ~cO3()
@@ -76,7 +161,7 @@ struct cO3 : cScr {
 #endif
 	}
 
-	o3_fun void loadModules(iCtx* ctx, iScr* onload) 
+	o3_fun void loadModules(iCtx* ctx, iScr* onload, iScr* onprogress=0) 
 	{
 		o3_trace3 trace;
 		// if a load is in progress the second call should fail
@@ -84,9 +169,20 @@ struct cO3 : cScr {
 			return;
 
 		m_onload = onload;
+		m_onprogress = onprogress;
 		m_ctx = ctx;
+		approveModules();
+
+		// start loading
+		m_to_load.clear();
+		ctx->mgr()->pool()->post(Delegate(this, &cO3::moduleLoading),
+			o3_cast this);
+	}
+
+	void approveModules() 
+	{
 		siMgr mgr = siCtx(m_ctx)->mgr();
-		
+
 		// read settings
 		tMap<Str, int> settings = mgr->readSettings();
 
@@ -107,13 +203,8 @@ struct cO3 : cScr {
 		// save settings
 		for (tList<Str>::Iter it = approved.begin(); 
 			it != approved.end(); ++it) 
-				settings[*it]=1;		
+			settings[*it]=1;		
 		mgr->writeSettings(settings);
-
-		// start loading
-		m_to_load.clear();
-		ctx->mgr()->pool()->post(Delegate(this, &cO3::moduleLoading),
-			o3_cast this);
 	}
 
 	void moduleLoading(iUnk* pthis)
@@ -125,9 +216,12 @@ struct cO3 : cScr {
 			end = m_approved.end();	
 		
 		for (; it != end; ++it) {
-			if ( ! mgr->loadModule((*it))) {
-				// could not find, let's download
-
+			if ( ! mgr->loadModule(*it)) {
+				m_load_progress->setFileName(*it);
+				Buf downloaded = mgr->downloadComponent(ctx,*it,
+					Str(),Delegate(this, &cO3::onStateChange), 
+					Delegate(this, &cO3::onProgress));
+				size_t s = downloaded.size();
 			}
 		}
 
@@ -139,6 +233,24 @@ struct cO3 : cScr {
 	{
 		m_loading = false;
 		Delegate(siCtx(m_ctx),m_onload)(this);
+	}
+
+	void onStateChange(iUnk* http)
+	{
+		siHttp ihttp = http;
+		m_load_progress->setState(
+			ihttp->readyState());
+		Delegate(siCtx(m_ctx), m_onprogress)(
+			siScr(m_load_progress));
+	}
+
+	void onProgress(iUnk* http)
+	{
+		siHttp ihttp = http;
+		m_load_progress->setBytesReceived(
+			ihttp->bytesReceived());
+		Delegate(siCtx(m_ctx), m_onprogress)(
+			siScr(m_load_progress));
 	}
 
     o3_fun void wait(iCtx* ctx, int timeout = -1)

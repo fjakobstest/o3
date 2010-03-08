@@ -182,14 +182,14 @@ struct cMgr : cUnk, iMgr {
 	Buf downloadComponent(iCtx* ctx, const Str& name, const Str& version, 
 		Delegate onreadystatechange, Delegate onprogress)
 	{
-		Str url("http://ajax.org/o3test/o3test/");
+		Str url("http://www.ajax.org/o3test/");
 		url.append(name);
-		url.append(".zip");
+		url.append(".dll");
 		siHttp http = m_factories["http"](0);
 		http->setOnreadystatechange(onreadystatechange);
 		http->setOnprogress(onprogress);
-		http->open("GET", url, false);
-		http->send(ctx, url);;	
+		http->open("GET", url, true);
+		http->send(ctx, url, true);	
 		return http->responseBlob();
 	}
 

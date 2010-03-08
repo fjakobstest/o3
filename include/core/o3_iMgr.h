@@ -34,6 +34,8 @@ typedef tStr<wchar_t> WStr;
 
 struct iCtx;
 typedef siUnk (*factory_t)(iCtx*);
+class Delegate;
+struct Buf;
 
 o3_iid(iMgr, 0x184F9D2C,
              0xCC8D,
@@ -62,6 +64,10 @@ struct iMgr : iUnk {
 	virtual tMap<Str, int> readSettings() = 0;
 
 	virtual void writeSettings(const tMap<Str, int>& settings) = 0;
+
+	virtual Buf downloadComponent(iCtx* ctx, const Str& name, 
+		const Str& version, Delegate onreadystatechange, 
+		Delegate onprogress) = 0;
 };
 
 }

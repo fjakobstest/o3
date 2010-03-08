@@ -172,29 +172,43 @@ struct cHttp1 : cScr, iHttp {
             m_request_headers.remove(name);
     }
 
+	virtual void send(iCtx* ctx, const Buf& buf, bool blocking)
+	{
+		o3_trace3 trace;
+
+		m_request_body = buf;
+		m_ptr = (uint8_t*) buf.ptr();
+		m_size = buf.size();
+		m_ctx = ctx;
+		if (blocking)
+			perform(o3_cast this);
+		else
+			m_ctx->mgr()->pool()->post(Delegate(this, &cHttp1::perform),
+			o3_cast this);
+	}
+
     virtual o3_fun void send(iCtx* ctx, const Buf& buf)
     {
         o3_trace3 trace;
 
-        m_request_body = buf;
-        m_ptr = (uint8_t*) buf.ptr();
-        m_size = buf.size();
-        m_ctx = ctx;
-        if (m_async)
-            m_ctx->mgr()->pool()->post(Delegate(this, &cHttp1::perform),
-                                       o3_cast this);
-        else
-            perform(o3_cast this);
+        send(ctx,buf,!m_async);
     }
 
     virtual o3_fun void send(iCtx* ctx, const Str& str)
     {
         o3_trace3 trace;
-        Buf buf(str.size());
 
-        buf.append(str.ptr(), str.size());
-        return send(ctx, buf);
+        send(ctx,str,!m_async);
     }
+
+	virtual void send(iCtx* ctx, const Str& str, bool blocking)
+	{
+		o3_trace3 trace;
+		Buf buf(str.size());
+
+		buf.append(str.ptr(), str.size());
+		return send(ctx, buf, blocking);
+	}
 
     virtual o3_get Str statusText()
     {
@@ -282,7 +296,7 @@ struct cHttp1 : cScr, iHttp {
 		o3_trace3 trace;
 		Lock lock(m_mutex);
 
-		m_dg_onprogress = onreadystatechange;
+		m_dg_onreadystatechange = onreadystatechange;
 	}
 
     virtual o3_set siScr setOnreadystatechange(iCtx* ctx, iScr* onreadystatechange)
@@ -388,7 +402,7 @@ struct cHttp1 : cScr, iHttp {
         {
             Lock lock(m_mutex);
 
-            fun = m_dg_onreadystatechange;
+            fun = m_dg_onprogress;
         }
         fun(this);
         m_pending = false;
