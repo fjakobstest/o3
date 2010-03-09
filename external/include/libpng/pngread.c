@@ -79,6 +79,8 @@ png_create_read_struct_2(png_const_charp user_png_ver, png_voidp error_ptr,
 #ifdef USE_FAR_KEYWORD
    if (setjmp(jmpbuf))
 #else
+//#ifdef _
+#pragma warning(disable:4611)
    if (setjmp(png_jmpbuf(png_ptr))) /* Sets longjmp to match setjmp */
 #endif
       PNG_ABORT();

@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2010 Javeline BV
+* Copyright (C) 2010 Ajax.org BV
 *
 * This library is free software; you can redistribute it and/or modify it under
 * the terms of the GNU General Public License as published by the Free Software

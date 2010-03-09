@@ -172,7 +172,7 @@ static inline int err_capture_str (const void *container,
     assert(err->magic == ERRINFO_MAGIC);
     if(err->arg_str)
         free(err->arg_str);
-    err->arg_str = strdup(arg);
+    err->arg_str = _strdup(arg);
     return(err_capture(container, sev, type, func, detail));
 }
 

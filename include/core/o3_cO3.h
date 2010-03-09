@@ -25,7 +25,7 @@ struct cLoadProgress : cScr {
 	typedef iHttp::ReadyState ReadyState;
 
 	cLoadProgress()
-		: m_state(ReadyState::READY_STATE_UNINITIALIZED)
+		: m_state(iHttp::READY_STATE_UNINITIALIZED)
 		, m_bytes_received(0)
 	{
 		m_mutex = g_sys->createMutex();
@@ -113,7 +113,7 @@ struct cO3 : cScr {
 	bool		m_loading;
 	scLoadProgress	m_load_progress;
 
-    cO3(int argc, char** argv, char** envp)
+    cO3(int /*argc*/, char** argv, char** envp)
 		: m_loading(false)
 	{
         if (argv)
@@ -221,7 +221,7 @@ struct cO3 : cScr {
 				Buf downloaded = mgr->downloadComponent(ctx,*it,
 					Str(),Delegate(this, &cO3::onStateChange), 
 					Delegate(this, &cO3::onProgress));
-				size_t s = downloaded.size();
+				/*size_t s =*/ downloaded.size();
 			}
 		}
 

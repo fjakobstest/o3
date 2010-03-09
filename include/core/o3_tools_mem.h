@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Javeline BV
+ * Copyright (C) 2010 Ajax.org BV
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -104,7 +104,7 @@ inline size_t memFromHex(void* ptr, const C* str)
     unsigned bits = 0;
     int n = 0;
 
-    while (char c = *str++) {
+    while (C c = *str++) {
         int x;
 
         if (chrIsSpace(c))
@@ -133,7 +133,7 @@ inline size_t memFromBase64(void* ptr, const C* str)
     size_t size = 0;
     unsigned bits = 0;
     int n = 0;
-    char c;
+    C c;
 
     while (c = *str++) {
         int x;

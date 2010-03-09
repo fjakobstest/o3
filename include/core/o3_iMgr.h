@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Javeline BV
+ * Copyright (C) 2010 Ajax.org BV
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -35,7 +35,7 @@ typedef tStr<wchar_t> WStr;
 struct iCtx;
 typedef siUnk (*factory_t)(iCtx*);
 class Delegate;
-struct Buf;
+class Buf;
 
 o3_iid(iMgr, 0x184F9D2C,
              0xCC8D,

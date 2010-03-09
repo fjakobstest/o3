@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Javeline BV
+ * Copyright (C) 2010 Ajax.org BV
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -270,13 +270,14 @@ namespace o3{
 				0,
 				FALSE,
 				DUPLICATE_SAME_ACCESS ) ) {
-					int e = GetLastError();
+					/*int e =*/ GetLastError();
 					closeHandles();
 					return (DWORD) -1;
 			}
 
 			CloseHandle( *toDup );*toDup = rddup;
 			SetStdHandle(pipeid, hSave);
+			return 0; //! is this OK?
 		}
 
         bool runElevated( iCtx* ctx, const wchar_t* path, const wchar_t* parameters = NULL, const wchar_t* dir = NULL ) 

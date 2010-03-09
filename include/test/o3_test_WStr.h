@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Javeline BV
+ * Copyright (C) 2010 Ajax.org BV
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -61,7 +61,7 @@ inline void test_WStr()
     {
         const wchar_t STR[]  = L"123.456000";
         const wchar_t STR1[] = L"0.000000";
-        const wchar_t STR2[] = L"1797693134862315708145274237317043567980"
+/*        const wchar_t STR2[] = L"1797693134862315708145274237317043567980"
                                L"7056752584499659891747680315726078002853"
                                L"8760589558632766878171540458953514382464"
                                L"2343213268894641827684675467035375169860"
@@ -70,7 +70,7 @@ inline void test_WStr()
                                L"3321233482747978262041447231687381771809"
                                L"19299881250404026184124858368.000000";
         const wchar_t STR3[] = L"-inf";
-        const wchar_t STR4[] = L"inf";
+        const wchar_t STR4[] = L"inf";*/
 
         o3_assert(strEquals(WStr::fromDouble(123.456).ptr(), STR));
         o3_assert(strEquals(WStr::fromDouble(DBL_MIN).ptr(), STR1));
@@ -84,7 +84,7 @@ inline void test_WStr()
 
     o3_log("Testing static WStr WStr::fromHex(const void* ptr, size_t size)\n");
     {
-        const wchar_t WSTR1[] = L"54 00 00 00 68 00 00 00 65 00 00 00 20 00 00 00 "
+/*        const wchar_t WSTR1[] = L"54 00 00 00 68 00 00 00 65 00 00 00 20 00 00 00 "
                                 L"71 00 00 00 75 00 00 00 69 00 00 00 63 00 00 00 "
                                 L"6B 00 00 00 20 00 00 00 62 00 00 00 72 00 00 00 "
                                 L"6F 00 00 00 77 00 00 00 6E 00 00 00 20 00 00 00 "
@@ -94,7 +94,7 @@ inline void test_WStr()
                                 L"65 00 00 00 72 00 00 00 20 00 00 00 74 00 00 00 "
                                 L"68 00 00 00 65 00 00 00 20 00 00 00 6C 00 00 00 "
                                 L"61 00 00 00 7A 00 00 00 79 00 00 00 20 00 00 00 "
-                                L"64 00 00 00 6F 00 00 00 67 00 00 00 00 00 00 00";
+                                L"64 00 00 00 6F 00 00 00 67 00 00 00 00 00 00 00";*/
 
 #ifndef O3_WIN32
 		o3_assert(strEquals(WStr::fromHex(WSTR, sizeof(WSTR)).ptr(), WSTR1));
@@ -241,8 +241,8 @@ inline void test_WStr()
                                L"8508455133942304583236903222948165808559"
                                L"3321233482747978262041447231687381771809"
                                L"19299881250404026184124858368.000000";
-        const wchar_t STR3[] = L"-inf";
-        const wchar_t STR4[] = L"inf";
+/*        const wchar_t STR3[] = L"-inf";
+        const wchar_t STR4[] = L"inf";*/
 
         o3_assert(WStr(STR).toDouble() == 123.456);
         // TODO: DBL_MIN

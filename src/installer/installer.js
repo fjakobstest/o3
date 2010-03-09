@@ -263,7 +263,7 @@ var installer = {
                 path       : path,
                 displayname: "Javeline " + appInfo.fullId,
                 helplink   : "",
-                publisher  : "Javeline BV",
+                publisher  : "Ajax.org BV",
                 major      : "1",
                 minor      : "1"
             }))
@@ -281,7 +281,7 @@ var installer = {
         //mozilla registration 
         while (true) {
             if (o3.regMozillaPlugin(all_usr, {
-                company    : "Javeline BV",
+                company    : "Ajax.org BV",
                 appname    : appInfo.fullId,
                 version    : "1",
                 path       : nppath,
@@ -527,7 +527,7 @@ var uninstaller = {
     
     run: function(all_usr, reinstall) {
         while (true) {
-            if (o3.unregMozillaPlugin(all_usr, "Javeline BV", appInfo.fullId, "1"))
+            if (o3.unregMozillaPlugin(all_usr, "Ajax.org BV", appInfo.fullId, "1"))
                 break;
             else if (!o3.alertBox(appInfo.fancyName, getErrMsg(-3) + " unregNP", "retrycancel"))
                 return -3;

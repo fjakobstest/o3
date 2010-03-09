@@ -192,8 +192,7 @@ int _zbar_processor_handle_input (zbar_processor_t *proc,
     return(input);
 }
 */
-#ifdef ZTHREAD
-
+#ifdef ZWANTTHREAD
 static ZTHREAD proc_video_thread (void *arg)
 {
     zbar_processor_t *proc = (zbar_processor_t *)arg;
@@ -308,7 +307,7 @@ void zbar_processor_destroy (zbar_processor_t *proc)
     assert(!proc->wait_tail);
     assert(!proc->wait_next);
 
-    proc_waiter_t *w, *next;
+   // proc_waiter_t *w, *next;
 
 	/* o3 - removed threads/events
     for(w = proc->free_waiter; w; w = next) {
@@ -340,7 +339,7 @@ int zbar_processor_init (zbar_processor_t *proc,
     _zbar_mutex_unlock(&proc->mutex);
 
 
- done:
+// done:
     _zbar_mutex_lock(&proc->mutex);
     proc_leave(proc);
     return(0);

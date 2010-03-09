@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Javeline BV
+ * Copyright (C) 2010 Ajax.org BV
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -301,7 +301,7 @@ public:
         case TYPE_INT32:
             return m_u.val_int32;
         case TYPE_INT64:
-            return m_u.val_int64;
+            return (int32_t)m_u.val_int64;
         case TYPE_DOUBLE:
             return (int)DoubleToInt(m_u.val_double);
         case TYPE_WSTR:
@@ -345,7 +345,7 @@ public:
         case TYPE_INT32:
             return m_u.val_int32;
         case TYPE_INT64:
-            return m_u.val_int64;
+            return (double)m_u.val_int64;
         case TYPE_DOUBLE:
             return m_u.val_double;
         case TYPE_WSTR:

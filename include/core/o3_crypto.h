@@ -52,7 +52,7 @@ namespace o3 {
          */
 
         #ifdef O3_WIN32
-            inline void gettimeofday(struct timeval* t, void* timezone) {       
+            inline void gettimeofday(struct timeval* t, void* /*timezone*/) {       
                 struct _timeb timebuffer;
 
                 _ftime(&timebuffer);
@@ -75,14 +75,14 @@ namespace o3 {
             m = ctx->m;
 
             for (i = 0; i < 256; i++) {
-                m[i] = i;
+                m[i] = (uint8_t)i;
             }
 
             for (i = 0; i < 256; i++) {
                 a = m[i];
                 j = (uint8_t)(j + a + key[k]);
                 m[i] = m[j]; 
-                m[j] = a;
+                m[j] = (uint8_t)a;
 
                 if (++k >= length) {
                     k = 0;
@@ -294,7 +294,7 @@ namespace o3 {
          */
         inline void more_comps(bigint *bi, int n) {
             if (n > bi->max_comps) {
-                bi->max_comps = max(bi->max_comps * 2, n);
+                bi->max_comps = (short)max(bi->max_comps * 2, n);
                 bi->comps = (comp*)realloc(bi->comps, bi->max_comps * COMP_BYTE_SIZE);
             }
 
@@ -302,7 +302,7 @@ namespace o3 {
                 memset(&bi->comps[bi->size], 0, (n-bi->size)*COMP_BYTE_SIZE);
             }
 
-            bi->size = n;
+            bi->size = (short)n;
         }
 
         /**
@@ -331,10 +331,10 @@ namespace o3 {
                 /* No free bigints available - create a new one. */
                 biR = (bigint *)malloc(sizeof(bigint));
                 biR->comps = (comp*)malloc(size * COMP_BYTE_SIZE);
-                biR->max_comps = size;  /* give some space to spare */
+                biR->max_comps = (short)size;  /* give some space to spare */
             }
 
-            biR->size = size;
+            biR->size = (short)size;
             biR->refs = 1;
             biR->next = NULL;
             ctx->active_count++;
@@ -521,7 +521,7 @@ namespace o3 {
                 for (j = 0; j < COMP_BYTE_SIZE; j++) {
                     comp mask = 0xff << (j*8);
                     int num = (x->comps[i] & mask) >> (j*8);
-                    data[k--] = num;
+                    data[k--] = (uint8_t)num;
 
                     if (k < 0) {
                         break;
@@ -660,7 +660,7 @@ namespace o3 {
                 *x++ = *y++;
             } while (--i > 0);
 
-            biR->size -= num_shifts;
+            biR->size -= (short)num_shifts;
             return biR;
         }
 
@@ -826,7 +826,7 @@ namespace o3 {
         /*
          * Perform an integer divide on a bigint.
          */
-        inline bigint *bi_int_divide(BI_CTX *ctx, bigint *biR, comp denom) {
+        inline bigint *bi_int_divide(BI_CTX* /*ctx*/, bigint *biR, comp denom) {
             int i = biR->size - 1;
             long_comp r = 0;
 
@@ -1115,7 +1115,7 @@ namespace o3 {
             check(bi);
 
             if (bi->size > mod) {
-                bi->size = mod;
+                bi->size = (short)mod;
             }
 
             return bi;
@@ -1382,7 +1382,7 @@ namespace o3 {
             return biR;
         }
 
-        inline void bi_print(const char *label, bigint *x) {
+        inline void bi_print(const char* /*label*/, bigint* /*x*/) {
           /*  int i, j;
 
             if (x == NULL) {
@@ -1644,14 +1644,14 @@ namespace o3 {
             /*
              *  Store the message length as the last 8 octets
              */
-            ctx->Message_Block[56] = ctx->Length_High >> 24;
-            ctx->Message_Block[57] = ctx->Length_High >> 16;
-            ctx->Message_Block[58] = ctx->Length_High >> 8;
-            ctx->Message_Block[59] = ctx->Length_High;
-            ctx->Message_Block[60] = ctx->Length_Low >> 24;
-            ctx->Message_Block[61] = ctx->Length_Low >> 16;
-            ctx->Message_Block[62] = ctx->Length_Low >> 8;
-            ctx->Message_Block[63] = ctx->Length_Low;
+            ctx->Message_Block[56] = (uint8_t)(ctx->Length_High >> 24);
+            ctx->Message_Block[57] = (uint8_t)(ctx->Length_High >> 16);
+            ctx->Message_Block[58] = (uint8_t)(ctx->Length_High >> 8);
+            ctx->Message_Block[59] = (uint8_t)(ctx->Length_High);
+            ctx->Message_Block[60] = (uint8_t)(ctx->Length_Low >> 24);
+            ctx->Message_Block[61] = (uint8_t)(ctx->Length_Low >> 16);
+            ctx->Message_Block[62] = (uint8_t)(ctx->Length_Low >> 8);
+            ctx->Message_Block[63] = (uint8_t)(ctx->Length_Low);
             SHA1ProcessMessageBlock(ctx);
         }
 
@@ -1667,7 +1667,7 @@ namespace o3 {
             ctx->Length_High = 0;
 
             for  (i = 0; i < SHA1_SIZE; i++) {
-                digest[i] = ctx->Intermediate_Hash[i>>2] >> 8 * ( 3 - ( i & 0x03 ) );
+                digest[i] = (uint8_t)(ctx->Intermediate_Hash[i>>2] >> 8 * ( 3 - ( i & 0x03 ) ));
             }
         }
         
@@ -2235,8 +2235,8 @@ namespace o3 {
         size_t out_size = 0;
         size_t data_size = mod_size & 0xFFF0;
      
-        RSA_CTX* ctx;
-        uint8_t* data;
+        RSA_CTX* ctx = 0;
+        uint8_t* data = 0;
 
         if (out) {
             ctx = 0;
@@ -2262,7 +2262,7 @@ namespace o3 {
             size_t size = min(in_size, data_size - 11);
             
             if (out) {
-                RSA_encrypt(ctx, in, (int)size, data, prv);
+                RSA_encrypt(ctx, in, (uint16_t)size, data, prv);
 
                 memcpy(out, data, data_size);
 

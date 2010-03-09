@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2010 Javeline BV
+* Copyright (C) 2010 Ajax.org BV
 *
 * This library is free software; you can redistribute it and/or modify it under
 * the terms of the GNU General Public License as published by the Free Software
@@ -463,13 +463,13 @@ namespace o3
 					{
 						SetupMode(W,H, "argb");
 
-						int pos = 0;
+//						int pos = 0;
 
 						// get color values
-						for(int i = 0; i < m_h; i++)
+						for(int i = 0; i < (int) m_h; i++)
 						{
 							unsigned char *D = getrowptr(i);
-							for(int j = 0; j < (3 * m_w); j += 3)
+							for(int j = 0; j < (int)(3 * m_w); j += 3)
 							{
 								*D++ = row_pointers[i][j + 2];	// blue
 								*D++ = row_pointers[i][j + 1];	// green

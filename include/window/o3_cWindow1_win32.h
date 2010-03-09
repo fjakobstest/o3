@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Javeline BV
+ * Copyright (C) 2010 Ajax.org BV
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -111,7 +111,8 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
 
     static o3_ext("cO3") o3_fun siWindow createWindow(o3_tgt iScr* tgt, const char* caption, int x, int y, 
         int width, int height, int style = 0)
-    {            
+    {   
+		tgt = 0;
         return create(0, caption, x, y, width, height, style);
     }
 
@@ -473,19 +474,19 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
 	static o3_ext("cO3") o3_fun void sendKeyDown(int keycode) {
 		int win_keycode = mapJsKeyCodes(keycode);
 		if (win_keycode > 0)
-			keyDown(win_keycode, false);
+			keyDown((BYTE)win_keycode, false);
 	}
 
 	static o3_ext("cO3") o3_fun void sendKeyUp(int keycode) {
 		int win_keycode = mapJsKeyCodes(keycode);
 		if (win_keycode > 0)
-			keyUp(win_keycode);
+			keyUp((BYTE)win_keycode);
 	}
 
 	static o3_ext("cO3") o3_fun void sendKey(int keycode) {
 		int win_keycode = mapJsKeyCodes(keycode);
 		if (win_keycode > 0)
-			keyDown(win_keycode, true);
+			keyDown((BYTE)win_keycode, true);
 	}
 
     // sending key event, the virtual key events sent out will be handled by the window

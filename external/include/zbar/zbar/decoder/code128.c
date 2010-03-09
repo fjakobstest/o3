@@ -241,14 +241,14 @@ static inline unsigned char validate_checksum (zbar_decoder_t *dcode)
     /* calculate sum in reverse to avoid multiply operations */
     unsigned i, acc = 0;
     for(i = dcode128->character - 3; i; i--) {
-        zassert(sum < 103, -1, "dir=%x i=%x sum=%x acc=%x %s\n",
+        zassert(sum < 103, (unsigned char)-1, "dir=%x i=%x sum=%x acc=%x %s\n",
                 dcode128->direction, i, sum, acc,
-                _zbar_decoder_buf_dump(dcode->buf, dcode128->character));
+                _zbar_decoder_buf_dump(dcode->buf,dcode128->character));
         idx = (dcode128->direction) ? dcode128->character - 1 - i : i;
         acc += dcode->buf[idx];
         if(acc >= 103)
             acc -= 103;
-        zassert(acc < 103, -1, "dir=%x i=%x sum=%x acc=%x %s\n",
+        zassert(acc < 103, (unsigned char)-1, "dir=%x i=%x sum=%x acc=%x %s\n",
                 dcode128->direction, i, sum, acc,
                 _zbar_decoder_buf_dump(dcode->buf, dcode128->character));
         sum += acc;
@@ -261,8 +261,10 @@ static inline unsigned char validate_checksum (zbar_decoder_t *dcode)
     unsigned char check = dcode->buf[idx];
     dprintf(2, " chk=%02x(%02x)", sum, check);
     unsigned char err = (sum != check);
-    if(err)
+	if(err){
         dprintf(1, " [checksum error]\n");
+	}
+
     return(err);
 }
 
@@ -384,10 +386,10 @@ static inline unsigned char postprocess (zbar_decoder_t *dcode)
             if(code < CODE_C) {
                 if(code == SHIFT)
                     charset |= 0x80;
-                else if(code == FNC2)
-                    /* FIXME FNC2 - message append */;
-                else if(code == FNC3)
-                    /* FIXME FNC3 - initialize */;
+				else if(code == FNC2){}
+                    /* FIXME FNC2 - message append */
+				else if(code == FNC3){}
+                    /* FIXME FNC3 - initialize */
             }
             else if(code == FNC1)
                 /* FIXME FNC1 - Code 128 subsets or ASCII 0x1d */;
@@ -436,7 +438,7 @@ zbar_symbol_type_t _zbar_decode_code128 (zbar_decoder_t *dcode)
        (dcode128->character >= 0 &&
         (++dcode128->element) != 6) ||
        /* decode color based on direction */
-       (get_color(dcode) != dcode128->direction))
+       (get_color(dcode) != (int)dcode128->direction))
         return(0);
     dcode128->element = 0;
 
