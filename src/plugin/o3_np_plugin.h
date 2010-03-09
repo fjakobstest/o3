@@ -18,11 +18,7 @@
 
 #include <npapi.h>
 #include <npfunctions.h>
-#include <netdb.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <core/o3_core.h>
+
 #include <fs/o3_fs.h>
 #include <http/o3_http.h>
 #include <window/o3_window.h>
@@ -764,7 +760,7 @@ NPError NPP_SetValue(NPP npp, NPNVariable variable, void *value)
 
 extern "C" {
 
-char* O3_STDCALL NP_GetMIMEDescription()
+char* NP_GetMIMEDescription()
 {
     return "application/basic-plugin:bsc:Basic plugin";
 }

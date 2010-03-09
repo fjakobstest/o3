@@ -45,7 +45,7 @@ namespace o3
 			Var blob = ctx->value("barcode");
 
 			if (blob.type() == Var::TYPE_VOID)
-				blob = ctx->setValue("barcode", o3_new(cScan1)());
+				blob = ctx->setValue("barcode", o3_new(cBarcode1)());
 			return blob.toScr();
 		}
 
