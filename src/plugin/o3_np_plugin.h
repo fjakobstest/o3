@@ -18,7 +18,11 @@
 
 #include <npapi.h>
 #include <npfunctions.h>
-
+#include <netdb.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <core/o3_core.h>
 #include <fs/o3_fs.h>
 #include <http/o3_http.h>
 #include <window/o3_window.h>
@@ -32,7 +36,7 @@
 
 #ifdef O3_WIN32    
     #define O3_STDCALL __stdcall
-#else if
+#else
     #define O3_STDCALL
 #endif
 
@@ -272,7 +276,7 @@ struct cCtx : cMgr, iCtx {
 			removeProperty = &removePropertyFunc;
 		}
 		
-		static NPObject* O3Class::allocateFunc(NPP npp, NPClass *aClass)
+		static NPObject* allocateFunc(NPP npp, NPClass *aClass)
 		{
 			cCtx* ctx = (cCtx*) npp->pdata;
 			O3Object* obj = o3_new(O3Object)(npp, ctx->m_scr);
@@ -470,20 +474,22 @@ struct cCtx : cMgr, iCtx {
 	siScr m_o3;
 	iScr* m_scr;
 	tMap<O3Object*, O3Object*> m_objects;
+#ifdef O3_APPLE
+	O3Timer* m_timer;
+#endif // O3_APPLE
 #ifdef O3_WIN32
     HiddenWindow    m_hidden_wnd; 
-#else
-	O3Timer* m_timer;
-#endif
+#endif // O3_WIN32
 	
 	cCtx()
 	{
+#ifdef O3_APPLE
+        m_timer = [[O3Timer alloc] initWithCtx:this];
+#endif // O3_APPLE
 #ifdef O3_WIN32
         m_root = tmpPath();
         m_hidden_wnd.create(this);
-#else
-        m_timer = [[O3Timer alloc] initWithCtx:this];
-#endif
+#endif // O3_WIN32
         m_loop = g_sys->createMessageLoop();
 		m_o3 = o3_new(cO3)(0, 0, 0);
 
@@ -499,11 +505,12 @@ struct cCtx : cMgr, iCtx {
 	
 	~cCtx()
 	{
+#ifdef O3_APPLE
+		[m_timer invalidate];
+#endif // O3_APPLE
 #ifdef O3_WIN32
         m_hidden_wnd.destroy();
-#else
-		[m_timer invalidate];
-#endif
+#endif // O3_WIN32
 		for (tMap<O3Object*, O3Object*>::ConstIter i = m_objects.begin();
 			 i != m_objects.end(); ++i)
 			i->val->m_scr = 0;
@@ -756,6 +763,11 @@ NPError NPP_SetValue(NPP npp, NPNVariable variable, void *value)
 
 
 extern "C" {
+
+char* O3_STDCALL NP_GetMIMEDescription()
+{
+    return "application/basic-plugin:bsc:Basic plugin";
+}
 
 NPError O3_STDCALL NP_Initialize(NPNetscapeFuncs* funcs)
 {
