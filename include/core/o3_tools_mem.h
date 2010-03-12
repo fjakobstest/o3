@@ -62,6 +62,19 @@ inline void* memFind(const void* ptr, const void* ptr1, size_t n, size_t n1)
     return 0;
 }
 
+inline void* memFindReverse(const void* ptr, const void* ptr1, size_t n, size_t n1)
+{
+	o3_trace0 trace;
+	uint8_t* ptr2 = (uint8_t*) ptr;	
+	if(n1>n)
+		return 0;
+
+	for (size_t n2 = n-n1; n2 != 0; --ptr2, --n2)
+		if (memEquals(ptr2, ptr1, n1))
+			return ptr2;
+	return 0;
+}
+
 inline void* memSet(void* dst, uint8_t b, size_t n)
 {
     o3_trace0 trace;

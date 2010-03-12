@@ -262,6 +262,22 @@ public:
         return find(0, ptr, n);
     }
 
+	size_t findRight(size_t pos, const void* ptr, size_t n) const
+	{
+		o3_trace1 trace;
+		uint8_t* ptr1 = (uint8_t*) this->ptr();
+		uint8_t* ptr2 = (uint8_t*) memFindReverse(ptr1 + pos, ptr, pos, n);
+
+		return ptr2 ? ptr2 - ptr1 : NOT_FOUND;
+	}
+
+	size_t findRight(const void* ptr, size_t n) const
+	{
+		o3_trace1 trace;
+
+		return findRight(0, ptr, n);
+	}
+
     void reserve(size_t new_capacity)
     {
         o3_trace1 trace;

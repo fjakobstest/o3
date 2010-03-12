@@ -126,6 +126,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{B1323F
 		..\include\shared\o3_glue_idispatch.h = ..\include\shared\o3_glue_idispatch.h
 		..\include\shared\o3_scr_glue.h = ..\include\shared\o3_scr_glue.h
 		..\include\shared\o3_tools_win32.h = ..\include\shared\o3_tools_win32.h
+		..\include\shared\o3_zip_tools.h = ..\include\shared\o3_zip_tools.h
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rsa", "rsa", "{1E12F863-6944-45C0-A3DD-7E64B9532857}"
@@ -147,6 +148,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sha1", "sha1", "{28B2F03A-5
 		..\include\sha1\o3_cSHA1Hash1.h = ..\include\sha1\o3_cSHA1Hash1.h
 		..\include\sha1\o3_scr_cSHA1Hash1.h = ..\include\sha1\o3_scr_cSHA1Hash1.h
 		..\include\sha1\o3_sha1.h = ..\include\sha1\o3_sha1.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "zip", "zip", "{6F09CF9A-A76C-46E5-8E9F-27D87E8D21E3}"
+	ProjectSection(SolutionItems) = preProject
+		..\include\zip\o3_cZip1.h = ..\include\zip\o3_cZip1.h
+		..\include\zip\o3_zip.h = ..\include\zip\o3_zip.h
 	EndProjectSection
 EndProject
 Global
@@ -249,5 +256,6 @@ Global
 		{1E12F863-6944-45C0-A3DD-7E64B9532857} = {E190BAD3-A698-45AF-9B6C-95E03D776584}
 		{22467238-3D1B-424A-81B4-AEA3EC165CA8} = {E190BAD3-A698-45AF-9B6C-95E03D776584}
 		{28B2F03A-5DE2-492C-95A8-E2AE60088A89} = {E190BAD3-A698-45AF-9B6C-95E03D776584}
+		{6F09CF9A-A76C-46E5-8E9F-27D87E8D21E3} = {E190BAD3-A698-45AF-9B6C-95E03D776584}
 	EndGlobalSection
 EndGlobal

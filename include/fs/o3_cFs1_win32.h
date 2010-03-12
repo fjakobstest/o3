@@ -467,12 +467,7 @@ public:
 
                 local_path.append(path); 
             }
-
-            
-            char *deb1, *deb2, *deb3;
-            deb1 = local_path.ptr();
-            deb2 = m_root_path.ptr();
-            deb3 = m_local_path.ptr();
+           
             return siFs( o3_new(cFs1)(local_path, m_root_path) );
         }
 

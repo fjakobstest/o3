@@ -43,6 +43,7 @@
 #include "md5/o3_md5.h"
 //#include "canvas/o3_cCanvas1_win32.h"
 
+#include "zip/o3_zip.h"
 
 //int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR arg, int show){
 int main(int argc, char **argv) {

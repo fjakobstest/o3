@@ -4218,22 +4218,31 @@ namespace o3 {
 
         // utility:
 
-        bool zip(iStream *source, iStream *dest, int level = Z_DEFAULT_COMPRESSION)
+        size_t zip(iStream *source, iStream *dest, 
+			int level = Z_DEFAULT_COMPRESSION, int32_t* crc=0)
         {
             const size_t CHUNK = 16384;
             int ret, flush;
             unsigned have;
             z_stream strm;
+			size_t zipped_size = 0;
             unsigned char in[CHUNK];
             unsigned char out[CHUNK];
 
+			int32_t crc_check = 0;
             /* allocate deflate state */
             strm.zalloc = 0;
             strm.zfree = 0;
             strm.opaque = 0;
-            ret = deflateInit(&strm, level);
-            if (ret != Z_OK)
-                return false;
+            if (crc) // for zip file crc checksum is needed and a different deflate init			
+				ret = deflateInit2(&strm, level, Z_DEFLATED, -MAX_WBITS, DEF_MEM_LEVEL,
+					Z_DEFAULT_STRATEGY);
+			else	// if crc is not needed we let's just use the gzip format
+				ret = deflateInit(&strm, level);
+
+			
+			if (ret != Z_OK)
+                return -1;
 
             /* compress until end of file */
             do {
@@ -4241,7 +4250,8 @@ namespace o3 {
                 //if strm.avail_in == 0 ...
                 flush = source->eof() ? Z_FINISH : Z_NO_FLUSH;
                 strm.next_in = in;
-
+				if (crc)
+					crc_check = crc32(crc_check,in,strm.avail_in);
                 /* run deflate() on input until output buffer not full, finish
                    compression if all of source has been read in */
                 do {
@@ -4250,11 +4260,12 @@ namespace o3 {
                     ret = deflate(&strm, flush);    /* no bad return value */
                     // db_assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
                     have = CHUNK - strm.avail_out;
-                    if (dest->write(out,have) != have) {
+                    zipped_size += have;
+					if (dest->write(out,have) != have) {
                         (void)deflateEnd(&strm);
-                        return false;
+                        return -1;
                     }
-                } while (strm.avail_out == 0);
+				} while (strm.avail_out == 0);
                 // db_assert(strm.avail_in == 0);     /* all input will be used */
 
                 /* done when last data in file processed */
@@ -4263,11 +4274,13 @@ namespace o3 {
 
             /* clean up and return */
             (void)deflateEnd(&strm);
-            return true;
+			if (crc)
+				*crc = crc_check;
+            return zipped_size;
         }
 
 
-        bool unzip(iStream *source, iStream *dest)
+        size_t unzip(iStream *source, iStream *dest, int32_t* crc=0)
         {
             const size_t CHUNK = 16384;
             int ret;
@@ -4276,14 +4289,20 @@ namespace o3 {
             unsigned char in[CHUNK];
             unsigned char out[CHUNK];
 
+			int32_t crc_check = 0;
+			size_t unzipped_size = 0;
             /* allocate inflate state */
             strm.zalloc = 0;
             strm.zfree = 0;
             strm.opaque = 0;
             strm.avail_in = 0;
             strm.next_in = 0;
-            ret = inflateInit(&strm);
-            if (ret != Z_OK)
+			if (crc) 
+				ret = inflateInit2(&strm, -DEF_WBITS, ZLIB_VERSION, sizeof(z_stream));
+			else
+				ret = inflateInit(&strm);
+
+			if (ret != Z_OK)
                 return false;
 
             /* decompress until deflate stream ends or end of file */
@@ -4305,13 +4324,16 @@ namespace o3 {
                     case Z_DATA_ERROR:
                     case Z_MEM_ERROR:
                         (void)inflateEnd(&strm);
-                        return false;
+                        return -1;
                     }
                     have = CHUNK - strm.avail_out;
+					unzipped_size += have;
                     if (dest->write(out, have) != have) {
                         (void)inflateEnd(&strm);
-                        return false;
+                        return -1;
                     }
+					if (crc)
+						crc_check = crc32(crc_check,out,have);
                 } while (strm.avail_out == 0);
 
                 /* done when inflate() says it's done */
@@ -4319,7 +4341,10 @@ namespace o3 {
 
             /* clean up and return */
             (void)inflateEnd(&strm);
-            return ret == Z_STREAM_END ? true : false;
+			if (crc)
+				*crc = crc_check;
+
+            return ret == Z_STREAM_END ? unzipped_size : -1;
         }
 
         bool zip(const Buf& source, Buf& dest, int level = Z_DEFAULT_COMPRESSION)

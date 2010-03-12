@@ -51,6 +51,20 @@ struct cScrBuf : cScr, iBuf {
         return size;
     }
 
+	o3_fun void append(const Buf& other)
+	{
+		m_buf.append(other.ptr(), other.size());
+	}
+
+	o3_fun Buf slice(int start, int end)
+	{
+		size_t size = m_buf.size();
+		if(start<0 || end<0 || start>size || end>size || start>end)
+			return Buf();
+
+		return Buf(((int8_t*)m_buf.ptr())+start, end-start);
+	}
+
     o3_fun size_t __enumerator__(size_t index)
     {
         o3_trace3 trace;

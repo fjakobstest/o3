@@ -43,6 +43,15 @@ namespace o3 {
 
         o3_glue_gen()
 
+		o3_enum("Type",
+				ELEMENT = 1,
+				ATTRIBUTE = 2,
+				TEXT = 3,
+				CDATA_SECTION = 4,
+				COMMENT = 8,
+				DOCUMENT = 9
+		);
+
         o3_fun siXmlNode replaceNode(iCtx* ctx, iXmlNode* new_child) {
             return parentNode(ctx)->replaceChild(new_child, this);
         }

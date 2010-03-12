@@ -938,6 +938,11 @@ struct cBufStream : cStreamBase {
     Buf m_buf;
     size_t m_pos;
 
+	cBufStream()
+	{
+
+	}
+
     cBufStream(Buf& buf)
         : m_pos(0)
     {
@@ -1012,6 +1017,11 @@ struct cBufStream : cStreamBase {
     {
         return 0;
     }
+
+	Buf buf()
+	{
+		return m_buf;
+	}
 };
 
 }

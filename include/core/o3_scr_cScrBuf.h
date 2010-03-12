@@ -15,10 +15,12 @@ Trait* cScrBuf::clsTraits()
          {      0,      Trait::TYPE_BEGIN,      "cScrBuf",            0,                    0,              0,      cScr::clsTraits()  },
          {      0,      Trait::TYPE_GET,        "cScrBuf",            "length",             clsInvoke,      0,      0                  },
          {      0,      Trait::TYPE_SET,        "cScrBuf",            "length",             clsInvoke,      1,      0                  },
-         {      1,      Trait::TYPE_FUN,        "cScrBuf",            "__enumerator__",     clsInvoke,      2,      0                  },
-         {      2,      Trait::TYPE_FUN,        "cScrBuf",            "__query__",          clsInvoke,      3,      0                  },
-         {      3,      Trait::TYPE_FUN,        "cScrBuf",            "__getter__",         clsInvoke,      4,      0                  },
-         {      4,      Trait::TYPE_FUN,        "cScrBuf",            "__setter__",         clsInvoke,      5,      0                  },
+         {      1,      Trait::TYPE_FUN,        "cScrBuf",            "append",             clsInvoke,      2,      0                  },
+         {      2,      Trait::TYPE_FUN,        "cScrBuf",            "slice",              clsInvoke,      3,      0                  },
+         {      3,      Trait::TYPE_FUN,        "cScrBuf",            "__enumerator__",     clsInvoke,      4,      0                  },
+         {      4,      Trait::TYPE_FUN,        "cScrBuf",            "__query__",          clsInvoke,      5,      0                  },
+         {      5,      Trait::TYPE_FUN,        "cScrBuf",            "__getter__",         clsInvoke,      6,      0                  },
+         {      6,      Trait::TYPE_FUN,        "cScrBuf",            "__setter__",         clsInvoke,      7,      0                  },
          {      0,      Trait::TYPE_END,        "cScrBuf",            0,                    0,              0,      0                  },
       };
 
@@ -54,20 +56,30 @@ siEx cScrBuf::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             break;
          case 2:
             if (argc != 1)
+               return o3_new(cEx)("Invalid argument count. ( append )");
+            pthis1->append(Buf(siBuf(argv[0].toScr())));
+            break;
+         case 3:
+            if (argc != 2)
+               return o3_new(cEx)("Invalid argument count. ( slice )");
+            *rval = o3_new(cScrBuf)(pthis1->slice(argv[0].toInt32(),argv[1].toInt32()));
+            break;
+         case 4:
+            if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( __enumerator__ )");
             *rval = pthis1->__enumerator__(argv[0].toInt32());
             break;
-         case 3:
+         case 5:
             if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( __query__ )");
             *rval = pthis1->__query__(argv[0].toInt32());
             break;
-         case 4:
+         case 6:
             if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( __getter__ )");
             *rval = pthis1->__getter__(argv[0].toInt32());
             break;
-         case 5:
+         case 7:
             if (argc != 2)
                return o3_new(cEx)("Invalid argument count. ( __setter__ )");
             *rval = pthis1->__setter__(argv[0].toInt32(),argv[1].toInt32());

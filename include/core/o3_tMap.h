@@ -410,7 +410,7 @@ public:
         o3_trace1 trace;
         tMap tmp = that;
 
-        swap(tmp, that);
+        swap(tmp, *this);
         return *this;
     }
 
