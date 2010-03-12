@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Javeline BV
+ * Copyright (C) 2010 Ajax.org BV
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -70,7 +70,7 @@ namespace o3 {
 			if (SUCCEEDED(CoCreateInstance( CLSID_InternetSecurityManager, NULL, 
 				CLSCTX_INPROC_SERVER,IID_IInternetSecurityManager,(void **)&pSecurityManager )))
 			{
-				HRESULT res = pSecurityManager->SetZoneMapping(URLZONE_TRUSTED,L"o3",SZM_CREATE);
+				/*HRESULT res =*/ pSecurityManager->SetZoneMapping(URLZONE_TRUSTED,L"o3",SZM_CREATE);
 				pSecurityManager->Release();
 			}
 
@@ -94,13 +94,13 @@ namespace o3 {
 		}
 		
 
-        HRESULT ClassImplementsCategory( const CLSID &clsid, const CATID &catid )
+        HRESULT ClassImplementsCategory( const CLSID& /*clsid*/, const CATID& /*catid*/ )
         {
             // TODO: double check this...
             return S_OK;
         }
 
-        HRESULT STDMETHODCALLTYPE CreateInstance( IUnknown __RPC_FAR *pUnkOuter, 
+        HRESULT STDMETHODCALLTYPE CreateInstance( IUnknown __RPC_FAR* /*pUnkOuter*/, 
             REFIID riid, void __RPC_FAR *__RPC_FAR *ppvObject)
 	    {
             ProtocolIE* instance = o3_new(ProtocolIE)(m_protocol_handler);
@@ -113,7 +113,7 @@ namespace o3 {
 		    return S_OK;
 	    }
 
-	    HRESULT STDMETHODCALLTYPE LockServer(BOOL fLock) 
+	    HRESULT STDMETHODCALLTYPE LockServer(BOOL /*fLock*/) 
         {
             return S_OK;
         }
@@ -121,7 +121,7 @@ namespace o3 {
 	    HRESULT STDMETHODCALLTYPE Start( LPCWSTR szUrl,
             IInternetProtocolSink __RPC_FAR *pOIProtSink,
             IInternetBindInfo __RPC_FAR *pOIBindInfo,
-            DWORD grfPI, DWORD dwReserved )
+            DWORD grfPI, DWORD /*dwReserved*/ )
         {
 		    if (grfPI & PI_PARSE_URL) {
 			    return S_OK;
@@ -164,18 +164,18 @@ namespace o3 {
             return S_OK;
         }
 
-	    HRESULT STDMETHODCALLTYPE Continue( PROTOCOLDATA __RPC_FAR *pProtocolData )
+	    HRESULT STDMETHODCALLTYPE Continue( PROTOCOLDATA __RPC_FAR* /*pProtocolData*/ )
         {
             return S_OK;
         }
 
-	    HRESULT STDMETHODCALLTYPE Abort( HRESULT hrReason, DWORD dwOptions )
+	    HRESULT STDMETHODCALLTYPE Abort( HRESULT /*hrReason*/, DWORD /*dwOptions*/ )
 	    {
 		    m_proto_sink->ReportResult(S_OK,S_OK,NULL);
 		    return S_OK;
 	    }
 
-	    HRESULT STDMETHODCALLTYPE Terminate( DWORD dwOptions )
+	    HRESULT STDMETHODCALLTYPE Terminate( DWORD /*dwOptions*/ )
         {
             m_stream = 0;
             m_proto_sink = 0;
@@ -204,7 +204,7 @@ namespace o3 {
         }
 
 	    HRESULT STDMETHODCALLTYPE Seek( LARGE_INTEGER dlibMove, 
-            DWORD dwOrigin, ULARGE_INTEGER __RPC_FAR *plibNewPosition)
+            DWORD /*dwOrigin*/, ULARGE_INTEGER __RPC_FAR *plibNewPosition)
         {
             if(!m_stream)
                 return S_FALSE;
@@ -213,7 +213,7 @@ namespace o3 {
 		    return S_OK;
         }
 
-        HRESULT STDMETHODCALLTYPE LockRequest( DWORD dwOptions)
+        HRESULT STDMETHODCALLTYPE LockRequest( DWORD /*dwOptions*/)
         {
             return S_OK;
         }
@@ -224,13 +224,13 @@ namespace o3 {
         }
 
         HRESULT STDMETHODCALLTYPE ParseUrl( 
-		    /* [in] */ LPCWSTR pwzUrl,
-		    /* [in] */ PARSEACTION ParseAction,
-		    /* [in] */ DWORD dwParseFlags,
-		    /* [out] */ LPWSTR pwzResult,
-		    /* [in] */ DWORD cchResult,
-		    /* [out] */ DWORD *pcchResult,
-		    /* [in] */ DWORD dwReserved) 
+		    /* [in] */ LPCWSTR /*pwzUrl*/,
+		    /* [in] */ PARSEACTION /*ParseAction*/,
+		    /* [in] */ DWORD /*dwParseFlags*/,
+		    /* [out] */ LPWSTR /*pwzResult*/,
+		    /* [in] */ DWORD /*cchResult*/,
+		    /* [out] */ DWORD* /*pcchResult*/,
+		    /* [in] */ DWORD /*dwReserved*/) 
 	    {
             //static wchr* blah = L"o3"; 
             //pwzResult = blah;
@@ -240,35 +240,35 @@ namespace o3 {
         }
 
 	    virtual HRESULT STDMETHODCALLTYPE CombineUrl( 
-		    /* [in] */ LPCWSTR pwzBaseUrl,
-		    /* [in] */ LPCWSTR pwzRelativeUrl,
-		    /* [in] */ DWORD dwCombineFlags,
-		    /* [out] */ LPWSTR pwzResult,
-		    /* [in] */ DWORD cchResult,
-		    /* [out] */ DWORD *pcchResult,
-		    /* [in] */ DWORD dwReserved)
+		    /* [in] */ LPCWSTR /*pwzBaseUrl*/,
+		    /* [in] */ LPCWSTR /*pwzRelativeUrl*/,
+		    /* [in] */ DWORD /*dwCombineFlags*/,
+		    /* [out] */ LPWSTR /*pwzResult*/,
+		    /* [in] */ DWORD /*cchResult*/,
+		    /* [out] */ DWORD* /*pcchResult*/,
+		    /* [in] */ DWORD /*dwReserved*/)
 	    {
 		    return E_NOTIMPL;
 	    }
 
 
 	    HRESULT STDMETHODCALLTYPE CompareUrl( 
-		    /* [in] */ LPCWSTR pwzUrl1,
-		    /* [in] */ LPCWSTR pwzUrl2,
-		    /* [in] */ DWORD dwCompareFlags) 
+		    /* [in] */ LPCWSTR /*pwzUrl1*/,
+		    /* [in] */ LPCWSTR /*pwzUrl2*/,
+		    /* [in] */ DWORD /*dwCompareFlags*/) 
 	    {
 		    return E_NOTIMPL;
 	    }
 
 
 	    HRESULT STDMETHODCALLTYPE QueryInfo( 
-		    /* [in] */ LPCWSTR pwzUrl,
+		    /* [in] */ LPCWSTR /*pwzUrl*/,
 		    /* [in] */ QUERYOPTION QueryOption,
-		    /* [in] */ DWORD dwQueryFlags,
+		    /* [in] */ DWORD /*dwQueryFlags*/,
 		    /* [size_is][out][in] */ LPVOID pBuffer,
 		    /* [in] */ DWORD cbBuffer,
 		    /* [out][in] */ DWORD *pcbBuf,
-		    /* [in] */ DWORD dwReserved) 
+		    /* [in] */ DWORD /*dwReserved*/) 
 	    {
            return INET_E_DEFAULT_ACTION;
 

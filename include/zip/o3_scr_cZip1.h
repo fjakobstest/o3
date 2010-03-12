@@ -63,7 +63,7 @@ siEx cZip1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
          case 0:
             if (argc != 0)
                return o3_new(cEx)("Invalid argument count. ( zip )");
-            *rval = pthis1->zip(ctx);
+            *rval = pthis1->zip();
             break;
       }
       return ex;
@@ -156,7 +156,7 @@ siEx cUnzip1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
          case 0:
             if (argc != 0)
                return o3_new(cEx)("Invalid argument count. ( unzip )");
-            *rval = pthis1->unzip(ctx);
+            *rval = pthis1->unzip();
             break;
       }
       return ex;

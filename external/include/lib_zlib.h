@@ -4242,7 +4242,7 @@ namespace o3 {
 
 			
 			if (ret != Z_OK)
-                return -1;
+                return (size_t) -1;
 
             /* compress until end of file */
             do {
@@ -4263,7 +4263,7 @@ namespace o3 {
                     zipped_size += have;
 					if (dest->write(out,have) != have) {
                         (void)deflateEnd(&strm);
-                        return -1;
+                        return (size_t) -1;
                     }
 				} while (strm.avail_out == 0);
                 // db_assert(strm.avail_in == 0);     /* all input will be used */
@@ -4298,7 +4298,7 @@ namespace o3 {
             strm.avail_in = 0;
             strm.next_in = 0;
 			if (crc) 
-				ret = inflateInit2(&strm, -DEF_WBITS, ZLIB_VERSION, sizeof(z_stream));
+				ret = inflateInit2(&strm, -DEF_WBITS);
 			else
 				ret = inflateInit(&strm);
 
@@ -4324,13 +4324,13 @@ namespace o3 {
                     case Z_DATA_ERROR:
                     case Z_MEM_ERROR:
                         (void)inflateEnd(&strm);
-                        return -1;
+                        return (size_t) -1;
                     }
                     have = CHUNK - strm.avail_out;
 					unzipped_size += have;
                     if (dest->write(out, have) != have) {
                         (void)inflateEnd(&strm);
-                        return -1;
+                        return (size_t) -1;
                     }
 					if (crc)
 						crc_check = crc32(crc_check,out,have);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Javeline BV
+ * Copyright (C) 2010 Ajax.org BV
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -33,7 +33,7 @@ namespace o3 {
 
 		zip_tools::ZipRecords m_records;
 
-		static o3_ext("cO3") o3_fun siScr zip(iCtx* ctx)
+		static o3_ext("cO3") o3_fun siScr zip()
 		{
 			return o3_new(cZip1)();
 		}
@@ -64,6 +64,7 @@ namespace o3 {
 				default:
 					return false;
 			}
+			return true;
 		}
 
 		o3_fun bool zip(iFs* dest, siEx* ex=0)
@@ -97,7 +98,7 @@ namespace o3 {
 		zip_tools::CentralDir m_central_dir;
 		siStream m_stream;
 
-		static o3_ext("cO3") o3_fun siScr unzip(iCtx* ctx)
+		static o3_ext("cO3") o3_fun siScr unzip()
 		{
 			return o3_new(cUnzip1)();
 		}
@@ -155,6 +156,7 @@ namespace o3 {
 
 		o3_fun void unzip(iFs* from, iFs* to)
 		{
+			from;to;
 			// TODO: implement
 		}
 	};

@@ -1036,7 +1036,7 @@ int _zbar_best_format (uint32_t src,
         return(-1);
 
     zprintf(8, "from %.4s(%08" PRIx32 ") to", (char*)&src, src);
-    unsigned min_cost = -1;
+    unsigned min_cost = (unsigned int)-1;
     for(; *dsts; dsts++) {
         const zbar_format_def_t *dstfmt = _zbar_format_lookup(*dsts);
         if(!dstfmt)

@@ -103,7 +103,7 @@ namespace o3 {
 		{
 			size_t size = src->size();
 			size_t max_back = min(0xffff, size);			
-			size_t pos=-1;
+			size_t pos=(size_t)-1;
 			Buf data(max_back);
 
 			src->setPos(size-max_back);
@@ -334,7 +334,7 @@ namespace o3 {
 			central_header.crc32 = crc;
 			central_header.size_compressed = zipped_size;
 			central_header.size_uncompressed = size;
-			central_header.file_name_length = name_length;
+			central_header.file_name_length = (uint16_t) name_length;
 			central_header.extra_field_length = 0;
 			central_header.file_comment_length = 0;
 			central_header.disk_number = 0;
@@ -415,5 +415,5 @@ namespace o3 {
 	}
 } 
 
-#undef o3_zip_write;	
-#undef o3_zip_read;
+#undef o3_zip_write
+#undef o3_zip_read

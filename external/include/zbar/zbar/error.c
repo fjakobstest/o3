@@ -134,7 +134,7 @@ const char *_zbar_error_string (const void *container,
         int newlen = len + strlen(err->detail) + 1;
         if(strstr(err->detail, "%s")) {
             if(!err->arg_str)
-                err->arg_str = strdup("<?>");
+                err->arg_str = _strdup("<?>");
             err->buf = (char*)realloc(err->buf, newlen + strlen(err->arg_str));
             len += sprintf(err->buf + len, err->detail, err->arg_str);
         }
