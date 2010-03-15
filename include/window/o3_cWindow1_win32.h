@@ -303,11 +303,6 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         useIcon(icon);
     }
 
-    virtual o3_fun Str open()
-    {
-        return openFileDialog(m_hwnd);
-    }
-
     virtual o3_fun void useIcon(const Buf& icon_data)
     {
         if (m_icon_s) {

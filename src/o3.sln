@@ -32,6 +32,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{475BCB3E-D
 		..\include\core\o3_iSys.h = ..\include\core\o3_iSys.h
 		..\include\core\o3_iUnk.h = ..\include\core\o3_iUnk.h
 		..\include\core\o3_math.h = ..\include\core\o3_math.h
+		..\include\core\o3_pub_key.h = ..\include\core\o3_pub_key.h
 		..\include\core\o3_scr_cO3.h = ..\include\core\o3_scr_cO3.h
 		..\include\core\o3_scr_cScr.h = ..\include\core\o3_scr_cScr.h
 		..\include\core\o3_scr_cScrBuf.h = ..\include\core\o3_scr_cScrBuf.h

@@ -1,3 +1,23 @@
+/*
+ * Copyright (C) 2010 Ajax.org BV
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this library; if not, write to the Free Software Foundation, Inc., 51
+ * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+#ifndef  O3_ZIP_TOOLS_H
+#define O3_ZIP_TOOLS_H
+
 #include <lib_zlib.h>
 
 
@@ -149,7 +169,7 @@ namespace o3 {
 					return o3_new(cEx)("central header not found");
 				o3_zip_read(&ch.version,2);
 				o3_zip_read(&ch.min_version,2);
-				if (ch.min_version > 2)
+				if (ch.min_version > 20)
 					return o3_new(cEx)("zip version not supported");
 				o3_zip_read(&ch.bit_flag,2);
 				o3_zip_read(&ch.method,2);
@@ -221,7 +241,6 @@ namespace o3 {
 			if (!src || !dest)
 				return o3_new(cEx)("invalid file stream");
 
-			// TODO: validations...
 			src->setPos(ch.offset_of_file_header);
 			LocalHeader lh;
 			o3_zip_read(&lh.signature,4);
@@ -233,8 +252,18 @@ namespace o3 {
 				return o3_new(cEx)("zip local file header corrupted.");
 
 			o3_zip_read(&lh.bit_flags,2);
-			// flag validation...
+			if (lh.bit_flags & 0x01)
+				return o3_new(cEx)("encrypted zip file not supported");
+			// this mode could be supported... I'll migt add later support for it
+			if (lh.bit_flags & 0x08)
+				return o3_new(cEx)("zip mode not supported");
+			if (lh.bit_flags > 8)
+				return o3_new(cEx)("zip mode not supported");
+
 			o3_zip_read(&lh.comp_method,2);
+			if (lh.comp_method != 8)
+				return o3_new(cEx)("compression algorithm not supported (only inflate/deflate)");
+
 			o3_zip_read(&lh.last_mod_time,2);
 			o3_zip_read(&lh.last_mod_date,2);
 			o3_zip_read(&lh.crc32,4);
@@ -247,11 +276,12 @@ namespace o3 {
 			name.resize(lh.file_name_length);
 			src->setPos(src->pos()+lh.extra_field_length);
 
-			int32_t crc;
+			uint32_t crc;
 			size_t unzipped_size = ZLib::unzip(src, dest, &crc);
-
 			if (-1 == unzipped_size)
 				return o3_new(cEx)("unzip algorithm failed.");
+			if (lh.crc32 != crc)
+				return o3_new(cEx)("crc32 check sum mismatch.");
 
 			return siEx();
 		}
@@ -273,7 +303,7 @@ namespace o3 {
 		siEx archiveFile(iFs* node, iStream* dest, const Str& path, 
 			CentralHeader& central_header )
 		{			
-			static int16_t minversion = 2;
+			static int16_t minversion = 20;
 			static int16_t bitflag = 2;
 			static int16_t method = 8;
 			static int32_t zero = 0;
@@ -281,7 +311,7 @@ namespace o3 {
 			size_t zipped_size;
 			size_t size;
 			siStream source;
-			int32_t crc;
+			uint32_t crc;
 			size_t name_length = path.size();
 			size_t pos = dest->pos();
 			size_t pos_desc,pos_back;
@@ -417,3 +447,5 @@ namespace o3 {
 
 #undef o3_zip_write
 #undef o3_zip_read
+
+#endif // O3_ZIP_TOOLS_H

@@ -2224,10 +2224,37 @@ namespace o3 {
             SHA1_Init(&ctx);
             SHA1_Update(&ctx, in, (int)in_size);
             SHA1_Final(out, &ctx);
-        }
+        } else
+			return 0;
 
         return SHA1_SIZE;
     }
+
+	inline size_t hashSHA1(iStream* stream, uint8_t* out) {
+		SHA1_CTX ctx;
+		size_t size,def_chunk = 4096;
+		Buf buf(def_chunk);
+
+		if (stream && out) {
+			size = stream->size();
+			SHA1_Init(&ctx);
+
+			while (size){
+				size_t chunk = min(size, def_chunk);
+				if (chunk != stream->read(buf.ptr(), chunk))
+					return 0;
+
+				buf.resize(chunk);
+				size -= chunk;
+				SHA1_Update(&ctx, (uint8_t*) buf.ptr(), (int)chunk);			
+			}
+						
+			SHA1_Final(out, &ctx);
+		} else
+			return 0;
+
+		return SHA1_SIZE;
+	}
 
     inline size_t encryptRSA(uint8_t* in, size_t in_size, uint8_t* out, uint8_t* mod,
                         size_t mod_size, uint8_t* exp, size_t exp_size,
@@ -2308,7 +2335,7 @@ namespace o3 {
 
         uint8_t* data = (uint8_t*)g_sys->alloc(data_size);
 
-        while (in_size > 0) {
+        while (in_size >= data_size) {
             memcpy(data, in, data_size);
 
             size_t size = RSA_decrypt(ctx, data, out, !pub);

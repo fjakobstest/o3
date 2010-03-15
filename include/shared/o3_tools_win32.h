@@ -791,11 +791,42 @@ struct iWindow : iUnk
         }      
     }
 
-    Str openFileDialog(HWND hwnd = 0)
+    WStr openFileDialog(bool open, const Str& types, const Str& default=Str(), HWND hwnd = 0)
     {
-        WStr selectedPath;
-        selectedPath.reserve(MAX_PATH);
+		WStr filter = types;
+		Buf buf(filter.size() * sizeof(wchar_t) * 2);
 
+		wchar_t* src = filter.ptr();
+		wchar_t* dest = (wchar_t*) buf.ptr();
+		wchar_t* sdest = dest;
+
+		while(*src){
+			switch(*src){
+				case L'[':
+					src++; *dest++ = L'\0';
+					while(*src != L']'){						
+						if(!*src)
+							return Str();
+
+						*dest++ = *src++;
+					}
+					src++; *dest++ = L'\0';
+					break;
+				
+				case L'\n': case L'\r': 
+					src++;
+					break;
+				
+				default:
+					*dest++=*src++;
+			}
+		}
+		*dest=L'\0';
+
+		buf.resize(dest-sdest);
+
+		WStr selectedPath = default;
+		selectedPath.reserve(MAX_PATH);			
         OPENFILENAMEW ofn;       // common dialog box structure                
 
         // Initialize OPENFILENAME
@@ -803,9 +834,8 @@ struct iWindow : iUnk
         ofn.lStructSize = sizeof(ofn);
         ofn.hwndOwner = hwnd;
         ofn.lpstrFile = selectedPath.ptr();
-        ofn.lpstrFile[0] = 0;
         ofn.nMaxFile = MAX_PATH;
-        ofn.lpstrFilter = L"All\0*.*\0Text\0*.TXT\0";
+        ofn.lpstrFilter = (wchar_t*) buf.ptr();
         ofn.nFilterIndex = 1;
         ofn.lpstrFileTitle = NULL;
         ofn.nMaxFileTitle = 0;
@@ -813,14 +843,58 @@ struct iWindow : iUnk
         ofn.Flags = OFN_PATHMUSTEXIST; // selectedPath
         
         // Display the Open dialog box. 
-
-        if (GetOpenFileNameW(&ofn)==TRUE) 
+		int res = open ? GetOpenFileNameW(&ofn) : GetSaveFileNameW(&ofn);
+        if (res==TRUE) 
             selectedPath.resize(strLen(selectedPath.ptr()));            
         else
             selectedPath.resize(0);
 
-        return Str(selectedPath);
+		if (!selectedPath.size())
+			return Str();
+
+		return selectedPath;
     }
+
+	Str openFileByDialog(const Str& filter){
+		WStr selectedPath = openFileDialog(true, filter);	
+
+		HANDLE hFile = CreateFileW( selectedPath.ptr(),
+			GENERIC_READ,
+			FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
+			NULL,
+			OPEN_EXISTING,
+			0,
+			NULL);
+
+		if (INVALID_HANDLE_VALUE == hFile)
+			return Str();
+
+		siStream ret = o3_new(cStream)(hFile);
+		size_t read,file_size = ret->size();
+		Buf data(file_size);
+		read = ret->read(data.ptr(), file_size);
+		data.resize(read);
+		return data;
+	}
+
+	bool saveAsByDialog(const Str& data, const Str& filter, const Str& default){
+		WStr selectedPath = openFileDialog(false, filter, default);	
+
+		HANDLE hFile = CreateFileW( selectedPath.ptr(),
+			GENERIC_WRITE,
+			FILE_SHARE_READ,
+			NULL,
+			OPEN_ALWAYS,
+			0,
+			NULL);
+
+		if (INVALID_HANDLE_VALUE == hFile)
+			return false;
+
+		siStream ret = o3_new(cStream)(hFile);		
+		size_t written = ret->write(data.ptr(), data.size());
+		return written == data.size();
+	}
 
     siStream openSelf()
     {        

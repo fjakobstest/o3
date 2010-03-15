@@ -30,12 +30,11 @@ Trait* cWindow1::clsTraits()
          {      13,     Trait::TYPE_GET,        "cWindow1",           "caption",            clsInvoke,      14,     0                  },
          {      13,     Trait::TYPE_SET,        "cWindow1",           "caption",            clsInvoke,      15,     0                  },
          {      14,     Trait::TYPE_SET,        "cWindow1",           "icon",               clsInvoke,      16,     0                  },
-         {      15,     Trait::TYPE_FUN,        "cWindow1",           "open",               clsInvoke,      17,     0                  },
-         {      16,     Trait::TYPE_FUN,        "cWindow1",           "useIcon",            clsInvoke,      18,     0                  },
-         {      17,     Trait::TYPE_FUN,        "cWindow1",           "focus",              clsInvoke,      19,     0                  },
-         {      18,     Trait::TYPE_FUN,        "cWindow1",           "destroy",            clsInvoke,      20,     0                  },
-         {      19,     Trait::TYPE_SET,        "cWindow1",           "onclose",            clsInvoke,      21,     0                  },
-         {      20,     Trait::TYPE_SET,        "cWindow1",           "onend",              clsInvoke,      22,     0                  },
+         {      15,     Trait::TYPE_FUN,        "cWindow1",           "useIcon",            clsInvoke,      17,     0                  },
+         {      16,     Trait::TYPE_FUN,        "cWindow1",           "focus",              clsInvoke,      18,     0                  },
+         {      17,     Trait::TYPE_FUN,        "cWindow1",           "destroy",            clsInvoke,      19,     0                  },
+         {      18,     Trait::TYPE_SET,        "cWindow1",           "onclose",            clsInvoke,      20,     0                  },
+         {      19,     Trait::TYPE_SET,        "cWindow1",           "onend",              clsInvoke,      21,     0                  },
          {      0,      Trait::TYPE_END,        "cWindow1",           0,                    0,              0,      0                  },
       };
 
@@ -152,31 +151,26 @@ siEx cWindow1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             pthis1->setIcon(argv[0].toStr());
             break;
          case 17:
-            if (argc != 0)
-               return o3_new(cEx)("Invalid argument count. ( open )");
-            *rval = pthis1->open();
-            break;
-         case 18:
             if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( useIcon )");
             pthis1->useIcon(Buf(siBuf(argv[0].toScr())));
             break;
-         case 19:
+         case 18:
             if (argc != 0)
                return o3_new(cEx)("Invalid argument count. ( focus )");
             *rval = pthis1->focus();
             break;
-         case 20:
+         case 19:
             if (argc != 0)
                return o3_new(cEx)("Invalid argument count. ( destroy )");
             pthis1->destroy();
             break;
-         case 21:
+         case 20:
             if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( setOnclose )");
             *rval = pthis1->setOnclose(ctx,argv[0].toScr());
             break;
-         case 22:
+         case 21:
             if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( setOnend )");
             *rval = pthis1->setOnend(ctx,argv[0].toScr());

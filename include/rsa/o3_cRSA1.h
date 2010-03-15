@@ -62,7 +62,7 @@ namespace o3 {
             out.reserve(size);
             size = decryptRSA((const uint8_t*) in.ptr(), in.size(), (uint8_t*) out.ptr(), (uint8_t*) mod.ptr(),
                               mod.size(),(const uint8_t*) exp.ptr(), exp.size(), prv);
-            if (size < 0)
+            if (size == (size_t)-1)
                 return Buf();
             out.resize(size);
 			return out;

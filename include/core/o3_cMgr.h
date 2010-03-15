@@ -184,7 +184,7 @@ struct cMgr : cUnk, iMgr {
 	{
 		Str url("http://www.ajax.org/o3test/");
 		url.append(name);
-		url.append(".dll");
+		url.append(".zip");
 		siHttp http = m_factories["http"](0);
 		http->setOnreadystatechange(onreadystatechange);
 		http->setOnprogress(onprogress);

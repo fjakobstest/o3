@@ -34,9 +34,9 @@
 #include "process/o3_process.h"
 #include "test/o3_test.h" 
 
-#include "image/o3_image.h"
+//#include "image/o3_image.h"
 //#include "scanner/o3_scan.h"
-#include "barcode/o3_barcode.h"
+//#include "barcode/o3_barcode.h"
 
 #include "rsa/o3_rsa.h"
 #include "sha1/o3_sha1.h"
@@ -72,8 +72,8 @@ int main(int argc, char **argv) {
 	mgr->addExtTraits(cProcess1::extTraits());
 	mgr->addExtTraits(cTest1::extTraits());
 
-	mgr->addExtTraits(cImage1::extTraits());
-	mgr->addExtTraits(cBarcode1::extTraits());
+	//mgr->addExtTraits(cImage1::extTraits());
+	//mgr->addExtTraits(cBarcode1::extTraits());
 	//mgr->addExtTraits(cScan1::extTraits());
 
 	mgr->addExtTraits(cRSA1::extTraits());

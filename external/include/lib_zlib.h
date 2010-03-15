@@ -4219,7 +4219,7 @@ namespace o3 {
         // utility:
 
         size_t zip(iStream *source, iStream *dest, 
-			int level = Z_DEFAULT_COMPRESSION, int32_t* crc=0)
+			int level = Z_DEFAULT_COMPRESSION, uint32_t* crc=0)
         {
             const size_t CHUNK = 16384;
             int ret, flush;
@@ -4229,7 +4229,7 @@ namespace o3 {
             unsigned char in[CHUNK];
             unsigned char out[CHUNK];
 
-			int32_t crc_check = 0;
+			uint32_t crc_check = 0;
             /* allocate deflate state */
             strm.zalloc = 0;
             strm.zfree = 0;
@@ -4280,7 +4280,7 @@ namespace o3 {
         }
 
 
-        size_t unzip(iStream *source, iStream *dest, int32_t* crc=0)
+        size_t unzip(iStream *source, iStream *dest, uint32_t* crc=0)
         {
             const size_t CHUNK = 16384;
             int ret;
@@ -4289,7 +4289,7 @@ namespace o3 {
             unsigned char in[CHUNK];
             unsigned char out[CHUNK];
 
-			int32_t crc_check = 0;
+			uint32_t crc_check = 0;
 			size_t unzipped_size = 0;
             /* allocate inflate state */
             strm.zalloc = 0;

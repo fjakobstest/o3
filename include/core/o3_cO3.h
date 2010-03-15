@@ -18,6 +18,10 @@
 #ifndef O3_C_O3_H
 #define O3_C_O3_H
 
+#include "o3_pub_key.h"
+#include "o3_crypto.h"
+#include "shared/o3_zip_tools.h"
+
 namespace o3 {
 
 o3_cls(cLoadProgress);
@@ -145,6 +149,43 @@ struct cO3 : cScr {
         return m_envs;
     }
 
+	o3_fun void wait(iCtx* ctx, int timeout = -1)
+	{
+		o3_trace3 trace;
+
+		ctx->loop()->wait(timeout);
+	}
+
+	o3_fun void exit(int status = 0)
+	{
+		o3_trace3 trace;
+
+		::exit(status);
+	}
+
+	o3_get Str versionInfo()
+	{		
+		o3_trace3 trace;
+
+		return "v0.9";    
+	}
+
+	o3_fun Str loadFile(const Str& filter) {		
+#ifdef O3_WIN32		
+		return openFileByDialog( filter );
+#else
+		return Str();
+#endif		
+	}
+
+	o3_fun bool saveAsFile(const Str& data, const Str& default) {		
+#ifdef O3_WIN32		
+		return saveAsByDialog( data, "All [*.*]", default );
+#else
+		return false;
+#endif
+	}
+
     o3_fun bool loadModule(iCtx* ctx, const char* name) 
     {
         o3_trace3 trace;
@@ -197,7 +238,7 @@ struct cO3 : cScr {
 					to_approve.pushBack(*it);
 		}
 
-		approved = approve(to_approve);
+		approved = approveByUser(to_approve);
 		m_approved.append(approved.begin(), approved.end()); 
 
 		// save settings
@@ -205,6 +246,25 @@ struct cO3 : cScr {
 			it != approved.end(); ++it) 
 			settings[*it]=1;		
 		mgr->writeSettings(settings);
+	}
+
+	tList<Str> approveByUser( const tList<Str>& to_approve ) 
+	{				
+		tList<Str> approved;
+		if(to_approve.empty())
+			return approved;
+
+		Str msg;		
+		for (tList<Str>::ConstIter it = to_approve.begin(); 
+			it != to_approve.end(); ++it) {	
+				msg.append(*it);
+				msg.append("\n");
+		}
+
+		if (g_sys->approvalBox(msg, "O3 approval"))		
+			approved = to_approve;
+
+		return approved;
 	}
 
 	void moduleLoading(iUnk* pthis)
@@ -217,11 +277,17 @@ struct cO3 : cScr {
 		
 		for (; it != end; ++it) {
 			if ( ! mgr->loadModule(*it)) {
-				m_load_progress->setFileName(*it);
-				Buf downloaded = mgr->downloadComponent(ctx,*it,
-					Str(),Delegate(this, &cO3::onStateChange), 
-					Delegate(this, &cO3::onProgress));
-				/*size_t s =*/ downloaded.size();
+				bool success = false;
+				do {
+					m_load_progress->setFileName(*it);
+					Buf downloaded = mgr->downloadComponent(ctx,*it,
+						Str(),Delegate(this, &cO3::onStateChange), 
+						Delegate(this, &cO3::onProgress));
+					siStream stream = o3_new(cBufStream)(downloaded);
+					success = unpackModule(*it, stream);
+				}while(!success  
+						&& g_sys->approvalBox("Downloading o3 compoennt has failed\
+									   , do you want to retry?", "o3 warning"));
 			}
 		}
 
@@ -253,45 +319,94 @@ struct cO3 : cScr {
 			siScr(m_load_progress));
 	}
 
-    o3_fun void wait(iCtx* ctx, int timeout = -1)
-    {
-        o3_trace3 trace;
+	bool unpackModule(const Str& name, iStream* zipped ) 
+	{
+		using namespace zip_tools;
+		bool ret = false;
+		siCtx ctx(m_ctx);		
+		if (!ctx || !zipped)
+			return false;
 
-        ctx->loop()->wait(timeout);
-    }
+		Str fileName = name;
+		fileName.append(".dll");
+		Str path("tmp/");
+		path.appendf("%s%i",name.ptr(), ctx.ptr());
+		siFs fs = ctx->mgr()->factory("fs")(0),
+			tmpFolder = fs->get(path),
+			unzipped = tmpFolder->get(fileName),
+			signature = tmpFolder->get("signature");
 
-    o3_fun void exit(int status = 0)
-    {
-        o3_trace3 trace;
+		siStream unz_stream = unzipped->open("w");
+		siStream sign_stream = signature->open("w");
+		if (!unz_stream || !sign_stream)
+			return false;
 
-        ::exit(status);
-    }
-
-    o3_get Str versionInfo()
-    {		
-        o3_trace3 trace;
-
-        return "v0.9";    
-    }
-
-	tList<Str> approve( const tList<Str>& to_approve ) 
-	{				
-		tList<Str> approved;
-		if(to_approve.empty())
-			return approved;
+		// unzipping
+		siEx error;
+		CentralDir central_dir;
+		if (error = readCentral(zipped, central_dir))
+			goto error;
 		
-		Str msg;		
-		for (tList<Str>::ConstIter it = to_approve.begin(); 
-			it != to_approve.end(); ++it) {	
-				msg.append(*it);
-				msg.append("\n");
-		}
+		if (error = readFileFromZip(fileName,zipped,unz_stream,central_dir))
+			goto error;
+	
+		if (error = readFileFromZip("signature",zipped,sign_stream,central_dir))
+			goto error;
 
-		if (g_sys->approvalBox(msg, "O3 approval"))		
-			approved = to_approve;
+		// validating
+		unz_stream = unzipped->open("r");
+		sign_stream = signature->open("r");
+		if (!validateModule(unz_stream,sign_stream))
+			goto error;
+		unz_stream->close();
 
-		return approved;
+		// move validated dll file to the root folder of o3
+		unzipped->move(fs);
+
+		// if the move failed check if the file is there already 
+		// (other process can finish it earlier)
+		if (fs->get(fileName)->exists())
+			ret = true;
+
+error:
+		if (unz_stream)
+			unz_stream->close();
+		if (sign_stream)
+			sign_stream->close();
+		tmpFolder->remove();
+		return ret;
 	}
+
+	bool validateModule(iStream* data, iStream* signature)
+	{
+		using namespace Crypto;
+		if (!data || !signature)
+			return false;
+
+		Buf hash(SHA1_SIZE),encrypted,decrypted;
+		if (!hashSHA1(data, (uint8_t*) hash.ptr())) 
+			return false;
+
+		hash.resize(SHA1_SIZE);
+		size_t enc_size = signature->size();
+		encrypted.reserve(enc_size);
+		if (enc_size != signature->read(encrypted.ptr(), enc_size))
+			return false;
+		encrypted.resize(enc_size);
+				
+		size_t size = (encrypted.size() / mod_size + 1) * mod_size;
+		decrypted.reserve(size);
+		size = decryptRSA((const uint8_t*) encrypted.ptr(), enc_size, 
+			(uint8_t*) decrypted.ptr(), (uint8_t*) &mod, mod_size,
+			(const uint8_t*) &pub_exp, pub_exp_size, true);
+		
+		if ((size_t)-1 == size)
+			return false;
+		decrypted.resize(size);
+		return (size == hash.size() &&
+			memEquals(decrypted.ptr(), hash.ptr(), size));
+	}
+
 
 
 };

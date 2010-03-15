@@ -112,6 +112,8 @@ Trait* cO3::clsTraits()
          {      5,      Trait::TYPE_FUN,        "cO3",                "wait",               clsInvoke,      5,      0                  },
          {      6,      Trait::TYPE_FUN,        "cO3",                "exit",               clsInvoke,      6,      0                  },
          {      7,      Trait::TYPE_GET,        "cO3",                "versionInfo",        clsInvoke,      7,      0                  },
+         {      8,      Trait::TYPE_FUN,        "cO3",                "loadFile",           clsInvoke,      8,      0                  },
+         {      9,      Trait::TYPE_FUN,        "cO3",                "saveAsFile",         clsInvoke,      9,      0                  },
          {      0,      Trait::TYPE_END,        "cO3",                0,                    0,              0,      0                  },
       };
 
@@ -174,6 +176,16 @@ siEx cO3::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             if (argc != 0)
                return o3_new(cEx)("Invalid argument count. ( versionInfo )");
             *rval = pthis1->versionInfo();
+            break;
+         case 8:
+            if (argc != 1)
+               return o3_new(cEx)("Invalid argument count. ( loadFile )");
+            *rval = pthis1->loadFile(argv[0].toStr());
+            break;
+         case 9:
+            if (argc != 2)
+               return o3_new(cEx)("Invalid argument count. ( saveAsFile )");
+            *rval = pthis1->saveAsFile(argv[0].toStr(),argv[1].toStr());
             break;
       }
       return ex;
