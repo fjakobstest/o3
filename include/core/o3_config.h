@@ -50,4 +50,8 @@
 #define O3_LOG
 #endif
 
+#define O3_VERSION 0.9
+#define O3_VERSION_STRING "v0_9"
+
+
 #endif // O3_CONFIG_H

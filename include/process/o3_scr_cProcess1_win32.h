@@ -57,9 +57,9 @@ siEx cProcess1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             *rval = pthis1->runSelf(ctx);
             break;
          case 2:
-            if (argc != 0)
+            if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( runSelfElevated )");
-            pthis1->runSelfElevated(ctx);
+            pthis1->runSelfElevated(ctx,argv[0].toStr());
             break;
          case 3:
             if (argc != 1)

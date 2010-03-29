@@ -205,12 +205,12 @@ siEx cFs1Base::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
          case 26:
             if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( copy )");
-            *rval = siFs(pthis1->copy(siFs (argv[0].toScr())));
+            *rval = siFs(pthis1->copy(siFs (argv[0].toScr()),&ex));
             break;
          case 27:
             if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( move )");
-            *rval = siFs(pthis1->move(siFs (argv[0].toScr())));
+            *rval = siFs(pthis1->move(siFs (argv[0].toScr()),&ex));
             break;
          case 28:
             if (argc != 1)
@@ -238,7 +238,7 @@ siEx cFs1Base::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
                   return ex;
                }
                else if(siStream  sistream  = siStream (argv[0].toScr())) {
-                  *rval = o3_new(cScrBuf)(pthis1->setBlob(siStream (argv[0].toScr())));
+                  *rval = siStream(pthis1->setBlob(siStream (argv[0].toScr()),&ex));
                   return ex;
                }
                else{

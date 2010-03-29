@@ -13,8 +13,8 @@ Trait* cZip1::clsTraits()
 {
       static Trait TRAITS[] = {
          {      0,      Trait::TYPE_BEGIN,      "cZip1",              0,                    0,              0,      cScr::clsTraits()  },
-         {      0,      Trait::TYPE_FUN,        "cZip1",              "addToZip",           clsInvoke,      0,      0                  },
-         {      1,      Trait::TYPE_FUN,        "cZip1",              "zip",                clsInvoke,      1,      0                  },
+         {      0,      Trait::TYPE_FUN,        "cZip1",              "add",                clsInvoke,      0,      0                  },
+         {      1,      Trait::TYPE_FUN,        "cZip1",              "zipTo",              clsInvoke,      1,      0                  },
          {      0,      Trait::TYPE_END,        "cZip1",              0,                    0,              0,      0                  },
       };
 
@@ -41,13 +41,13 @@ siEx cZip1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
       switch(index) {
          case 0:
             if (argc < 1 && argc > 2)
-               return o3_new(cEx)("Invalid argument count. ( addToZip )");
-            *rval = pthis1->addToZip(siFs (argv[0].toScr()),argc > 1 ? argv[1].toStr() : 0);
+               return o3_new(cEx)("Invalid argument count. ( add )");
+            *rval = pthis1->add(siFs (argv[0].toScr()),argc > 1 ? argv[1].toStr() : 0);
             break;
          case 1:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count. ( zip )");
-            *rval = pthis1->zip(siFs (argv[0].toScr()),&ex);
+               return o3_new(cEx)("Invalid argument count. ( zipTo )");
+            *rval = pthis1->zipTo(siFs (argv[0].toScr()),&ex);
             break;
       }
       return ex;

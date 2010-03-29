@@ -110,10 +110,12 @@ struct cO3 : cScr {
     tVec<Str>   m_args;
     tVec<Str>   m_envs;
 	siWeak		m_ctx;	
+	tList<Str>  m_to_approve;
 	tList<Str>  m_to_load;
-	tList<Str>  m_approved;
 	siScr		m_onload;
 	siScr		m_onprogress;
+	siScr		m_onfail;
+	siScr		m_onnotification;
 	bool		m_loading;
 	scLoadProgress	m_load_progress;
 
@@ -167,7 +169,28 @@ struct cO3 : cScr {
 	{		
 		o3_trace3 trace;
 
-		return "v0.9";    
+		Str version(O3_VERSION_STRING);
+		version.findAndReplaceAll("_", ".");
+		return version;    
+	}
+
+	o3_get Str settings(iCtx* ctx)
+	{
+		return ctx->mgr()->allSettings();
+	}		
+
+	o3_set Str setSettings(iCtx* ctx, const Str& settings, siEx* ex)
+	{
+		if (!ctx->mgr()->writeAllSettings(settings) && ex)
+			*ex = o3_new(cEx)("O3 settings could not be saved.");
+		return settings;
+	}
+
+	o3_get Str settingsURL()
+	{
+		Str base = installDirPath();
+		base.findAndReplaceAll("\\", "/");
+		return "File:///" + base + "/settings.html";
 	}
 
 	o3_fun Str loadFile(const Str& filter) {		
@@ -196,13 +219,15 @@ struct cO3 : cScr {
 	o3_fun void require(iCtx* ctx, const Str& module)
 	{
 #ifdef O3_PLUGIN
-		m_to_load.pushBack(module);
+		m_to_approve.pushBack(module);
 #else
 		ctx->mgr()->loadModule(module);
 #endif
 	}
 
-	o3_fun void loadModules(iCtx* ctx, iScr* onload, iScr* onprogress=0) 
+	// checks if the required modules are aproved, and download them
+	// asynch if they are not yet downloaded on the client pc
+	o3_fun void loadModules(iCtx* ctx, iScr* onload, iScr* onprogress=0, iScr* onfail=0) 
 	{
 		o3_trace3 trace;
 		// if a load is in progress the second call should fail
@@ -210,89 +235,23 @@ struct cO3 : cScr {
 			return;
 
 		m_onload = onload;
-		m_onprogress = onprogress;
+		if (onprogress)
+			m_onprogress = onprogress;
+		if (onfail)
+			m_onfail = onfail;
 		m_ctx = ctx;
 		approveModules();
 
 		// start loading
-		m_to_load.clear();
+		m_to_approve.clear();
 		ctx->mgr()->pool()->post(Delegate(this, &cO3::moduleLoading),
 			o3_cast this);
 	}
 
-	void approveModules() 
+	o3_set siScr setOnUpdateNotification(iCtx* ctx, iScr* scr)
 	{
-		siMgr mgr = siCtx(m_ctx)->mgr();
-
-		// read settings
-		tMap<Str, int> settings = mgr->readSettings();
-
-		// approval
-		Str name;
-		tList<Str> to_approve, approved;		
-		for (tList<Str>::Iter it = m_to_load.begin(); 
-			it != m_to_load.end(); ++it) {				
-				if ( settings[*it])
-					m_approved.pushBack(*it);
-				else
-					to_approve.pushBack(*it);
-		}
-
-		approved = approveByUser(to_approve);
-		m_approved.append(approved.begin(), approved.end()); 
-
-		// save settings
-		for (tList<Str>::Iter it = approved.begin(); 
-			it != approved.end(); ++it) 
-			settings[*it]=1;		
-		mgr->writeSettings(settings);
-	}
-
-	tList<Str> approveByUser( const tList<Str>& to_approve ) 
-	{				
-		tList<Str> approved;
-		if(to_approve.empty())
-			return approved;
-
-		Str msg;		
-		for (tList<Str>::ConstIter it = to_approve.begin(); 
-			it != to_approve.end(); ++it) {	
-				msg.append(*it);
-				msg.append("\n");
-		}
-
-		if (g_sys->approvalBox(msg, "O3 approval"))		
-			approved = to_approve;
-
-		return approved;
-	}
-
-	void moduleLoading(iUnk* pthis)
-	{
-		siCtx ctx = siCtx(m_ctx);
-		siMgr mgr = ctx->mgr();		
-		tList<Str>::Iter
-			it = m_approved.begin(),
-			end = m_approved.end();	
-		
-		for (; it != end; ++it) {
-			if ( ! mgr->loadModule(*it)) {
-				bool success = false;
-				do {
-					m_load_progress->setFileName(*it);
-					Buf downloaded = mgr->downloadComponent(ctx,*it,
-						Str(),Delegate(this, &cO3::onStateChange), 
-						Delegate(this, &cO3::onProgress));
-					siStream stream = o3_new(cBufStream)(downloaded);
-					success = unpackModule(*it, stream);
-				}while(!success  
-						&& g_sys->approvalBox("Downloading o3 compoennt has failed\
-									   , do you want to retry?", "o3 warning"));
-			}
-		}
-
-		m_approved.clear();
-		ctx->loop()->post(Delegate(this, &cO3::onLoad),pthis);
+		m_ctx = ctx;
+		return m_onnotification = scr;
 	}
 
 	void onLoad(iUnk*)
@@ -319,7 +278,109 @@ struct cO3 : cScr {
 			siScr(m_load_progress));
 	}
 
-	bool unpackModule(const Str& name, iStream* zipped ) 
+	void onNotification(iUnk* http)
+	{
+		Delegate(siCtx(m_ctx), m_onprogress)(
+			siScr(this));
+	}
+
+	void onFail(iUnk*)
+	{
+		Delegate(siCtx(m_ctx), m_onfail)(
+			siScr(this));	
+	}	
+
+	// warn the user if a site tries to use an o3 component 
+	// and its not approved by the user yet for that site 
+	void approveModules() 
+	{
+		siMgr mgr = siCtx(m_ctx)->mgr();
+
+		// read settings
+		tMap<Str, int> settings = mgr->readSettings();
+
+		// approval
+		Str name;
+		tList<Str> to_approve, approved;		
+		for (tList<Str>::Iter it = m_to_approve.begin(); 
+			it != m_to_approve.end(); ++it) {				
+				if ( settings[*it])
+					m_to_load.pushBack(*it);
+				else
+					to_approve.pushBack(*it);
+		}
+
+		approved = approveByUser(to_approve);
+		m_to_load.append(approved.begin(), approved.end()); 
+
+		// save settings
+		for (tList<Str>::Iter it = approved.begin(); 
+			it != approved.end(); ++it) 
+			settings[*it]=1;		
+		mgr->writeSettings(settings);
+	}
+
+	// message box for user aproval
+	tList<Str> approveByUser( const tList<Str>& to_approve ) 
+	{				
+		tList<Str> approved;
+		if(to_approve.empty())
+			return approved;
+
+		Str msg("The current site is trying to use the following o3 components:\n\n");		
+		for (tList<Str>::ConstIter it = to_approve.begin(); 
+			it != to_approve.end(); ++it) {	
+				msg.append(*it);
+				msg.append(", ");
+		}
+		msg.append("\n\nDo you allow access to those components?");
+
+		if (g_sys->approvalBox(msg, "O3 approval"))		
+			approved = to_approve;
+
+		return approved;
+	}
+
+	// loading the approved modules, downloading/unpacking/validating 		
+	// them if they are missing repeating the process if it failed 
+	// and the user selected retry in the pop-up warning window
+	// NOTE: this method is executed from a worker thread async
+	// NOTE2: after it has finished it will launch the updating asynch
+	void moduleLoading(iUnk* pthis)
+	{
+		siCtx ctx = siCtx(m_ctx);
+		siMgr mgr = ctx->mgr();		
+		tList<Str>::Iter
+			it = m_to_load.begin(),
+			end = m_to_load.end();	
+		
+		bool success = true;
+		for (; it != end; ++it) {
+			if ( ! mgr->loadModule(*it)) {					
+				m_load_progress->setFileName(*it);
+				Buf downloaded = mgr->downloadComponent(ctx,*it,
+					Delegate(this, &cO3::onStateChange), 
+					Delegate(this, &cO3::onProgress));
+				siStream stream = o3_new(cBufStream)(downloaded);
+				if (!unpackModule(*it, stream) 
+					|| !mgr->loadModule(*it))
+						success = false;
+			}
+		}
+
+		if (success) {			
+			m_to_load.clear();
+			ctx->loop()->post(Delegate(this, &cO3::onLoad),o3_cast this);
+		} else
+			ctx->loop()->post(Delegate(this, &cO3::onFail),o3_cast this);
+
+		// starting the component update in the bg... 
+		ctx->mgr()->pool()->post(Delegate(this, &cO3::moduleUpdating),
+			o3_cast this);
+	}
+
+	// unzip the downloaded module, validates it and put the dll in place
+	bool unpackModule(const Str& name, iStream* zipped, bool update=false ) 
 	{
 		using namespace zip_tools;
 		bool ret = false;
@@ -327,14 +388,19 @@ struct cO3 : cScr {
 		if (!ctx || !zipped)
 			return false;
 
-		Str fileName = name;
+		Str sigName, fileName = name + O3_VERSION_STRING;		
+		sigName = fileName;
 		fileName.append(".dll");
 		Str path("tmp/");
 		path.appendf("%s%i",name.ptr(), ctx.ptr());
 		siFs fs = ctx->mgr()->factory("fs")(0),
+			components = fs->get("components"),
 			tmpFolder = fs->get(path),
 			unzipped = tmpFolder->get(fileName),
 			signature = tmpFolder->get("signature");
+
+		if (!components->exists())
+			components->createDir();
 
 		siStream unz_stream = unzipped->open("w");
 		siStream sign_stream = signature->open("w");
@@ -350,22 +416,31 @@ struct cO3 : cScr {
 		if (error = readFileFromZip(fileName,zipped,unz_stream,central_dir))
 			goto error;
 	
-		if (error = readFileFromZip("signature",zipped,sign_stream,central_dir))
+		if (error = readFileFromZip(sigName,zipped,sign_stream,central_dir))
 			goto error;
 
 		// validating
 		unz_stream = unzipped->open("r");
 		sign_stream = signature->open("r");
 		if (!validateModule(unz_stream,sign_stream))
-			goto error;
-		unz_stream->close();
+			goto error;		
 
+		if (update) {
+			// rename original dll...
+			siFs original = components->get(fileName);
+			Str prefix = "tmp/toRem";
+			prefix.appendf("%d", ctx.ptr());
+			if (original && original->exists())
+				original->move(fs->get(prefix + fileName));
+		}
 		// move validated dll file to the root folder of o3
-		unzipped->move(fs);
+		unz_stream->close();
+		unzipped->move(components, &error);
+		ret = !error.valid();
 
 		// if the move failed check if the file is there already 
 		// (other process can finish it earlier)
-		if (fs->get(fileName)->exists())
+		if (components->get(fileName)->exists() && !update)
 			ret = true;
 
 error:
@@ -373,10 +448,11 @@ error:
 			unz_stream->close();
 		if (sign_stream)
 			sign_stream->close();
-		tmpFolder->remove();
+		fs->get("tmp")->remove(true);
 		return ret;
 	}
 
+	// checks the signiture comes with the dll for validation
 	bool validateModule(iStream* data, iStream* signature)
 	{
 		using namespace Crypto;
@@ -407,6 +483,93 @@ error:
 			memEquals(decrypted.ptr(), hash.ptr(), size));
 	}
 
+	// checks if there is a new root available, then for the modules
+	// downloads a zipped file containing hash files for the latest version of each components
+	// we check the local versions hash against these values and update the component if needed
+	void moduleUpdating(iUnk* pthis)
+	{
+		using namespace zip_tools;
+		siCtx ctx = siCtx(m_ctx);
+		siMgr mgr = ctx->mgr();
+		checkForMajorUpdate();
+
+		Buf zipped = mgr->downloadUpdateInfo(ctx);
+		siStream stream = o3_new(cBufStream)(zipped);
+		siStream hash = o3_new(cBufStream)(Buf(SHA1_SIZE));
+		Str ver(O3_VERSION_STRING); 
+		// unzipping
+		siEx error;
+		CentralDir central_dir;
+		if (error = readCentral(stream, central_dir))
+			return;
+	
+		// now let's check all the hash files in the zipped file
+		// against the hash of the local version of the components
+		siFs fs = ctx->mgr()->factory("fs")(0),
+			components = fs->get("components");
+
+		tMap<Str, CentralHeader>::ConstIter 
+			it = central_dir.headers.begin(),
+			end = central_dir.headers.end();
+
+		for (; it!=end; ++it){
+			hash->setPos(0);
+			if (error = readFileFromZip((*it).key,stream,hash,central_dir))
+				// zip file is corrupted, reporting error or restart?
+				return; 
+			siFs local = components->get((*it).key + ".dll");
+			// update only components the user already have
+			if (!local || !local->exists())
+				continue;
+
+			siStream stream_local = local->open("r");
+			if (!stream_local)
+				continue;
+
+			Buf hash_local(SHA1_SIZE);
+			hash_local.reserve(SHA1_SIZE);			
+			if (SHA1_SIZE != hashSHA1(stream_local, (uint8_t*)hash_local.ptr()))
+				continue;
+			
+			hash_local.resize(SHA1_SIZE);
+
+			if (!memEquals(hash_local.ptr(), ((cBufStream*)hash.ptr())->m_buf.ptr(),
+				SHA1_SIZE)) {
+					Str name = (*it).key;
+					name.findAndReplaceAll(ver.ptr(), "");
+					updateComponent(name);
+			}
+		}
+
+	}
+
+	// if we already know that a component should be updated..,
+	// downloading the latest version with some validation, 
+	// rename the original, replace it with the new one
+	// mark the original to be deleted, remove the temp folder
+	void updateComponent( const Str& name ) 
+	{		
+		siCtx ctx = m_ctx;
+		if (!ctx)
+			return;
+
+		Buf downloaded = ctx->mgr()->downloadComponent(ctx,name,
+			Delegate(), Delegate());
+		siStream stream = o3_new(cBufStream)(downloaded);
+		unpackModule(name, stream, true);
+	}			
+
+	void checkForMajorUpdate() 
+	{
+		siCtx ctx = siCtx(m_ctx);
+		siMgr mgr = ctx->mgr();
+		Str latest = mgr->latestVersion(ctx);
+		if (latest.empty())
+			return;
+		latest.findAndReplaceAll(".", "_");
+		if (!strEquals(O3_VERSION_STRING, latest.ptr()))
+			ctx->loop()->post(Delegate(this, &cO3::onNotification),o3_cast this);
+	}
 
 
 };

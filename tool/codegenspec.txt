@@ -25,16 +25,28 @@
     o3_get	- property getter trait
 		o3_get int prop()
     o3_set	- property setter trait
-		o3_get int setProp()
-    
+		o3_get int setProp()				
+    	
 	NOTE: the two example, prop and setProp will generate a property called prop
 	on the component, please note the naming convention, no prefix for the getter
 	set prefix for the setter. If one of the traits is missing then it will be a read
 	or write only property accordingly.
 	
-	o3_fun	- method trait
-		virtual o3_ext("cO3") o3_fun siScr parseString(const char* str)
+	as immediate properties:
+		o3_get int m_member;
+		o3_set int m_member;
+		o3_prop int m_member;  
+	
+	NOTE: naming convention is also important here, the c++ 'm_some_name' member 
+	variable will become 'someMember' property on the js object. The js name can 
+	be altered by the o3_name tag;
+			
+	o3_fun	- method trait, adds a method to the current component
+		virtual o3_fun siScr parseString(const char* str)
+
+	o3_ext - it is possible to add method trait to other components, as extension traits
 		static o3_ext("cO3") o3_fun siScr screen(iCtx* ctx)
+		
 
 	NOTE: for a javascript method there can belong several overload, during the script call
 	the right overload will be selected based on the argument counts and their type. More
@@ -42,12 +54,10 @@
 		
     o3_enum	- create read only properties
 		o3_enum("nameOfEnum", value1, value2, value3 = 4, value4) 
-    
-	o3_imm("scriptName") - property getter and setter without any c++ function
-		o3_imm("objectID") int m_memberID;
-	
-    (NOT IMPLEMENTED) o3_imm_get("scriptName") - read only property	
-    (NOT IMPLEMENTED) o3_imm_set("scriptName") - write only property
+
+	o3_name - alters the name of the js property
+		o3_name("someName") o3_prop int m_member;
+		o3_name("someOtherName") o3_fun int ___custom_name__();
 
  supported args:
  ================

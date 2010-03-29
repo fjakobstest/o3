@@ -59,6 +59,8 @@ struct iFs : iUnk {
 
 	virtual Str name() = 0;
 
+	virtual Str setName(const char* name, siEx* ex=0) = 0;
+
 	virtual siFs get(const char* path) = 0;
 
 	virtual tVec<siFs> children() = 0;
@@ -71,9 +73,9 @@ struct iFs : iUnk {
 
 	virtual bool remove(bool deep = true) = 0;
 
-	virtual siFs copy(iFs* to) = 0;
+	virtual siFs copy(iFs* to, siEx* ex=0) = 0;
 
-	virtual siFs move(iFs* to) = 0;
+	virtual siFs move(iFs* to, siEx* ex=0) = 0;	
 
 	virtual siStream open(const char* mode, siEx* ex = 0) = 0;
 
@@ -81,7 +83,7 @@ struct iFs : iUnk {
 
 	virtual Buf setBlob(const Buf& buf) = 0;
 
-	virtual Buf setBlob(iStream* stream) = 0;
+	virtual siStream setBlob(iStream* stream, siEx* ex) = 0;
 
 	virtual Str data() = 0;
 

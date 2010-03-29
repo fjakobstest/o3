@@ -118,27 +118,27 @@ namespace o3 {
 		//readFileFromZip(Str("blah.txt"),source,unzipped,central_dir);
 
 // read zip file
-
-		siEx findCentralDirEnd(iStream* src, EndOfCentralDir& eof_cd) 
+ 
+		siEx findCentralDirEnd(iStream* src, EndOfCentralDir& eof_cd)
 		{
 			size_t size = src->size();
-			size_t max_back = min(0xffff, size);			
+			size_t max_back = min(0xffff, size);
 			size_t pos=(size_t)-1;
 			Buf data(max_back);
-
+			 
 			src->setPos(size-max_back);
 			if (max_back != src->read(data.ptr(), max_back))
 				return o3_new(cEx)("reading from source failed.");
-			data.resize(max_back);	
-			
+			data.resize(max_back);
+			 
 			pos = data.findRight(max_back-1,&EH_SIGNATURE,4);
 			if (NOT_FOUND == pos)
 				return o3_new(cEx)("not a valid zip file\
-								   - end of central directory header not found");
-
+			- end of central directory header not found");
+			 
 			if (max_back-pos < 20)
-				return o3_new(cEx)("not a valid zip file end of central\
-								   directory header is too short");
+				return o3_new(cEx)("not a valid zip file end of central"
+					" directory header is too short");
 			src->setPos(size-max_back+pos);
 			o3_zip_read(&eof_cd.signature,4);
 			o3_zip_read(&eof_cd.disk_no,2);
@@ -149,16 +149,16 @@ namespace o3 {
 			o3_zip_read(&eof_cd.central_dir_addr,4);
 			o3_zip_read(&eof_cd.comment_length,2);
 			if (eof_cd.disk_no != 0 || eof_cd.disk_no_of_cd != 0
-				|| eof_cd.records_in_central_local != 
+				|| eof_cd.records_in_central_local !=
 				eof_cd.records_in_central_total)
-					return o3_new(cEx)("zip file with multiple disks not supported");
+						return o3_new(cEx)("zip file with multiple disks not supported");
 			if (eof_cd.central_dir_addr > size)
 				return o3_new(cEx)("end header corrupted");
-
+			 
 			return siEx();
 		}
-
-		siEx parseCentralHeaders(iStream* src, CentralDir& cd) 
+ 
+		siEx parseCentralHeaders(iStream* src, CentralDir& cd)
 		{
 			src->setPos(cd.end_header.central_dir_addr);
 			CentralHeader ch;
@@ -187,70 +187,71 @@ namespace o3 {
 				o3_zip_read(&ch.internal_file_attrib,2);
 				o3_zip_read(&ch.external_file_attrib,4);
 				o3_zip_read(&ch.offset_of_file_header,4);
-				
+				 
 				Str name(ch.file_name_length);
 				o3_zip_read(name.ptr(), ch.file_name_length);
-				name.resize(ch.file_name_length);				
-
-				pos = src->pos() + ch.extra_field_length 
-					+ ch.file_comment_length;
+				name.resize(ch.file_name_length);
+				 
+				pos = src->pos() + ch.extra_field_length
+				+ ch.file_comment_length;
 				if (pos > src->size())
 					return o3_new(cEx)("unexpected end of file");
-
-				src->setPos(pos);				
+				 
+				src->setPos(pos);
 				cd.headers[name] = ch;
 			}
 			return siEx();
 		}
-
-		siEx readCentral(iStream* src, CentralDir& central_dir) 
+ 
+		siEx readCentral(iStream* src, CentralDir& central_dir)
 		{
 			siEx err;
-
+			 
 			if (err = findCentralDirEnd(src, central_dir.end_header))
 				return err;
-
-			err = parseCentralHeaders(src, central_dir);			
-			return err;				
+			 
+			err = parseCentralHeaders(src, central_dir);
+			return err;
 		}
-
-		//Buf readFile(iFs* source, Str path, const CentralDir& central_dir) 
+ 
+		//Buf readFile(iFs* source, Str path, const CentralDir& central_dir)
 		//{
-		//	
-		//} 
-
-		tVec<Str> listCentralDir(CentralDir& central_dir) {
+		//
+		//}
+ 
+		tVec<Str> listCentralDir(CentralDir& central_dir)
+		{
 			tVec<Str> names;
-			tMap<Str, CentralHeader>::ConstIter 
-				it = central_dir.headers.begin(),
-				end = central_dir.headers.end();
+			tMap<Str, CentralHeader>::ConstIter
+			it = central_dir.headers.begin(),
+			end = central_dir.headers.end();
 			for (;it != end; ++it) {
 				names.push((*it).key);
 			}
 			return names;
 		}
-
-		siEx readFileFromZip(const Str& zip_path, iStream* src, iStream* dest, const CentralDir& central_dir) 
+ 
+		siEx readFileFromZip(const Str& zip_path, iStream* src, iStream* dest, const CentralDir& central_dir)
 		{
-			tMap<Str,CentralHeader>::ConstIter it = 
-				central_dir.headers.find(zip_path);
+			tMap<Str,CentralHeader>::ConstIter it =
+			central_dir.headers.find(zip_path);
 			if (it == central_dir.headers.end() )
 				return o3_new(cEx)("file not found");
-			
+			 
 			const CentralHeader& ch = (*it).val;
 			if (!src || !dest)
 				return o3_new(cEx)("invalid file stream");
-
+			 
 			src->setPos(ch.offset_of_file_header);
 			LocalHeader lh;
 			o3_zip_read(&lh.signature,4);
 			if (lh.signature != LH_SIGNATURE)
 				return o3_new(cEx)("zip data not found.");
-
+			 
 			o3_zip_read(&lh.min_version,2);
 			if (lh.min_version != ch.min_version)
 				return o3_new(cEx)("zip local file header corrupted.");
-
+			 
 			o3_zip_read(&lh.bit_flags,2);
 			if (lh.bit_flags & 0x01)
 				return o3_new(cEx)("encrypted zip file not supported");
@@ -259,11 +260,11 @@ namespace o3 {
 				return o3_new(cEx)("zip mode not supported");
 			if (lh.bit_flags > 8)
 				return o3_new(cEx)("zip mode not supported");
-
+			 
 			o3_zip_read(&lh.comp_method,2);
 			if (lh.comp_method != 8)
 				return o3_new(cEx)("compression algorithm not supported (only inflate/deflate)");
-
+			 
 			o3_zip_read(&lh.last_mod_time,2);
 			o3_zip_read(&lh.last_mod_date,2);
 			o3_zip_read(&lh.crc32,4);
@@ -275,17 +276,17 @@ namespace o3 {
 			o3_zip_read(name.ptr(),lh.file_name_length);
 			name.resize(lh.file_name_length);
 			src->setPos(src->pos()+lh.extra_field_length);
-
+			 
 			uint32_t crc;
 			size_t unzipped_size = ZLib::unzip(src, dest, &crc);
 			if (-1 == unzipped_size)
 				return o3_new(cEx)("unzip algorithm failed.");
 			if (lh.crc32 != crc)
 				return o3_new(cEx)("crc32 check sum mismatch.");
-
+			 
 			return siEx();
 		}
-
+ 
 // write zip file
 		void dosTime(iFs* node, int16_t* date, int16_t* time)
 		{
@@ -299,10 +300,10 @@ namespace o3 {
 			FileTimeToDosDateTime(&ft_local,(LPWORD)date,(LPWORD)time);
 #endif
 		}
-
-		siEx archiveFile(iFs* node, iStream* dest, const Str& path, 
+ 
+		siEx archiveFile(iFs* node, iStream* dest, const Str& path,
 			CentralHeader& central_header )
-		{			
+		{
 			static int16_t minversion = 20;
 			static int16_t bitflag = 2;
 			static int16_t method = 8;
@@ -315,14 +316,14 @@ namespace o3 {
 			size_t name_length = path.size();
 			size_t pos = dest->pos();
 			size_t pos_desc,pos_back;
-
+			 
 			o3_zip_write(&LH_SIGNATURE, 4);
 			o3_zip_write(&minversion, 2);
-			o3_zip_write(&bitflag, 2); 
+			o3_zip_write(&bitflag, 2);
 			o3_zip_write(&method, 2);
-			dosTime(node,&date,&time);			
+			dosTime(node,&date,&time);
 			o3_zip_write(&time, 2);
-			o3_zip_write(&date, 2);					
+			o3_zip_write(&date, 2);
 			pos_desc = dest->pos();
 			o3_zip_write(&zero, 4); // crc
 			o3_zip_write(&zero, 4); // zipped size
@@ -330,19 +331,19 @@ namespace o3 {
 			o3_zip_write(&name_length, 2);
 			o3_zip_write(&zero, 2); // extra_field_length
 			o3_zip_write(path.ptr(), name_length);
-
+			 
 			// TODO: check for big files
 			size = (size_t)node->size();
-
+			 
 			if (!(source = node->open("r")))
 				return o3_new(cEx)("open source file failed.");
-
-			zipped_size = ZLib::zip(source, dest, 
+			 
+			zipped_size = ZLib::zip(source, dest,
 			ZLib::Z_DEFAULT_COMPRESSION, &crc);
-
+			 
 			if (-1 == zipped_size)
 				return o3_new(cEx)("zip algorithm failed");
-			
+			 
 			// descriptor
 			dest->flush();
 			pos_back = dest->pos();
@@ -351,15 +352,15 @@ namespace o3 {
 			o3_zip_write(&zipped_size, 4);
 			o3_zip_write(&size, 4);
 			dest->flush();
-			dest->setPos(pos_back);			
-
+			dest->setPos(pos_back);
+			 
 			//central
 			central_header.signature = CH_SIGNATURE;
 			central_header.version = 20;
 			central_header.min_version = minversion;
 			central_header.bit_flag = bitflag;
-			central_header.method = method;				
-			central_header.last_mod_time = time;		
+			central_header.method = method;
+			central_header.last_mod_time = time;
 			central_header.last_mod_date = date;
 			central_header.crc32 = crc;
 			central_header.size_compressed = zipped_size;
@@ -371,11 +372,11 @@ namespace o3 {
 			central_header.internal_file_attrib = 0; //should be one if ASCII file...
 			central_header.external_file_attrib = 0;
 			central_header.offset_of_file_header = pos;
-
+			 
 			return siEx();
 		}
-
-		siEx writeCentralRecord(iStream* dest, 
+ 
+		siEx writeCentralRecord(iStream* dest,
 			const CentralHeader& ch, const Str& path)
 		{
 			o3_zip_write(&ch.signature, 4);
@@ -398,8 +399,8 @@ namespace o3 {
 			o3_zip_write(path.ptr(), path.size());
 			return siEx();
 		}
-
-		siEx writeEndOfCentral(iStream* dest, size_t nrecords, 
+ 
+		siEx writeEndOfCentral(iStream* dest, size_t nrecords,
 			size_t size, size_t offset)
 		{
 			static int32_t zero = 0;
@@ -413,7 +414,7 @@ namespace o3 {
 			o3_zip_write(&zero,2); // comment length
 			return siEx();
 		}
-
+ 
 		siEx zipMultipleFiles(const ZipRecords& records, iStream* dest)
 		{
 			//o3_assert(dest);
@@ -424,7 +425,7 @@ namespace o3 {
 			for (size_t i=0; i<records.size(); i++) {
 				central_dir.push(CentralHeader());
 				const Record& rec = records[i];
-				if (ret = archiveFile(rec.file, dest, rec.path, 
+				if (ret = archiveFile(rec.file, dest, rec.path,
 					central_dir[central_dir.size()-1]))
 						return ret;
 			}
@@ -436,15 +437,15 @@ namespace o3 {
 			}
 			end_central = dest->pos();
 			// write end of central dir to dest
-			ret = writeEndOfCentral(dest, central_dir.size(), 
-				end_central-start_central, start_central);					
-			
+			ret = writeEndOfCentral(dest, central_dir.size(),
+			end_central-start_central, start_central);
+			 
 			return ret;
 		}
-	 
-	}
-} 
-
+ 
+}
+}
+ 
 #undef o3_zip_write
 #undef o3_zip_read
 

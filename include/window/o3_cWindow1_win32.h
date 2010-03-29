@@ -34,7 +34,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
     {}
 
     cWindow1(HWND hwnd, bool chained = false)
-        : m_hwnd(hwnd), m_icon_s(NULL), m_icon_l(NULL), m_done(false), m_color(0)
+        : m_hwnd(hwnd), m_icon_s(NULL), m_icon_l(NULL), m_done(false), m_color(0), m_text_color(-1)
     {
         if (chained)
         {
@@ -88,6 +88,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
     siScr               m_onend;
     siWeak              m_ctx;
     int                 m_color;
+	int                 m_text_color;
     bool                m_done;
 
 	o3_enum("FontStyles", BOLD=1, ITALIC=2, UNDERLINE=4, STRIKEOUT=8);
@@ -405,9 +406,11 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
 
                     cWindow1* wnd = (cWindow1*) wnd_proc; 
                     SetBkMode((HDC)wParam,TRANSPARENT);
-                    if (wnd->m_color == 1)
+                    if (wnd->m_text_color != -1)
+						SetTextColor((HDC)wParam, (COLORREF) wnd->m_text_color);
+					if (wnd->m_color == 1)
                         return (LRESULT)GetSysColorBrush(COLOR_BTNFACE);
-                    return (LRESULT)GetStockObject( wnd->m_color );
+					return (LRESULT)GetStockObject( wnd->m_color );
                     }
         }
         if (m_prev_proc)

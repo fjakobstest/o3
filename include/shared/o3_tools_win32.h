@@ -605,6 +605,42 @@ struct iWindow : iUnk
         return true; 
     }
 
+	// web browser control start in IE7 mode even if IE8 is installed by default, we must change the registry
+	// to run it in IE8 mode...
+	void ssb_setIE8mode(const Str& ssb_name) {
+		WStr base(L"SOFTWARE\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\FEATURE_BROWSER_EMULATION");
+
+		WStr wssb_name = ssb_name;
+		HKEY hkey = 0;
+		HKEY hkey2 = 0;
+		RegOpenCurrentUser(KEY_READ, &hkey);
+		RegOpenKeyExW(hkey, base.ptr(), 0, KEY_READ, &hkey2);
+		
+		if(hkey && !hkey2) {
+			regCreate(hkey,base.ptr(),hkey2);
+		}
+
+		// read the value, if it can not be found open the key in write mode and set the value:
+		DWORD ret,data=0,type=0,mp=2;
+		if(hkey && hkey2) {
+			if (ERROR_FILE_NOT_FOUND 
+				== RegQueryValueExW( hkey2,wssb_name.ptr(),0,&type, (LPBYTE)&data, &mp))
+			{
+				RegCloseKey(hkey2);
+				hkey2 = 0;
+				RegOpenKeyExW(hkey, base.ptr(), 0, KEY_WRITE, &hkey2);
+				if (hkey2)
+					ret = regSetDW(hkey2,wssb_name.ptr(),8000);
+			}
+		}			
+
+		if (hkey) 
+			RegCloseKey(hkey);
+		if (hkey2)
+			RegCloseKey(hkey2);
+
+	}
+
     size_t findRight(const char* string, size_t pos, char C) {
         for (size_t i=pos; i>0; i--) {
            if (string[i] == C)
@@ -654,7 +690,7 @@ struct iWindow : iUnk
                                  CSIDL_PROGRAM_FILES, 
                                  NULL, 
                                  0, 
-                                 &path.ptr()[1] ))) 
+                                 path.ptr() ))) 
             return WStr();
         path.resize(strLen(path.ptr()));
         return path;
@@ -668,16 +704,16 @@ struct iWindow : iUnk
             return WStr();
     
         tmpPath.resize(ret);
-        return tmpPath;
-    }
+		wchar_t* p = tmpPath.ptr();
+		if (p[ret-1]!=L'\\' && p[ret-1]!=L'/')
+			tmpPath.append(L"\\");
 
-    void backslash2slash( char* str )
-    {
-        size_t len = strLen(str);
-        for (size_t i=0; i<len; i++, str++) {
-            if (*str == '\\')
-                *str = '/';
-        }
+#ifdef O3_PLUGIN		
+		if (NOT_FOUND == tmpPath.find(L"Low"))
+			tmpPath.append(L"Low\\");
+#endif        
+
+		return tmpPath;
     }
     
     struct cWinFind
@@ -960,25 +996,32 @@ struct iWindow : iUnk
 
         void create (iCtx* ctx)
         {
-            WNDCLASSA wndCls;
-            wndCls.style         = 0;
-            wndCls.lpfnWndProc   = WndProc;
-            wndCls.cbClsExtra    = 0;
-            wndCls.cbWndExtra    = 0;
-            wndCls.hInstance     = GetModuleHandle(0);
-            wndCls.hIcon         = 0;
-            wndCls.hCursor       = 0;
-            wndCls.hbrBackground = 0;
-            wndCls.lpszMenuName  = 0;
-            wndCls.lpszClassName = "O3_HIDDEN";
+			WNDCLASSEXW wnd_class;
+			if (!::GetClassInfoExW( ::GetModuleHandle(0), L"O3_HIDDEN", &wnd_class) ) {
+				WNDCLASSEXW wc = { 
+					sizeof(WNDCLASSEXW), 
+					0, 
+					WndProc,
+					0L, 0L, 
+					GetModuleHandle(0),
+					0,0,
+					0,0,
+					L"O3_HIDDEN", 
+					NULL };
 
-            RegisterClassA(&wndCls);
+					::RegisterClassExW(&wc);
+			} 
 
-            m_hwnd = CreateWindowA("O3_HIDDEN", "O3_HIDDEN", 0, 0, 0, 0, 0,
+			int e = GetLastError();
+
+            m_hwnd = CreateWindowExW(0,L"O3_HIDDEN", L"O3_HIDDEN_WND", 0, 0, 0, 0, 0,
                                    GetDesktopWindow(), 0, GetModuleHandle(0),
                                    0);
-            SetWindowLongPtr(m_hwnd, GWLP_USERDATA, (LONG_PTR) ctx);
-            SetTimer(m_hwnd, (UINT_PTR) m_hwnd, 200, 0);        
+			e = GetLastError();
+			if (m_hwnd) {
+				SetWindowLongPtr(m_hwnd, GWLP_USERDATA, (LONG_PTR) ctx);
+				SetTimer(m_hwnd, (UINT_PTR) m_hwnd, 200, 0);        
+			}
         }
 
         void destroy()
@@ -991,13 +1034,19 @@ struct iWindow : iUnk
         static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam,
                                     LPARAM lParam) 
         {
-            iCtx* ctx = (iCtx*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
-            if (g_sys && ctx) {             
+            iCtx* ctx = (iCtx*) GetWindowLongPtr(hWnd, GWLP_USERDATA);			
+            if (g_sys && ctx) {             				
                 switch (msg) {
                 case WM_TIMER:
-                    ctx->loop()->wait(0);
-                    break;
+					// to prevent the wait function to be called again while
+					// the previous call have not returned yet...
+					SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR) 0);
+                    ctx->loop()->wait(1);
+                    SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR) ctx);
+					break;
                 }
+
+
             }
         
             return DefWindowProc(hWnd, msg, wParam, lParam);

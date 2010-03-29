@@ -155,7 +155,7 @@ struct cScr : cUnk, iScr {
     {
         o3_trace2 trace;
         tMap<Str, int>::ConstIter iter;
-        int base;
+        int base;	
 
         iter = m_indices.find(name);
         if (iter != m_indices.end())

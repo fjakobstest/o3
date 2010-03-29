@@ -27,6 +27,7 @@ Trait* cFs1::extTraits()
          {      1,      Trait::TYPE_GET,        "cO3",                "cwd",                extInvoke,      1,      0                  },
          {      2,      Trait::TYPE_GET,        "cO3",                "programFiles",       extInvoke,      2,      0                  },
          {      3,      Trait::TYPE_GET,        "cO3",                "appData",            extInvoke,      3,      0                  },
+         {      4,      Trait::TYPE_GET,        "cO3",                "tmpDir",             extInvoke,      4,      0                  },
          {      0,      Trait::TYPE_END,        "cFs1",               0,                    0,              0,      0                  },
       };
 
@@ -66,6 +67,11 @@ siEx cFs1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             if (argc != 0)
                return o3_new(cEx)("Invalid argument count. ( appData )");
             *rval = siFs(pthis1->appData());
+            break;
+         case 4:
+            if (argc != 0)
+               return o3_new(cEx)("Invalid argument count. ( tmpDir )");
+            *rval = siFs(pthis1->tmpDir());
             break;
       }
       return ex;

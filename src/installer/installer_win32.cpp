@@ -71,18 +71,18 @@ int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR arg, int show)
         args[1] = arg;
 		args[2] = 0;
 
-        siCtx js = o3_new(cJs1)(mgr, 2, args);
+        siCtx js = o3_new(cJs1)(mgr, 2, args, 0, true);
 
         Buf buf = ((cSys*)g_sys)->resource("installer.js");
-
         Str script(buf);
         Var rval;
-        rval = js->eval(script);
-        
+        rval = js->eval(script);  
+
         Str err = rval.toStr();
-        char* cerr = err.ptr();
-        fprintf(stdout, "%s", err.ptr()); 
-        ((cJs1*)js.ptr())->tear();
+
+		Var exitCode = js->value("exitCode");
+        ret = exitCode.toInt32();
+		((cJs1*)js.ptr())->tear();
     }
     
     CoUninitialize(); 

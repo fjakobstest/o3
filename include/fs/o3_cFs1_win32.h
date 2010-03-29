@@ -80,13 +80,15 @@ namespace o3 {
     struct cFs1 : cFs1Base {
         typedef WIN32_FILE_ATTRIBUTE_DATA FAttrib;
 
-        //root_path must be in the right format already (will not crash if not thou...)
+        //root_path have to be in the right format already 
         cFs1(const char* local_path, const char* root_path) 
             : m_root_path(root_path),m_local_path()
         {
             Str full_path;
-            if (root_path == 0 || *root_path == 0) 
-                full_path = local_path;
+			if (local_path && local_path[0] == '/')
+				full_path = ++local_path;
+			else if ( !root_path || !(*root_path))
+				full_path = local_path;
             else 
                 (local_path && *local_path) ? 
                     full_path.appendf("%s%s%s", root_path, "/", local_path)
@@ -137,7 +139,7 @@ public:
             //    return false;
             //}
 
-            if (strCompare(m_local_path.ptr(), m_root_path.ptr(), m_root_path.size())) {
+            if (strCaseCompare(m_local_path.ptr(), m_root_path.ptr(), m_root_path.size())) {
                 return false;
             }
 
@@ -176,7 +178,8 @@ public:
             if (!parent || !cparent->valid())
                 return false;
                 
-            if (!cparent->createParents())
+			// if the parent is not the root and can not be created:
+            if (cparent->m_local_path.size() && !cparent->createParents())
                 return false;
 
             if (!cparent->exists())
@@ -196,30 +199,56 @@ public:
 
         static o3_ext("cO3") o3_get siFs fs(iCtx* ctx) 
         {            
-            return siFs(o3_new(cFs1(ctx->mgr()->root(), "")));
+            return siFs(o3_new(cFs1("", ctx->mgr()->root())));
         }
+
+		// the following factory functions are not allowed for the plugin,
+		// for security reasons:
 
         static o3_ext("cO3") o3_get siFs cwd() 
         {
+			siFs ret;
+#ifndef O3_PLUGIN
             Str cwd = cwdPath();
-            //cwd.findAndReplaceAll((size_t)0,"\\","/");
-            backslash2slash(cwd.ptr());
-            return siFs(o3_new(cFs1(cwd, "")));
+            cwd.findAndReplaceAll("\\", "/");
+            ret = o3_new(cFs1(cwd, ""));
+#endif
+			return ret;
         }
 
         static o3_ext("cO3") o3_get siFs programFiles() 
         {
-            Str path = programFilesPath();
-            backslash2slash(path.ptr());
-            return o3_new(cFs1(path, ""));
+			siFs ret;
+#ifndef O3_PLUGIN            
+			Str path = programFilesPath();
+            path.findAndReplaceAll("\\", "/");
+            ret = o3_new(cFs1)(path, "");
+#endif
+			return ret;
         }
 
         static o3_ext("cO3") o3_get siFs appData() 
         {
+			siFs ret;
+#ifndef O3_PLUGIN
             Str path = appDataPath();
-            backslash2slash(path.ptr());
-            return o3_new(cFs1(path, ""));            
+            path.findAndReplaceAll("\\", "/");
+            ret = o3_new(cFs1)(path, "");            
+#endif
+			return ret;
         }
+
+		static o3_ext("cO3") o3_get siFs tmpDir()
+		{
+			siFs ret;
+#ifndef O3_PLUGIN
+			Str path = tmpPath();
+			path.findAndReplaceAll("\\", "/");
+			ret = o3_new(cFs1)(path, "");            
+#endif
+			return ret;
+
+		}
 
         virtual bool valid() {
             return m_valid;
@@ -276,43 +305,7 @@ public:
             ret.LowPart = fa.nFileSizeLow;
             return (size_t) ret.QuadPart;
         }
-        
-        
-        virtual Str name() {
-            if (!m_valid)
-                return Str();
-
-            Str name(m_local_path);
-            if (!name.size())
-                name = m_root_path;
-
-            size_t last = findRight(name, name.size(), '/');
-            if (last == NOT_FOUND)
-                return name;
-            
-            name.remove(0, last+1);
-            return name;
-        }
-
-	    virtual Str setName(const char* name, siEx* ex) {
-            if (!m_valid) {
-                o3_set_ex(ex_invalid_filename);
-                return Str();
-            }
-            siFs new_node = get(name);
-            cFs1* new_node1 = (cFs1*) new_node.ptr();
-            if (!new_node || !new_node1->valid()) {
-                o3_set_ex(ex_invalid_filename);
-                return Str();
-            }
-            if (new_node1->exists()) {
-                o3_set_ex(ex_file_exists);
-                return Str();
-            }
-        
-            move(new_node);
-            return this->name();
-        }
+           
 	    
         virtual Str path() {
             Str path("/");
@@ -458,7 +451,7 @@ public:
             //input.findAndReplaceAll((size_t)0,  '\\', '/');
             Str local_path;
             if (path[0] == '/')
-                local_path.appendf(++path); 
+                local_path.appendf(path); 
             else {
                 local_path.append(m_local_path); 
 
@@ -493,7 +486,7 @@ public:
 	    virtual bool createDir() {
             if (exists())
                 return type() == TYPE_DIR;
-            if (!createParents())
+            if (!m_local_path.empty() && !createParents())
                 return false;
 
             return ::CreateDirectoryW(winPath(), NULL) ? true : false;
@@ -505,8 +498,39 @@ public:
             return false;
         }
 
+		virtual siFs move(iFs* to, siEx* ex=0) {
+			
+			tVec<siFs> nodes;
+			siFs to1=to;
+
+			switch (type()) {
+				case TYPE_DIR:
+					to->createDir();
+					nodes = children();
+					for (size_t i = 0; i < nodes.size(); ++i) { 
+						to->move(to->get(( nodes[i].ptr())->name()), ex);
+						// stop moving files on the first failure:
+						if (ex && *ex)
+							break;
+					}
+					break;
+				case TYPE_FILE:
+					if (to->isDir())
+						to1 = to->get(name()).ptr();
+					
+					if (!MoveFileExW(winPath().ptr(), 
+						((cFs1*) to1.ptr())->winPath().ptr(), 
+						MOVEFILE_COPY_ALLOWED|MOVEFILE_WRITE_THROUGH) && ex)
+							*ex = o3_new(cEx)(getLastError());
+					break;
+				default:
+					return 0;
+			}
+			return to1; 
+		}
+
 	    virtual bool remove(bool deep = false) {
-            const size_t max_children = 10;
+            const size_t max_children = 20;
             switch (type()) {
                 case TYPE_FILE:
                     if (! ::DeleteFileW(winPath()))
@@ -526,10 +550,9 @@ public:
                                     return false;
                         }
 
-                        for (size_t i=0; i < cno; i++){
-                            if ( ! ((cFs1*) nodes[i].ptr())->remove(true))
-                                return false;
-                        }
+                        for (size_t i=0; i < cno; i++)
+                            nodes[i].ptr()->remove(true);
+                        
                         if (! ::RemoveDirectoryW(winPath()))
                             return false;                            
 
@@ -615,11 +638,15 @@ public:
             m_mod_time = 0;            
         }              
 
-		static siUnk installDir(iCtx*) 
+		static siUnk rootDir(iCtx*) 
 		{
-			Str path = installDirPath();
-			backslash2slash(path.ptr());
-			return siFs(o3_new(cFs1(path.ptr(), "")));	
+			Str path = tmpPath();
+			path.findAndReplaceAll("\\", "/");
+			path.appendf("o3_%s", O3_VERSION_STRING);
+			siFs ret = o3_new(cFs1("", path.ptr()));
+			if (!ret->exists())
+				ret->createDir();
+			return ret;
 		}
 
 	};

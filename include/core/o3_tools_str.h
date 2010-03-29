@@ -78,6 +78,52 @@ inline bool strEquals(const C* str, const C* str1, size_t n)
     return strCompare(str, str1, n) == 0;
 }
 
+inline int strCaseCompare(const char* str, const char* str1, size_t n)
+{
+	o3_trace0 trace;
+#ifdef O3_WIN32
+	return ::_strnicmp(str, str1, n);
+#else
+	return ::strncasecmp(str, str1, n);
+#endif
+}
+
+inline int strCaseCompare(const wchar_t* str, const wchar_t* str1, size_t n)
+{
+	o3_trace0 trace;
+#ifdef O3_WIN32
+	return ::_wcsnicmp(str, str1, n);
+#else
+	return ::wcsncasecmp(str, str1, n);
+#endif
+
+}
+
+template<typename C>
+inline int strCaseCompare(const C* str, const C* str1)
+{
+	o3_trace0 trace;
+	size_t n1 = strLen(str);
+	size_t n2 = strLen(str1);
+	return strCaseCompare(str, str1, max(n1, n2));
+}
+
+template<typename C>
+inline bool strCaseEquals(const C* str, const C* str1)
+{
+	o3_trace0 trace;
+
+	return strCaseCompare(str, str1) == 0;
+}
+
+template<typename C>
+inline bool strCaseEquals(const C* str, const C* str1, size_t n)
+{
+	o3_trace0 trace;
+
+	return strCaseCompare(str, str1, n) == 0;
+}
+
 inline char* strCopy(char* dst, const char* src)
 {
 	return ::strcpy(dst, src);

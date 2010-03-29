@@ -48,15 +48,15 @@ struct cTools1 : cScr{
     static o3_ext("cO3") o3_get Str tempPath()
     {
         Str ret = tmpPath();            
-        backslash2slash(ret);
-        return Str(ret);
+        ret.findAndReplaceAll("\\", "/");
+        return ret;
     }
 
     static o3_ext("cO3") o3_get Str selfPath() 
     {
         Str ret = getSelfPath();
-        backslash2slash(ret);
-        return Str(ret);
+        ret.findAndReplaceAll("\\", "/");
+        return ret;
     }
 
     static o3_ext("cO3") o3_fun bool checkIfInstalled(const Str& app)
@@ -165,6 +165,12 @@ struct cTools1 : cScr{
         GetVersionEx(&osvi);
         return (int)osvi.dwMajorVersion;
     } 
+
+	static o3_ext("cO3") o3_set int exitCode(iCtx* ctx, int code)
+	{
+		ctx->setValue("exitCode", Var(code));
+		return code;
+	}
         
     };
 }

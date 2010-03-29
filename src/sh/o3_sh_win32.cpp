@@ -79,8 +79,9 @@ int main(int argc, char **argv) {
 	mgr->addExtTraits(cRSA1::extTraits());
 	mgr->addExtTraits(cSHA1Hash1::extTraits());
 	mgr->addExtTraits(cMD5Hash1::extTraits());
+	mgr->addExtTraits(cZip1::extTraits());
 
-	mgr->addFactory("fs", &cFs1::installDir);
+	mgr->addFactory("fs", &cFs1::rootDir);
 	mgr->addFactory("http", &cHttp1::factory);
 
     //WSADATA wsd;

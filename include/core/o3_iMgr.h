@@ -65,9 +65,16 @@ struct iMgr : iUnk {
 
 	virtual void writeSettings(const tMap<Str, int>& settings) = 0;
 
+	virtual Str allSettings() = 0;
+
+	virtual bool writeAllSettings(const Str& settings) = 0;
+
 	virtual Buf downloadComponent(iCtx* ctx, const Str& name, 
-		const Str& version, Delegate onreadystatechange, 
-		Delegate onprogress) = 0;
+		Delegate onreadystatechange, Delegate onprogress) = 0;
+
+	virtual Buf downloadUpdateInfo(iCtx* ctx) = 0;
+
+	virtual Str latestVersion(iCtx* ctx) = 0;
 };
 
 }

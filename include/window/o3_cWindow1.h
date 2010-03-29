@@ -22,6 +22,7 @@
 #include "o3_cWindow1_apple.h"
 #endif // O3_APPLE
 #ifdef O3_WIN32
+#include "shared/o3_glue.h"
 #include "o3_cWindow1_win32.h"
 #endif // O3_WIN32
 

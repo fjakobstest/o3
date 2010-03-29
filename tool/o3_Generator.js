@@ -342,7 +342,7 @@ this.Generator = {
                     'return o3_new(cEx)("Invalid argument count. ( ',trait.name,' )");\n');
             
             t.push(ws, wrapper.start, 'pthis1->',
-                trait.name, '(', args.call, ')' , wrapper.close);
+                trait.cName ? trait.cName : trait.name, '(', args.call, ')' , wrapper.close);
         }
     },
     

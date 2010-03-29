@@ -35,6 +35,7 @@ Trait* cTools1::extTraits()
          {      9,      Trait::TYPE_FUN,        "cO3",                "unregMozillaPlugin", extInvoke,      9,      0                  },
          {      10,     Trait::TYPE_GET,        "cO3",                "adminUser",          extInvoke,      10,     0                  },
          {      11,     Trait::TYPE_GET,        "cO3",                "winVersionMajor",    extInvoke,      11,     0                  },
+         {      12,     Trait::TYPE_SET,        "cO3",                "exitCode",           extInvoke,      12,     0                  },
          {      0,      Trait::TYPE_END,        "cTools1",            0,                    0,              0,      0                  },
       };
 
@@ -114,6 +115,11 @@ siEx cTools1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             if (argc != 0)
                return o3_new(cEx)("Invalid argument count. ( winVersionMajor )");
             *rval = pthis1->winVersionMajor();
+            break;
+         case 12:
+            if (argc != 1)
+               return o3_new(cEx)("Invalid argument count. ( exitCode )");
+            *rval = pthis1->exitCode(ctx,argv[0].toInt32());
             break;
       }
       return ex;

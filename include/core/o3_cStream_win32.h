@@ -81,8 +81,7 @@ public:
 
     o3_get size_t size() {
 	    DWORD high = 0;
-        DWORD low = ::GetFileSize(m_handle, &high);
-	    int e = GetLastError();
+        DWORD low = ::GetFileSize(m_handle, &high);	    
 		if(INVALID_FILE_SIZE == low) 
 		    return 0;
 		

@@ -48,14 +48,14 @@ siEx cStaticCtrl1::extInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
 
       switch(index) {
          case 0:
-            if (argc < 5 && argc > 7)
+            if (argc < 5 && argc > 8)
                return o3_new(cEx)("Invalid argument count. ( createTextbox )");
-            *rval = siWindow(pthis1->createTextbox(pthis,argv[0].toStr(),argv[1].toInt32(),argv[2].toInt32(),argv[3].toInt32(),argv[4].toInt32(),argc > 5 ? argv[5].toInt32() : 16,argc > 6 ? argv[6].toInt32() : 0));
+            *rval = siWindow(pthis1->createTextbox(pthis,argv[0].toStr(),argv[1].toInt32(),argv[2].toInt32(),argv[3].toInt32(),argv[4].toInt32(),argc > 5 ? argv[5].toInt32() : 16,argc > 6 ? argv[6].toInt32() : 0,argc > 7 ? argv[7].toInt32() : -1));
             break;
          case 1:
-            if (argc != 4)
+            if (argc < 4 && argc > 5)
                return o3_new(cEx)("Invalid argument count. ( createBlank )");
-            *rval = siWindow(pthis1->createBlank(pthis,argv[0].toInt32(),argv[1].toInt32(),argv[2].toInt32(),argv[3].toInt32()));
+            *rval = siWindow(pthis1->createBlank(pthis,argv[0].toInt32(),argv[1].toInt32(),argv[2].toInt32(),argv[3].toInt32(),argc > 4 ? argv[4].toInt32() : 0));
             break;
          case 2:
             if (argc != 3)

@@ -584,14 +584,14 @@ public:
         return concat(right);
     }
 
-    tStr substr(size_t pos, size_t n)
+    tStr substr(size_t pos, size_t n) const
     {
         o3_trace1 trace;
 
         return tStr(*this, pos, n);
     }
 
-    tStr substr(size_t pos)
+    tStr substr(size_t pos) const
     {
         o3_trace1 trace;
 
@@ -659,6 +659,11 @@ public:
         replacefv(pos, n, format, ap);
         va_end(ap);
     }
+
+	void findAndReplaceAll(const C* orig, const C* to)
+	{
+		buf().findAndReplaceAll(orig,strLen(orig)*sizeof(C), to, strLen(to)*sizeof(C));
+	}
 };
 
 template<typename C, typename C1>

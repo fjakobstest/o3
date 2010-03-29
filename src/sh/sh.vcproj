@@ -177,10 +177,6 @@
 			RelativePath=".\o3_sh_win32.cpp"
 			>
 		</File>
-		<File
-			RelativePath="..\..\tool\script\parseme.js"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

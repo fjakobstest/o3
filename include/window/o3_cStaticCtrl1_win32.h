@@ -44,15 +44,15 @@ struct cStaticCtrl1 : cWindow1
     HBITMAP         m_bitmap;    
 
     static o3_ext("cWindow1") o3_fun siWindow createTextbox(o3_tgt iScr* target, const char* text, 
-        int x, int y, int w, int h, int font_size = 16, int font_style = 0)
+        int x, int y, int w, int h, int font_size = 16, int font_style = 0, int text_color = -1)
     {
-        return createStatic(TYPE_TEXTBOX,target,text,x,y,w,h,font_size,font_style);
+        return createStatic(TYPE_TEXTBOX,target,text,x,y,w,h,font_size,font_style,text_color);
     }
 
     static o3_ext("cWindow1") o3_fun siWindow createBlank(o3_tgt iScr* target,  
-        int x, int y, int w, int h)
+        int x, int y, int w, int h, int color=0)
     {
-        return createStatic(TYPE_BLANK,target,0,x,y,w,h);
+        return createStatic(TYPE_BLANK,target,0,x,y,w,h,16,0,color);
     }
 
     static o3_ext("cWindow1") o3_fun siWindow createSeparator(o3_tgt iScr* target, 
@@ -68,7 +68,7 @@ struct cStaticCtrl1 : cWindow1
     }
 
     static siWindow createStatic(StaticType type, iScr* target,
-        const char* text_data, int x, int y, int w, int h, int font_size = 16, int font_style = 0)
+        const char* text_data, int x, int y, int w, int h, int font_size = 16, int font_style = 0, int color = -1)
     {
         // create component
         cStaticCtrl1* ret = o3_new(cStaticCtrl1)();
@@ -86,7 +86,7 @@ struct cStaticCtrl1 : cWindow1
                 ret->loadBitmapFromRsc(text_data);
                 break;
             case TYPE_BLANK:
-                ret->m_color = WHITE_BRUSH;                
+                ret->m_color = color;           
                 break;
             case TYPE_SEPARATOR:
                 ret->m_color = LTGRAY_BRUSH;
@@ -94,6 +94,7 @@ struct cStaticCtrl1 : cWindow1
                 break;
             case TYPE_TEXTBOX:
                 text = text_data;
+				ret->m_text_color = color;
             default:
                 ret->m_color = NULL_BRUSH;
                 break;        

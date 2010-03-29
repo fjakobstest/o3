@@ -88,15 +88,16 @@ struct cFs1Base : cScr, iFs {
     virtual o3_set Str setName(const char* name, siEx*)
     {
         o3_trace3 trace;
-        Str path = this->path();
-        char* path1 = path;
-        char* name1 = path1 + 1;
+        Str path = this->path();;
+		size_t found=0,last=NOT_FOUND;
 
-        while (*path1++)
-            if (*path1 == '/')
-                name1 = path1 + 1;
-        *name1 = 0;
-        move(get(path + name));
+		while (NOT_FOUND != found) {
+			last = found;
+            found = path.find(found+1, "/");			
+		}
+        o3_assert(last!=NOT_FOUND);
+		Str path2(path.ptr(), last+1);
+		move(get( path2 + name));
         return name;
     }
 
@@ -123,23 +124,28 @@ struct cFs1Base : cScr, iFs {
 
     virtual o3_fun bool remove(bool deep = true) = 0;
 
-    virtual o3_fun siFs copy(iFs* to)
+    virtual o3_fun siFs copy(iFs* to, siEx* ex)
     {
         o3_trace3 trace;
-        scFs1Base to1 = (cFs1Base*) to;
         tVec<siFs> nodes;
+		siFs to1=to;
 
         switch (type()) {
         case TYPE_DIR:
-            to1->createDir();
+            to->createDir();
             nodes = children();
-            for (size_t i = 0; i < nodes.size(); ++i) 
-                to1->copy(to1->get(((cFs1Base*) nodes[i].ptr())->name()));
+			for (size_t i = 0; i < nodes.size(); ++i) { 
+                to->copy(to->get(( nodes[i].ptr())->name()), ex);
+				// stop copying files on the first failure:
+				if (ex && *ex)
+					break;
+			}
 	    	break;
     	case TYPE_FILE:
-            if (to1->isDir())
-                to1 = (cFs1Base*) to1->get(name()).ptr();
-            to1->setBlob(blob());
+            if (to->isDir())
+                to1 = to->get(name()).ptr();
+            // copy by chunks
+			to1->setBlob(open("r", ex), ex);
 		    break;
         default:
             return 0;
@@ -147,18 +153,16 @@ struct cFs1Base : cScr, iFs {
         return to1; 
     }
 
-    virtual o3_fun siFs move(iFs* to)
+    virtual o3_fun siFs move(iFs* to, siEx* ex=0)
     {
-        // TODO: since the exceptions are removed from the fs methods for some reason
-        // again, there is no way to find out here if the copy went alright or not
-        // 1., if the copy failed, and the remove succeeds we lost the file...
-        // 2., if it was a dir some copies can fail while the rest succeeds, so 
-        // only those files/subdirs should be removed that has been copied successfully
-        // conclusion: it needs to be reimplemented properly ASAP 
-
+		// TODO: this method should call the native move file API
         o3_trace3 trace;
 
-        siFs ret = copy(to);
+        siFs ret = copy(to, ex);
+		// if there was an error don't remove the original files:
+		if (ex && *ex)
+			return ret;
+
         remove();
         return ret;
     }
@@ -198,11 +202,34 @@ struct cFs1Base : cScr, iFs {
         return buf;
     }
 
-    virtual o3_set Buf setBlob(iStream* stream)
-    {
+	// writing from stream to stream by chunks
+    virtual o3_set siStream setBlob(iStream* stream, siEx* ex=0)
+    {		
         o3_trace3 trace;
+		static const size_t CHUNK = 4096;
 
-        return setBlob(Buf(stream));
+		siStream mstream = open("w");
+
+		if (!mstream || !stream)
+			return stream;
+
+		Buf buf(CHUNK);
+		size_t chunk,size = stream->size();
+		while (size) {
+			chunk = min(size, CHUNK);
+			if (chunk != stream->read(buf.ptr(), chunk)){
+				if (ex) *ex = o3_new(cEx)("reading from source stream failed.");
+				return stream;
+			}
+			buf.resize(chunk);
+			if (chunk != mstream->write(buf.ptr(), chunk)){
+				if (ex) *ex = o3_new(cEx)("writing to destination stream failed.");
+				return stream;	
+			}
+			size -= chunk;
+		}
+		
+        return stream;
     }
 
     virtual o3_get Str data()

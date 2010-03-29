@@ -333,6 +333,10 @@ namespace o3 {
 			m_ctx->mgr()->setCurrentUrl(url2);
 			SysFreeString(url);
 
+			HWND hwnd;
+			if (S_OK == webbrowser->get_HWND((SHANDLE_PTR*)&hwnd))
+				siCtx1(m_ctx)->setAppWindow(hwnd);
+
             if (srvprov) srvprov->Release();
             if (srvprov2) srvprov2->Release();        
             if (webbrowser) webbrowser->Release();

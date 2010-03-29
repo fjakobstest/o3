@@ -175,16 +175,30 @@ struct cMgr : cUnk, iMgr {
     Str root()
     {
         o3_trace2 trace;
-
-        return m_root;
+#ifdef O3_PLUGIN
+        return m_root + "/" + hostFromURL(m_current_url);
+#else
+		return m_root;
+#endif
     }
 
-	Buf downloadComponent(iCtx* ctx, const Str& name, const Str& /*version*/, 
+	Buf downloadComponent(iCtx* ctx, const Str& name,  
 		Delegate onreadystatechange, Delegate onprogress)
 	{
-		Str url("http://www.ajax.org/o3test/");
-		url.append(name);
-		url.append(".zip");
+		Str url = Str("http://www.ajax.org/o3test/") 
+			+ O3_VERSION_STRING + "/" + name + O3_VERSION_STRING + ".zip";		
+		return downloadFile(url, ctx, onreadystatechange, onprogress);
+	}
+
+	Buf downloadUpdateInfo(iCtx* ctx)
+	{
+		Str url = Str("http://www.ajax.org/o3test/") + O3_VERSION_STRING + "/hash.zip";
+		return downloadFile(url, ctx, Delegate(), Delegate());
+	}
+
+	Buf downloadFile( Str url, iCtx* ctx, Delegate onreadystatechange, 
+		Delegate onprogress ) 
+	{
 		siHttp http = m_factories["http"](0);
 		http->setOnreadystatechange(onreadystatechange);
 		http->setOnprogress(onprogress);
@@ -206,9 +220,11 @@ struct cMgr : cUnk, iMgr {
 	siFs settingFile(const Str& url)
 	{
 		siFs root = m_factories["fs"](0);
-		Str relevant = fetchHost(url);
+		Str host = hostFromURL(url);
+		if (host.empty())
+			return siFs();
 		Str path("settings/");
-		path.append(relevant);
+		path.append(host);
 		siFs file = root->get(path);
 		return file;
 	}	
@@ -216,7 +232,7 @@ struct cMgr : cUnk, iMgr {
 	tMap<Str, int> readSettings()
 	{
 		siFs file = settingFile(currentUrl());
-		if (!file->exists())
+		if (!file || !file->exists())
 			return tMap<Str,int>();
 		
 		return parseSettings(file->data());
@@ -225,7 +241,8 @@ struct cMgr : cUnk, iMgr {
 	void writeSettings(const tMap<Str, int>& settings)
 	{
 		siFs file = settingFile(currentUrl());
-		file->setData(serializeSettings(settings));
+		if (file)
+			file->setData(serializeSettings(settings));
 	}
 
 	tMap<Str, int> parseSettings( const Str& data) 
@@ -265,37 +282,120 @@ struct cMgr : cUnk, iMgr {
 		return data;
 	}
 
-// temporary utility function, this should be replaced with something
-// more serious url parser...
-	Str fetchHost( const Str& url ) 
+	Str allSettings()
 	{
-		const char *s, *e, *i=url.ptr();
-		// start of domain name
-		for(;*i && *(i+1); i++)
-			if (*i=='/' && *(i+1)=='/')
-				break;
-		o3_assert(*i);
+		siFs root = m_factories["fs"](0);
+		siFs settings_dir = root->get("settings");
+		if (!settings_dir || !settings_dir->exists())
+			return Str();
+		Str settings;
+		tVec<siFs> children = settings_dir->children();
+		for (size_t i=0; i<children.size(); i++) {
+			settings.append(children[i]->name());
+			Str data = children[i]->data();
+			data.findAndReplaceAll("\n",",");
+			settings.appendf("(%s);", data.ptr());
+		}
+		return settings;
+	}
+
+	bool writeAllSettings(const Str& settings)
+	{
+		if (!safeLocation())
+			return false;
+
+		siFs root = m_factories["fs"](0);
+		siFs settings_dir = root->get("settings");
+		if (!settings_dir || !settings_dir->exists())
+			return false;
+		
+		const char* src = settings.ptr();
+		while(src && *src) {
+			const char *e1,*e2,*s=src;
+			while(*src && *src!='(')
+				src++;
+			o3_assert(*src);
+			e1=src;
+			while(*src && *src!=')')
+				src++;
+			o3_assert(*src);
+			e2=src;
+			Str fileName(s,e1-s);
+			Str data(e1+1, e2-e1-1);
+			data.findAndReplaceAll(",","\n");
+			siFs file = settings_dir->get(fileName);
+			if (file && file->exists())
+				file->setData(data);
+			
+			src++; // skipping '('
+			if (*src) 
+				src++; // skipping ';'
+		}
+
+		return true;
+	}
+
+// temporary utility function, this should be replaced with some
+// more serious url parser and put somewhere else...
+	Str hostFromURL( const Str& url ) 
+	{
+		size_t s,i;
+		i=url.find("//");
+		o3_assert(i!=NOT_FOUND);	
 		i = s = i+2;
 		
-		if (*i == '/') {
+		// TODO: there should be a distinction between files on 
+		// the localhost and files on the 'temp' directory where 
+		// the fs component has access 
+		if (url.ptr()[i] == '/') {
 			return Str("localhost");
 		}
 		//end of domain name
-		for(;*i; i++)
-			if (*i=='/')
-				break;
-		o3_assert(*i);
-		e = i;
-		return Str(s,e-s);
+		i=url.find(i,"/");
+		o3_assert(i!=NOT_FOUND);
+		const char* p=url.ptr();
+		return Str(p+s, i-s);
 	}
+
+	Str pathFromURL( const Str& url )
+	{		
+		size_t i;
+		i=url.find("//");
+		o3_assert(i!=NOT_FOUND);	
+		i=url.find(i+2,"/");
+		o3_assert(i!=NOT_FOUND);
+
+		return Str(url.ptr()+i+1);
+	}	
 
 	// should return true only for files in the o3 root folder
 	bool safeLocation()
 	{
-		return true;
+		Str o3path,path("/"),host =  hostFromURL(m_current_url);
+		if (!strEquals(host.ptr(),"localhost"))
+			return false;
+		
+		path.append(pathFromURL(m_current_url));
+		siFs file,root = m_factories["fs"](0);
+		
+		file = root->get(path.ptr());
+
+		return (file && file->valid() && file->exists());
+	}
+
+	Str latestVersion(iCtx* ctx)
+	{
+		Buf data = downloadFile("http://www.ajax.org/o3test/version",
+			ctx, Delegate(), Delegate());
+		
+		size_t l = data.size();
+		//max: v99.9999 min: v0.9
+		if (l > 8 || l < 4) 
+			return Str();
+		else
+			return data;
 	}
 	
-
 };
 
 }

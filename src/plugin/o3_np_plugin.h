@@ -491,7 +491,10 @@ struct cCtx : cMgr, iCtx {
         m_timer = [[O3Timer alloc] initWithCtx:this];
 #endif // O3_APPLE
 #ifdef O3_WIN32
-        m_root = tmpPath();
+		Str path = tmpPath();
+		path.findAndReplaceAll("\\", "/");
+        m_root = path;
+		m_root.appendf("o3_%s",O3_VERSION_STRING);
         m_hidden_wnd.create(this);
 #endif // O3_WIN32
         m_loop = g_sys->createMessageLoop();
@@ -503,7 +506,7 @@ struct cCtx : cMgr, iCtx {
 //		addExtTraits(cScan1::extTraits());
 //		addExtTraits(cBarcode1::extTraits());
 	
-		addFactory("fs", &cFs1::installDir);
+		addFactory("fs", &cFs1::rootDir);
 		addFactory("http", &cHttp1::factory);	
 	}
 	
@@ -657,7 +660,7 @@ NPError NPP_New(NPMIMEType type, NPP npp, ::uint16_t mode, ::int16_t argc,
     NPIdentifier    identifier;
     NPVariant       value;
 	NPString		string;
-    o3::Str         url;
+    o3::Str         url,full_url;
     int             index;	
 	cCtx*			ctx;
 	
@@ -670,10 +673,11 @@ NPError NPP_New(NPMIMEType type, NPP npp, ::uint16_t mode, ::int16_t argc,
     NPN_GetProperty(npp, object, identifier, &value);
 	NPN_ReleaseObject(object);
 	string = NPVARIANT_TO_STRING(value);
-    url = Str(string.UTF8Characters, string.UTF8Length);
+    full_url = url = Str(string.UTF8Characters, string.UTF8Length);
 	index = url.find("://");
     url[index] = 0;
-	if (!o3::strEquals(url.ptr(), "file")) {
+	// WTF???
+	/*if (!o3::strEquals(url.ptr(), "file")) {
 		hostent* he;
 		in_addr addr;
 
@@ -686,9 +690,10 @@ NPError NPP_New(NPMIMEType type, NPP npp, ::uint16_t mode, ::int16_t argc,
 			if (!o3::strEquals(inet_ntoa(addr), "127.0.0.1"))
 				return NPERR_GENERIC_ERROR;
 		}
-	}
+	}*/
 	ctx = o3_new(o3::cCtx)();
 	ctx->addRef();
+	ctx->mgr()->setCurrentUrl(full_url);
     npp->pdata = ctx;
     return NPERR_NO_ERROR;
 }

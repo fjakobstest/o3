@@ -102,10 +102,11 @@ namespace o3{
             return ((int)error);    
         }
 
-        o3_fun void runSelfElevated(iCtx* ctx) 
+        o3_fun void runSelfElevated(iCtx* ctx, const Str& args) 
         {
-            m_ctx = ctx;
-            runElevated( ctx, getSelfPath().ptr() );
+            m_ctx = ctx;			
+            WStr wargs = args;
+			runElevated( ctx, getSelfPath(), wargs );
         }
 
         o3_fun void runSimple(const char* cmd) 
@@ -301,13 +302,14 @@ namespace o3{
             m_p_info.hProcess = shex.hProcess;
             // DWORD e = GetLastError();
 
-            if (m_p_info.hProcess )
-                m_hprocess = o3_new(cHandle)(m_p_info.hProcess);
+			if (m_p_info.hProcess ) {
+				m_hprocess = o3_new(cHandle)(m_p_info.hProcess);
                 m_listener_term = ctx->loop()->createListener(m_hprocess.ptr(), 0, 
                         Delegate(this, &cProcess1::onTerminate));
+			}
 
             m_p_info.dwProcessId = (DWORD) -1;
-            //TODO: procefss ID? 
+            //TODO: process ID? 
             return (int)shex.hInstApp > 32;
         } 
 

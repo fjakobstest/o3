@@ -61,7 +61,9 @@ namespace o3 {\n\
 \n\
 struct cO3 : cScr {\n\
     tVec<Str> m_args;\n\
-    o3_imm(\"ImmVar\") int m_someVar;\n\
+    o3_prop int m_some_var;\n\
+	o3_name(\"renamedVar\") o3_get int m_some_other_var;\n\
+	o3_set int m_third_var;\n\
 \n\
     o3_begin_class(cScr)\n\
     o3_end_class()\n\
@@ -136,7 +138,7 @@ struct cO3 : cScr {\n\
     {\n\
         return 42;\n\
     }\n\
-	o3_fun bool loadModules(iCtx* ctx, Var* argv, int argc, siEx* ex) \n\
+	o3_name(\"renamedFun\") o3_fun bool loadModules(iCtx* ctx, Var* argv, int argc, siEx* ex) \n\
 	{\n\
 		o3_trace3 trace;\n\
 \n\

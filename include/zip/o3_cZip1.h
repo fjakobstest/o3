@@ -39,12 +39,12 @@ namespace o3 {
 		}
 
 		// TODO: reset function
-		o3_fun bool addToZip(iFs* node, const char* zip_path = 0)
+		o3_fun bool add(iFs* node, const char* zip_path = 0)
 		{
 			if (!node)
 				return false;
 
-			Str path = zip_path ? zip_path : node->name();
+			Str path = (zip_path && *zip_path) ? zip_path : node->name();
 
 			switch(node->type()){
 				case iFs::TYPE_FILE:
@@ -56,7 +56,7 @@ namespace o3 {
 						Str newpath = path;
 						newpath.append("/");
 						newpath.append(children[i]->name());
-						if (!addToZip(children[i], newpath))
+						if (!add(children[i], newpath))
 							return false;
 					}
 					break;
@@ -67,7 +67,7 @@ namespace o3 {
 			return true;
 		}
 
-		o3_fun bool zip(iFs* dest, siEx* ex=0)
+		o3_fun bool zipTo(iFs* dest, siEx* ex=0)
 		{ 
 			if (!dest)
 				return false;

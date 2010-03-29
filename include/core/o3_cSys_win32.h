@@ -517,9 +517,11 @@ namespace o3 {
         void post(const Delegate& fun, iUnk* arg)
         {
             Lock lock(m_mutex);
-            if (m_queue.size() <  O3_MESSAGE_LIMIT)
+            //o3::log("post before push\n");
+			if (m_queue.size() <  O3_MESSAGE_LIMIT)
                 m_queue.pushBack(o3_new(Message(fun, arg)));
             m_event->signal();
+			//o3::log("post after push\n");
         }
 
         void wait(int timeout)
@@ -556,14 +558,18 @@ namespace o3 {
                     {
                         Lock lock(m_mutex);
                         to_send = *m_queue.begin();
-                        m_queue.popFront();
+//						o3::log("wait:: before pop %d\n", left);
+						o3_assert(m_queue.size());
+						m_queue.popFront();
+						left--;
+//						o3::log("wait:: after pop %d\n", left);
                     }
 
                     to_send->fun(to_send->arg);
                     last = (to_send == last_to_handle);
-                    o3_delete(to_send);                    
-                    left--;
+                    o3_delete(to_send);                                        
                     sent = true;
+//					o3::log("wait:: 'left' before check %d\n", left);
                 } while (left > 0 && !last);
              
                 timeout -= (GetTickCount() - before) / 10;
@@ -637,8 +643,10 @@ namespace o3 {
             HMODULE handle;
             o3_init_t o3_init;
 
-            WStr wname(name);
-            handle = LoadLibraryW( wname );
+			WStr v = Str(O3_VERSION_STRING);
+			WStr wname = Str(name);
+            WStr wpath = tmpPath() + "o3_" + v + L"\\components\\" + wname + v + L".dll";			
+            handle = LoadLibraryW( wpath );
             if (!handle) 
                 return siModule();
 
@@ -675,9 +683,19 @@ namespace o3 {
             return o3_new(cMessageLoop)();
         }
 
+		//bool removeLogFile()
+		//{
+		//	DeleteFileW(L"c:\\Users\\Gabor\\AppData\\Local\\Temp\\Low\\o3_v0_9\\o3log.txt");
+		//	return true;
+		//}
+
 		virtual void logfv(const char* format, va_list ap)
 		{
 			vfprintf(stderr, format, ap);
+			//static bool rem = removeLogFile();
+			//FILE* file = fopen("c:\\Users\\Gabor\\AppData\\Local\\Temp\\Low\\o3_v0_9\\o3log.txt", "a");
+			//vfprintf(file, format, ap);
+			//fclose(file);
 		}
 
 		virtual bool approvalBox(const char* msg, const char* caption)

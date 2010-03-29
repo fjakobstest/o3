@@ -109,29 +109,64 @@ this.Lexer = {
 }; // lexer
 
 this.Parser = {
+	readName : function(tree, i, traits) {
+        Reporter.log("readName: ", tree[i].token, '\n');
+         traits.___name = tree[i+1].subtree[1].plain_text;
+		return 0;
+    },
     readExt : function(tree, i, traits) {
         Reporter.log("readExt: ", tree[i].token, '\n');
         traits.___ext = tree[i+1].subtree[1].plain_text;
         return 0;
     },
-    readImm : function(tree, i, traits){
-        Reporter.log("readImm: ",tree[i].token,'\n');
-        var name, member;
-        traits.add(name = tree[i+1].subtree[1].plain_text.replace(/\"/g, ''), {
-            imm: true,
-            type:'get',
-            ret: tree[i+2].token,
-            toString:0,
-            member: member = tree[i+3].token    
-        });
-        
-        traits.add(name, {
-            imm: true,
-            type:'set',
-            ret: tree[i+2].token,
-            toString:0,
-            member: member    
-        });
+	readProp : function(tree, i, traits) {
+		var index = i,
+			t;
+			
+		while ( (t = tree[index].token) != ';' && t != '(')
+			index++;
+			
+		if (t == ';')
+			return this.readImmProp(tree, i, traits);
+		else
+			return this.readFunLike(tree, i, traits);	
+		
+	},
+    readImmProp : function(tree, i, traits){
+        Reporter.log("readImmProp: ",tree[i].token,'\n');
+        var name,
+			index=i,
+			type = tree[i].token,
+			getter = (type != 'o3_set'),
+			setter = (type != 'o3_get');		
+		
+		while ( (t = tree[index].token) != ';')
+			index++;
+		
+		if (!(name = this.checkName(traits))) {					
+			name = tree[index-1].token.replace(/^m?\_+/, "");
+			name = name.replace(/_[a-z]/g, function(m,a) {
+				return m.slice(1).toUpperCase();                    
+			});		
+		}		
+			
+		if (getter)
+			traits.add(name , {
+				imm: true,
+				type:'get',
+				ret: tree[i+1].token,
+				toString:0,
+				member: tree[index-1].token
+			});
+		
+		if (setter)
+			traits.add(name, {
+				imm: true,
+				type:'set',
+				ret: tree[i+1].token,
+				toString:0,
+				member: tree[index-1].token    
+			});
 
         return 1;
     },
@@ -139,6 +174,7 @@ this.Parser = {
         Reporter.log("readFunLike: ",tree[index].token,'\n');
         var br, // position of the '(' 
             subtree,
+			name,
             ret = [],
             r,i,j,l,t,tl,coma,tgt=0,
             op_count, name_pos, arg_type, arg_name, arg_def, args = [],
@@ -223,15 +259,18 @@ this.Parser = {
             i = j;
         }
         
-        var ext = this.checkExt(traits);
-        traits.add(tree[br-1].token, {
+        var ext = this.checkExt(traits);        
+		if (!(name = this.checkName(traits)))
+			name = tree[br-1].token;
+		
+		traits.add(name, {
             type:tree[index].token.replace('o3_', ''),
             ret:ret.join(''),
             args:args,            
             ftype:0,
             ext: ext,
             name: tree[br-1].token,
-            toString:0            
+			toString:0            
         });
         return 1;
     },
@@ -240,6 +279,15 @@ this.Parser = {
             var ret = traits.___ext;
             traits.___ext = null;
             delete traits.___ext;
+            return ret.replace(/\"/g, '');
+        }
+        return 0;    
+    },
+	checkName : function(traits) {
+        if (traits.___name) {            
+            var ret = traits.___name;
+            traits.___name = null;
+            delete traits.___name;
             return ret.replace(/\"/g, '');
         }
         return 0;    
@@ -346,16 +394,21 @@ this.Parser = {
                             });
                         }
                         switch(typename[0]) {
-                            case 'o3_imm': 
-                                i += this.readImm(tree, i, traits);                        
+                            case 'o3_name': 
+                                i += this.readName(tree, i, traits);                        
+                                break;
+							case 'o3_prop': 
+                                i += this.readImmProp(tree, i, traits);                        
                                 break;
                             case 'o3_ext':
                                 i += this.readExt(tree, i, traits);
                                 break;        
                             case 'o3_fun':
+								i += this.readFunLike(tree, i, traits);                        
+                                break;
                             case 'o3_get':
                             case 'o3_set':                             
-                                i += this.readFunLike(tree, i, traits);                        
+                                i += this.readProp(tree, i, traits);                        
                                 break;
                             case 'o3_enum':                             
                                 i += this.readEnum(tree, i, traits);                        

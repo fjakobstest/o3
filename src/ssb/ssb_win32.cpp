@@ -149,7 +149,8 @@ int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR arg, int show)
     mgr->addExtTraits(cResource1::extTraits());
     mgr->addExtTraits(cProtocol1::extTraits());
     mgr->addExtTraits(cScreen1::extTraits());
-    
+
+	ssb_setIE8mode("ssb.exe");
 
     HostIE* host = o3_new(HostIE)(ctx);
     host->AddRef();
@@ -166,11 +167,11 @@ int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR arg, int show)
     Str url = "file:///";
     if (arg && *arg){
         Str path(arg);
-        backslash2slash(path);
+        path.findAndReplaceAll("\\", "/");
         url.append(path.ptr());
     } else {
         Str cwd = cwdPath();
-        backslash2slash(cwd);
+        cwd.findAndReplaceAll("\\", "/");
         url.append(cwd);
         url.append("/ssb_start.html");
     }

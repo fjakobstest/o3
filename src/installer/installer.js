@@ -200,6 +200,7 @@ var installer = {
         };
         o.page1.rb1.onclick = function(){
             o.page1.bt1.enabled = true;
+			all = true;
         };
         o.page1.rb2.onclick = function(){
             o.page1.bt1.enabled = true;
@@ -225,7 +226,7 @@ var installer = {
     },
     
     run: function(all_usr) {
-        var base = all_usr ? o3.programFiles : o3.appData;
+		var base = all_usr ? o3.programFiles : o3.appData;
         //copy dll
         //O3/onedit-guid/np-onedit-guid.dll
         var basepath = "O3/" + appInfo.fullId;
@@ -242,9 +243,9 @@ var installer = {
             nppath = npdll.path.replace(/\//g,"\\");
         nppath = nppath.substring(1);
         //self copy for uninstaller
-        var thisFile = o3.fs().get(o3.selfPath);
+        var thisFile = o3.fs.get("/" + o3.selfPath);
         while (true){
-            uninst = thisFile.copy(base.get(basepath + "/onedit.exe"));
+            uninst = thisFile.copy(base.get(basepath));
             if (uninst.exists)
                 break;
             else if (!o3.alertBox(appInfo.fancyName, getErrMsg(-1), "retrycancel"))
@@ -261,7 +262,7 @@ var installer = {
                 args       : uninstargs,
                 icon       : path,
                 path       : path,
-                displayname: "Javeline " + appInfo.fullId,
+                displayname: "Ajax.org " + appInfo.fullId,
                 helplink   : "",
                 publisher  : "Ajax.org BV",
                 major      : "1",
@@ -286,7 +287,7 @@ var installer = {
                 version    : "1",
                 path       : nppath,
                 product    : appInfo.fullId,
-                description: "NP plugin for Javeline " + appInfo.fancyName + " guid: " + appInfo.GUID,
+                description: "NP plugin for Ajax.org " + appInfo.fancyName + " guid: " + appInfo.GUID,
                 mimetype   : "application/" + appInfo.fullId
             }))
                 break;
@@ -301,7 +302,6 @@ var installer = {
         if (elevate) {
             if (o3.adminUser && o3.winVersionMajor == 5)
                 return this.run(true);
-            
             var proc = o3.process();            
             runProcess(proc, "-a", "selfElevated");
             return proc.exitCode;
@@ -326,9 +326,9 @@ var installer = {
             uninargs = uninfull.substring(idx);
             uninpath = uninfull.substring(0, idx);
             //tmp copy of the uninstaller and run it (otherwise we can not delete the files)
-            var thisFile = o3.fs().get(uninpath),
+            var thisFile = o3.fs.get(uninpath),
                 tmppath  = o3.tempPath + appInfo.fullId + ".exe";
-            thisFile.copy(o3.fs().get(tmppath));
+            thisFile.copy(o3.fs.get(tmppath));
             runProcess(proc, tmppath + uninargs + " -f -t");
             //if the uninstall process returns with an error code it means that the
             //uninstall failed and the user gave up retrying it...
@@ -336,7 +336,7 @@ var installer = {
                 cancel = true;
         }
     },
-    
+	    
     patchFile: function(data) {
     var stemGUIDstr = "AAAAAAAA-1111-BBBB-1111-CCCCCCCCCCCC",
             stemGUID    = this.getGUIDBlob(stemGUIDstr),
@@ -414,16 +414,18 @@ var uninstaller = {
                 wnd : m = o3.createWindow(_("uninstTitle"), 320, 240, 500, 385),
                 page1 : {
                     wnd    : p = m.createWindow("page1", 0, 0, 500, 385),
-                    ib1    : p.createImgbox("o3_installer_header.bmp", 0, 0, 496, 61),
-                    tb1    : p.createTextbox(_("uninstWelcome"), 16, 16, 315, 14, 14, p.BOLD),
-                    tb2    : p.createTextbox(_("uninstStory"), 30, 35, 315, 14, 13),
+                    b      : p.createBlank(0, 62, 500, 385, 1),
+					ib1    : p.createImgbox("o3_installer_header.bmp", 0, 0, 496, 61),
+					tb1    : p.createTextbox(_("uninstWelcome"), 16, 16, 315, 14, 14, p.BOLD, 0xFFFFFF),
+                    tb2    : p.createTextbox(_("uninstStory"), 30, 35, 315, 14, 13, 0, 0xFFFFFF),
                     sep    : p.createSeparator(0, 61, 500),
                     tb3    : p.createTextbox(_("uninstReinst"), 105, 105, 340, 55, 13),
                     tb4    : p.createTextbox(_("uninstRemove"), 105, 190, 340, 55, 13),
-                    rb1    : p.createRButton(_("reinstall"), 30, 80, 315, 20, 13, p.BOLD),
-                    rb2    : p.createRButton(_("remove"), 30, 160, 315, 20, 13, p.BOLD),
+                    rb1    : p.createRButton(_("reinstall"), 30, 80, 315, 20, 13, p.BOLD, 1),
+                    rb2    : p.createRButton(_("remove"), 30, 160, 315, 20, 13, p.BOLD, 1),
                     bt1    : p.createButton(_("next"), 300, 330, 90, 20, 13),
-                    bt2    : p.createButton(_("cancel"), 395, 330, 90, 20, 13)
+                    bt2    : p.createButton(_("cancel"), 395, 330, 90, 20, 13),
+					sep    : p.createSeparator(0, 315, 500)
                 },
                 page2 : {
                     wnd : p = m.createWindow("page2", 0, 0, 522, 420),
@@ -447,14 +449,16 @@ var uninstaller = {
                 },
                 page4 : {
                     wnd    : p = m.createWindow("page4", 0, 0, 522, 385),
+					b      : p.createBlank(0, 62, 500, 385, 1),
                     ib1    : p.createImgbox("o3_installer_header.bmp", 0, 0, 496, 61),
-                    tb1    : p.createTextbox(_("uninstTitle"), 16, 16, 315, 14, 14, p.BOLD),
-                    tb2    : p.createTextbox(_("removeWelcome"), 30, 35, 315, 14, 13),
+                    tb1    : p.createTextbox(_("uninstTitle"), 16, 16, 315, 14, 14, p.BOLD,0xFFFFFF),
+                    tb2    : p.createTextbox(_("removeWelcome"), 30, 35, 315, 14, 13, 0, 0xFFFFFF),
                     sep    : p.createSeparator(0, 61, 500),
                     tb3    : p.createTextbox(_("removeStory"), 30, 70, 400, 55, 13),
                     bt1    : p.createButton(_("back"), 210, 330, 90, 20, 13),
                     bt2    : p.createButton(_("remove"), 300, 330, 90, 20, 13),
-                    bt3    : p.createButton(_("cancel"), 395, 330, 90, 20, 13)
+                    bt3    : p.createButton(_("cancel"), 395, 330, 90, 20, 13),
+					sep    : p.createSeparator(0, 315, 500)
                 },
                 reset : false
             };
@@ -517,15 +521,15 @@ var uninstaller = {
     runFromTemp: function(args) {
         // tmp copy of the uninstaller and run it 
         // (otherwise we can not delete the files)
-        var thisFile = o3.fs().get(o3.selfPath),
+        var thisFile = o3.fs.get(o3.selfPath),
             tmppath  = o3.tempPath + appInfo.fullId  + ".exe",
-            tmpcpy   = o3.fs().get(tmppath);
+            tmpcpy   = o3.fs.get(tmppath);
         tmpcpy.remove(true);
         tmpcpy = thisFile.copy(tmpcpy);
         o3.process().runSimple(tmppath + " " + args + " -t");
     },
     
-    run: function(all_usr, reinstall) {
+    run: function(all_usr, update) {
         while (true) {
             if (o3.unregMozillaPlugin(all_usr, "Ajax.org BV", appInfo.fullId, "1"))
                 break;
@@ -547,10 +551,32 @@ var uninstaller = {
                     else if (!o3.alertBox(appInfo.fancyName, getErrMsg(-3) + " unregDll", "retrycancel"))
                         return -3;
                 }
-                while (true) {
-                    if (base.get(basepath).remove(true))
+                while (true) {				
+					var installDir = base.get(basepath);
+					if (installDir.remove(true))
                         break;
-                    else if (!o3.alertBox(appInfo.fancyName, getErrMsg(-2), "retrycancel"))
+					if (update) {
+						// if we can not remove the files it probably means they are being used
+						// let's try to move them into a temp folder so we can install the new version
+						var succeded=true, 							 
+							files = installDir.children,
+							tmpFolder = o3.tmpDir.get("o3trash");
+						// if there are any remaining files from the previous update let's remove those first
+						tmpFolder.remove(true);
+						if (!tmpFolder.createDir())
+							succeded = false;
+						 										
+						for(var i=0; i<files.length; i++) {
+							try {
+								files[i].move(tmpFolder);
+							} catch(e){succeded = false;}
+						}		
+						
+						if (succeded)
+							break;
+					}
+							
+                    if (!o3.alertBox(appInfo.fancyName, getErrMsg(-2), "retrycancel"))
                         return -2;
                 }
             }
@@ -566,17 +592,17 @@ var uninstaller = {
         return 1;
     },
     
-    start: function(elevate, reinstall) {
+    start: function(elevate, reinstall, update) {
         if (elevate) {
             if (o3.adminUser && o3.winVersionMajor == 5)
-                return this.run(true, reinstall);
+                return this.run(true, update);
 
             var proc = o3.process();
             runProcess(proc, "-u -a -t -e" + (reinstall ? " -r" : ""), "selfElevated");
             return proc.exitCode;
         }
         else {
-            return this.run(false, reinstall);
+            return this.run(false, update);
         }
     },
     
@@ -661,7 +687,6 @@ var error, uninst,
     fast      = flatargs.indexOf('-f') != -1;  //uninstalling in silent mode
 o3.exitcode = 0;
 
-
 //START:
 //UNINSTALL
 if (uninstall && !temp) {
@@ -673,7 +698,7 @@ else if (uninstall && temp && elevated) {
     o3.exitcode = uninstaller.run(true, reinstall);
 }
 else if (uninstall && temp && fast) {
-    error = uninstaller.start(alluser, reinstall);
+    error = uninstaller.start(alluser, reinstall, true);
     if (error < 0) {
         uninstaller.showErrorPage(error);
     }
