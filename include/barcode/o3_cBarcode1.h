@@ -18,7 +18,6 @@
 #ifndef O3_C_BARCODE1_H
 #define O3_C_BARCODE1_H
 
-#include <image/o3_image.h>
 
 #include <lib_zbar.h>
 namespace o3 

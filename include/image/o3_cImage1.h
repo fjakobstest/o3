@@ -24,7 +24,6 @@
 
 #include <lib_png.h>
 #include <lib_agg.h>
-#include <image/o3_iImage.h>
 
 
 #ifndef __min
@@ -210,24 +209,13 @@ namespace o3
 			m_graphics_attached = false;
 		};
 
-		static o3_ext("cO3") o3_get siScr image(iCtx* ctx)
+		static o3_ext("cO3") o3_fun siScr image()
 		{
 			o3_trace3 trace;
-			Var blob = ctx->value("image");
-
-			if (blob.type() == Var::TYPE_VOID)
-				blob = ctx->setValue("image", o3_new(cImage1)());
-			return blob.toScr();
-		}
-
-		o3_fun siScr __self__()
-		{
-			o3_trace3 trace;
-
 			return o3_new(cImage1)();
 		}
 
-		o3_fun siScr __self__(size_t w, size_t h, const char* mode = "argb" )
+		static o3_ext("cO3") o3_fun siScr image(size_t w, size_t h, const char* mode = "argb" )
 		{
 			return o3_new(cImage1)(w,h,mode);
 		}

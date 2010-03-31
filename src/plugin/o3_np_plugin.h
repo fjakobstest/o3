@@ -498,7 +498,7 @@ struct cCtx : cMgr, iCtx {
         m_hidden_wnd.create(this);
 #endif // O3_WIN32
         m_loop = g_sys->createMessageLoop();
-		m_o3 = o3_new(cO3)(0, 0, 0);
+		m_o3 = o3_new(cO3)(this, 0, 0, 0);
 
         addExtTraits(cFs1::extTraits());
 		addExtTraits(cWindow1::extTraits());
@@ -530,12 +530,14 @@ struct cCtx : cMgr, iCtx {
 	
 	void* alloc(size_t size)
 	{
-		return ::NPN_MemAlloc(size);
+		//return ::NPN_MemAlloc(size);
+		return g_sys->alloc(size);
 	}
 	
 	void free(void* ptr)
 	{
-		::NPN_MemFree(ptr);
+		//::NPN_MemFree(ptr);
+		g_sys->free(ptr);
 	}
 	
 	siMgr mgr()

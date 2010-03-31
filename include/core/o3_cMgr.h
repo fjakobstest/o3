@@ -185,14 +185,15 @@ struct cMgr : cUnk, iMgr {
 	Buf downloadComponent(iCtx* ctx, const Str& name,  
 		Delegate onreadystatechange, Delegate onprogress)
 	{
-		Str url = Str("http://www.ajax.org/o3test/") 
-			+ O3_VERSION_STRING + "/" + name + O3_VERSION_STRING + ".zip";		
+		Str url = Str(O3_BASE_URL) + O3_VERSION_STRING + "/" + name 
+			+ O3_VERSION_STRING + ".zip";		
+		
 		return downloadFile(url, ctx, onreadystatechange, onprogress);
 	}
 
 	Buf downloadUpdateInfo(iCtx* ctx)
 	{
-		Str url = Str("http://www.ajax.org/o3test/") + O3_VERSION_STRING + "/hash.zip";
+		Str url = Str(O3_BASE_URL) + O3_VERSION_STRING + "/hash.zip";
 		return downloadFile(url, ctx, Delegate(), Delegate());
 	}
 
@@ -385,7 +386,9 @@ struct cMgr : cUnk, iMgr {
 
 	Str latestVersion(iCtx* ctx)
 	{
-		Buf data = downloadFile("http://www.ajax.org/o3test/version",
+		Str url(O3_BASE_URL);
+		url.append("version")
+		Buf data = downloadFile(url,
 			ctx, Delegate(), Delegate());
 		
 		size_t l = data.size();

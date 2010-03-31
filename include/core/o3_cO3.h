@@ -119,7 +119,7 @@ struct cO3 : cScr {
 	bool		m_loading;
 	scLoadProgress	m_load_progress;
 
-    cO3(int /*argc*/, char** argv, char** envp)
+    cO3(iCtx* ctx, int /*argc*/, char** argv, char** envp)
 		: m_loading(false)
 	{
         if (argv)
@@ -130,7 +130,9 @@ struct cO3 : cScr {
                 m_envs.push(*envp++);
 
 		m_load_progress = o3_new(cLoadProgress);		
-    }
+		m_ctx = ctx;
+		ctx->setValue("cO3", this);
+	}
 
     ~cO3()
     {
@@ -280,6 +282,7 @@ struct cO3 : cScr {
 
 	void onNotification(iUnk* http)
 	{
+		http;
 		Delegate(siCtx(m_ctx), m_onprogress)(
 			siScr(this));
 	}
@@ -346,7 +349,7 @@ struct cO3 : cScr {
 	// and the user selected retry in the pop-up warning window
 	// NOTE: this method is executed from a worker thread async
 	// NOTE2: after it has finished it will launch the updating asynch
-	void moduleLoading(iUnk* pthis)
+	void moduleLoading(iUnk*)
 	{
 		siCtx ctx = siCtx(m_ctx);
 		siMgr mgr = ctx->mgr();		
@@ -486,7 +489,7 @@ error:
 	// checks if there is a new root available, then for the modules
 	// downloads a zipped file containing hash files for the latest version of each components
 	// we check the local versions hash against these values and update the component if needed
-	void moduleUpdating(iUnk* pthis)
+	void moduleUpdating(iUnk*)
 	{
 		using namespace zip_tools;
 		siCtx ctx = siCtx(m_ctx);
@@ -495,7 +498,8 @@ error:
 
 		Buf zipped = mgr->downloadUpdateInfo(ctx);
 		siStream stream = o3_new(cBufStream)(zipped);
-		siStream hash = o3_new(cBufStream)(Buf(SHA1_SIZE));
+		Buf b(SHA1_SIZE);
+		siStream hash = o3_new(cBufStream)(b);
 		Str ver(O3_VERSION_STRING); 
 		// unzipping
 		siEx error;

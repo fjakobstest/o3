@@ -30,6 +30,7 @@
 #include "o3_iScr.h"
 #include "o3_iBuf.h"
 #include "o3_iStream.h"
+#include "o3_iImage.h"
 #include "o3_Buf.h"
 #include "o3_tVec.h"
 #include "o3_iFs.h"

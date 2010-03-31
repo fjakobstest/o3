@@ -138,10 +138,9 @@ namespace o3 {
 
     public:
 
-        CJAxCtrl() {
-            siScr root = o3_new(cO3)(0,0,0);          
-            
+        CJAxCtrl() {                        
             m_ctx = o3_new(cCtx1)();
+			siScr root = o3_new(cO3)(m_ctx, 0,0,0);          
             //m_mgr->addExtTraits(cFs1::extTraits());
             //m_mgr->addExtTraits(cBlob1::extTraits());
             //m_mgr->addExtTraits(cRsc1::extTraits());

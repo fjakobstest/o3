@@ -643,10 +643,14 @@ namespace o3 {
             HMODULE handle;
             o3_init_t o3_init;
 
-			WStr v = Str(O3_VERSION_STRING);
 			WStr wname = Str(name);
-            WStr wpath = tmpPath() + "o3_" + v + L"\\components\\" + wname + v + L".dll";			
-            handle = LoadLibraryW( wpath );
+#ifdef O3_PLUGIN
+			WStr v = Str(O3_VERSION_STRING);			
+            WStr wpath = tmpPath() + L"o3_" + v + L"\\components\\" + wname + v + L".dll";			
+#else
+			WStr wpath = wname + L".dll";
+#endif
+			handle = LoadLibraryW( wpath );
             if (!handle) 
                 return siModule();
 

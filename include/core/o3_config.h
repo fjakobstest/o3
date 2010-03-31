@@ -52,6 +52,7 @@
 
 #define O3_VERSION 0.9
 #define O3_VERSION_STRING "v0_9"
+#define O3_BASE_URL "http://www.ajax.org/o3test/"
 
 
 #endif // O3_CONFIG_H

@@ -398,7 +398,7 @@ public:
         m_template->SetIndexedPropertyHandler(indexedGetter, indexedSetter,
                                               indexedQuery, indexedDeleter,
                                               indexedEnumerator, data);
-        object = createObject(o3_new(cO3)(argc, argv, envp));
+        object = createObject(o3_new(cO3)(this, argc, argv, envp));
         m_context->Global()->Set(String::New("o3"), object);
     }
 
