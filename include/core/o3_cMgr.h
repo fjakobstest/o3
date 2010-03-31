@@ -387,7 +387,7 @@ struct cMgr : cUnk, iMgr {
 	Str latestVersion(iCtx* ctx)
 	{
 		Str url(O3_BASE_URL);
-		url.append("version")
+		url.append("version");
 		Buf data = downloadFile(url,
 			ctx, Delegate(), Delegate());
 		
