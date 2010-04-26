@@ -30,9 +30,11 @@
 #include <fs/o3_fs.h>
 #include <http/o3_http.h>
 #include <window/o3_window.h>
+#include <socket/o3_socket.h>
 //#include <image/o3_image.h>
 //#include <scanner/o3_scan.h>
 //#include <barcode/o3_barcode.h>
+#include <dom/o3_dom.h>
 
 #include <md5/o3_md5.h>
 #include <rsa/o3_rsa.h>
@@ -475,6 +477,7 @@ struct cCtx : cMgr, iCtx {
 	static O3Class g_class;
 	siMessageLoop m_loop;
 	tMap<Str, Var> m_values;
+	void* m_app_window;
 	siScr m_o3;
 	iScr* m_scr;
 	tMap<O3Object*, O3Object*> m_objects;
@@ -485,7 +488,7 @@ struct cCtx : cMgr, iCtx {
     HiddenWindow    m_hidden_wnd; 
 #endif // O3_WIN32
 	
-	cCtx()
+	cCtx(iHost* host=0) : cMgr(O3_FS_ROOT, host)
 	{
 #ifdef O3_APPLE
         m_timer = [[O3Timer alloc] initWithCtx:this];
@@ -502,12 +505,16 @@ struct cCtx : cMgr, iCtx {
 
         addExtTraits(cFs1::extTraits());
 		addExtTraits(cWindow1::extTraits());
+		addExtTraits(cSocket1::extTraits());
 //		addExtTraits(cImage1::extTraits());
 //		addExtTraits(cScan1::extTraits());
 //		addExtTraits(cBarcode1::extTraits());
+#ifdef O3_WIN32
+		addExtTraits(cDOM1::extTraits());
 	
 		addFactory("fs", &cFs1::rootDir);
 		addFactory("http", &cHttp1::factory);	
+#endif
 	}
 	
 	~cCtx()
@@ -563,6 +570,16 @@ struct cCtx : cMgr, iCtx {
     Var eval(const char* name, siEx* ex = 0)
 	{
 		return Var(this);
+	}
+
+	virtual void setAppWindow(void* handle)
+	{
+		m_app_window = handle;
+	}
+
+	virtual void* appWindow() 
+	{
+		return (void*) m_app_window;
 	}
 };
 
@@ -708,8 +725,17 @@ NPError NPP_Destroy(NPP npp, NPSavedData** pdata)
     return NPERR_NO_ERROR;
 }
 
-NPError NPP_SetWindow(NPP instance, NPWindow* window)
+NPError NPP_SetWindow(NPP npp, NPWindow* window)
 {
+#ifdef O3_WIN32
+	if (window->window) {
+		HWND tab = GetParent((HWND)window->window);
+		if (tab) {
+			o3::cCtx* ctx = (o3::cCtx*) npp->pdata;
+			ctx->setAppWindow((void*)tab);
+		}
+	}
+#endif
 	return NPERR_NO_ERROR;
 }
 

@@ -34,9 +34,9 @@
 #include <sys/types.h> 
 #include <sys/timeb.h>
 
-//#ifdef O3_WIN32
-// #include <Winsock2.h>
-//#endif
+#ifdef O3_WIN32
+ #include <Winsock2.h>
+#endif
 
 #undef check
 #undef require

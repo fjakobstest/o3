@@ -1,7 +1,7 @@
 o3.loadModule('fs');
 o3.loadModule('console');
 
-function include(file, includeTrace) {
+function include(file, includeTrace) {	
 	var scriptFile, scriptFolder, scriptFilePath = o3.args[0].replace(/\\/g, '/'); 
 	if ((scriptFile = o3.cwd.get(scriptFilePath)) && scriptFile.exists){
 		scriptFolder = o3.cwd.get(scriptFilePath).parent;

@@ -20,7 +20,7 @@
 #include <js/o3_js.h>
 //#include <test/o3_proto_v1.h>
 #include "xml/o3_xml.h"
-//#include "socket/o3_socket.h"
+#include "socket/o3_socket.h"
 #include "fs/o3_fs.h"
 #include "blob/o3_blob.h"
 #include "console/o3_console.h"
@@ -34,7 +34,7 @@
 #include "process/o3_process.h"
 #include "test/o3_test.h" 
 
-//#include "image/o3_image.h"
+#include "image/o3_image.h"
 //#include "scanner/o3_scan.h"
 //#include "barcode/o3_barcode.h"
 
@@ -44,6 +44,7 @@
 //#include "canvas/o3_cCanvas1_win32.h"
 
 #include "zip/o3_zip.h"
+#include "socket/o3_socket.h"
 
 //int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR arg, int show){
 int main(int argc, char **argv) {
@@ -55,7 +56,7 @@ int main(int argc, char **argv) {
     cSys sys;
 
     siMgr mgr = o3_new(cMgr)();
-    siCtx ctx = o3_new(cJs1)(mgr, --argc, ++argv);
+    siCtx ctx = o3_new(cJs1)(mgr, --argc, ++argv,0,true);
    
     
     //mgr->addExtTraits(cCanvas1::extTraits());
@@ -65,14 +66,14 @@ int main(int argc, char **argv) {
     mgr->addExtTraits(cConsole1::extTraits());
     mgr->addExtTraits(cXml1::extTraits());
     //mgr->addExtTraits(cJs1::extTraits());
-    //js.mgr()->addExtTraits(cSocket1::extTraits());
+    mgr->addExtTraits(cSocket1::extTraits());
     mgr->addExtTraits(cResource1::extTraits());
     mgr->addExtTraits(cResourceBuilder1::extTraits());
     mgr->addExtTraits(cScreen1::extTraits());
 	mgr->addExtTraits(cProcess1::extTraits());
 	mgr->addExtTraits(cTest1::extTraits());
 
-	//mgr->addExtTraits(cImage1::extTraits());
+	mgr->addExtTraits(cImage1::extTraits());
 	//mgr->addExtTraits(cBarcode1::extTraits());
 	//mgr->addExtTraits(cScan1::extTraits());
 
@@ -84,8 +85,8 @@ int main(int argc, char **argv) {
 	mgr->addFactory("fs", &cFs1::rootDir);
 	mgr->addFactory("http", &cHttp1::factory);
 
-    //WSADATA wsd;
-    //int rc = WSAStartup(MAKEWORD(2,2), &wsd);
+    WSADATA wsd;
+    int rc = WSAStartup(MAKEWORD(2,2), &wsd);
 	int ret = 0;
     bool wait = true;
     {// scope the local vars        
@@ -102,9 +103,9 @@ int main(int argc, char **argv) {
 			Str prelude(size = GetFileSize(prelude_file, &high));
 			ReadFile(prelude_file,prelude.ptr(), size, &read, 0);
 			prelude.resize(read);
-			ctx->eval(prelude);
-			if (((cJs1*)ctx.ptr())->scriptError())
-				return -1;
+			//ctx->eval(prelude);
+			//if (((cJs1*)ctx.ptr())->scriptError())
+			//	return -1;
 		}
 
 		HANDLE script_file = CreateFileA(argv[0],GENERIC_READ,
@@ -132,7 +133,7 @@ int main(int argc, char **argv) {
     // if(wait)
 	// getc(stdin);
 
-    //WSACleanup();
+    WSACleanup();
     return ret;
 }  
 

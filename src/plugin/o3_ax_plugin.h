@@ -17,14 +17,15 @@
  */
 
 #ifdef O3_WIN32
-
 //#include "Psapi.h"
-#include <exdisp.h>		// IWebBrowser2
-#include <SHLGUID.h>    
-
+//#include <exdisp.h>		// IWebBrowser2
+#include <Exdispid.h>
+#include <SHLGUID.h>
+#include <mshtml.h>
+#include <mshtmdid.h>
+#include <olectl.h>
 #include "shared/o3_glue_idispatch.h"
 #include "protocol/o3_protocol.h"
-
 
 DEFINE_GUID(IID_IJAxCtrl, 0xddbbe8d1, 0x8ee4, 0x4037, 0x81, 
     0x6c, 0x42, 0xd1, 0x5, 0xd6, 0x9f, 0xf4);
@@ -34,9 +35,9 @@ GUID CLSID_IJAxCtrl ={0xAAAAAAAA,0x1111,0xBBBB,{0x11, 0x11,
 
 wchar_t stemGUID[] = O3_PLUGIN_GUID;
 wchar_t baseAppName[] = O3_APP_NAME;
-
-
-
+HWND tab_hwnd = 0;
+LONG wndproc=0;
+LONG usrdata=0;
 
 namespace o3 {
     volatile int g_win32_outstanding_objects = 0;
@@ -45,6 +46,17 @@ namespace o3 {
     HINSTANCE    g_win32_hinst = NULL;
 
     mscom_ptr(IDispBridge);
+	mscom_ptr(IConnectionPoint);
+	mscom_ptr(IConnectionPointContainer);
+	mscom_ptr(IDispatch);
+	mscom_ptr(IHTMLDocument2);
+	mscom_ptr(IWebBrowser2);
+	mscom_ptr(IHTMLWindow2);
+	mscom_ptr(IHTMLEventObj);
+	mscom_ptr(IHTMLEventObj2);
+	mscom_ptr(IHTMLElement);
+	mscom_ptr(IDispatchEx);
+	mscom_ptr_d(HTMLDocumentEvents);	
 
     int incWrapperCount() {
         int ret = atomicInc(g_win32_outstanding_objects);
@@ -52,13 +64,137 @@ namespace o3 {
     }
 
     int decWrapperCount() {
-        int ret = atomicDec(g_win32_outstanding_objects);
+		int ret = atomicDec(g_win32_outstanding_objects);
         return ret;
     }
 
+
+	struct IJAxCtrl :
+		public IDispatchEx,
+		public IPersistStreamInit,
+		public IOleControl,
+		public IOleObject,
+		public IOleInPlaceActiveObject,
+		public IViewObjectEx,
+		public IQuickActivate,
+		public IOleInPlaceObjectWindowless,
+		public IObjectSafety,
+		public IPersistPropertyBag
+	{
+		virtual ULONG STDMETHODCALLTYPE AddRef() = 0;
+		virtual ULONG STDMETHODCALLTYPE Release() = 0;
+		virtual void attachDOMListener() = 0;
+	};
+
+	struct cHost: cCtx, iHost
+	{
+		cHost(IJAxCtrl* ctr)
+			: pthis(ctr)
+		{						
+		}
+
+		o3_begin_class(cUnk)
+			o3_add_iface(iHost)
+		o3_end_class()
+
+		IJAxCtrl* pthis;
+		Delegate m_ondblclick;
+		Delegate m_onclick;
+		Delegate m_onmousedown;
+		Delegate m_onmouseup;
+		Delegate m_onmousemove;
+		Delegate m_onmousewheel;
+		Delegate m_onkeyup;
+		Delegate m_onkeydown;
+		Delegate m_onkeypress;
+
+		void attachDOMListener()
+		{
+			pthis->attachDOMListener();
+		}
+
+		void setOndblclick(Delegate dg) 
+		{
+			m_ondblclick = dg;
+		}	
+		void setOnclick(Delegate dg) 
+		{
+			m_onclick = dg;
+		}
+		void setOnmousedown(Delegate dg) 
+		{
+			m_onmousedown = dg;
+		}
+		void setOnmouseup(Delegate dg) 
+		{
+			m_onmouseup = dg;
+		}
+		void setOnmousemove(Delegate dg) 
+		{
+			m_onmousemove = dg;
+		}
+		void setOnmousewheel(Delegate dg) 
+		{
+			m_onmousewheel = dg;
+		}
+
+		void setOnkeyup(Delegate dg) 
+		{
+			m_onkeyup = dg;
+		}
+		void setOnkeydown(Delegate dg) 
+		{
+			m_onkeydown = dg;
+		}
+		void setOnkeypress(Delegate dg) 
+		{
+			m_onkeypress = dg;
+		}
+
+		Delegate ondblclick() 
+		{
+			return m_ondblclick;
+		}		
+		Delegate onclick()  
+		{
+			return m_onclick;
+		}
+		Delegate onmousedown()  
+		{
+			return m_onmousedown;
+		}
+		Delegate onmouseup() 
+		{
+			return m_onmouseup;
+		}
+		Delegate onmousemove()  
+		{
+			return m_onmousemove;
+		}
+		Delegate onmousewheel() 
+		{
+			return m_onmousewheel;
+		}
+
+		Delegate onkeyup()  
+		{
+			return m_onkeyup;
+		}
+		Delegate onkeydown()  
+		{
+			return m_onkeydown;
+		}
+		Delegate onkeypress()  
+		{
+			return m_onkeypress;
+		}
+
+	};
+
     struct cCtx1 : cCtx, iCtx1 
     {
-        cCtx1() : m_track(0)
+        cCtx1(iHost* host) : cCtx(host)
+			, m_track(0)
         {
         
         }
@@ -68,6 +204,7 @@ namespace o3 {
 	    o3_end_class()
 
         ComTrack*       m_track;
+		HWND			m_hwnd;
 
         virtual ComTrack** track()
         {
@@ -83,89 +220,233 @@ namespace o3 {
             }
         }
 
-        virtual void setAppWindow(void*)
-        {
-            // TODO: this function pair should not be on the context
-        }
-
-        virtual void* appWindow()
-        {
-            return 0;
-        }
     };
 
 
-    struct IJAxCtrl :
-        public IDispatchEx,
-        public IPersistStreamInit,
-        public IOleControl,
-        public IOleObject,
-        public IOleInPlaceActiveObject,
-        public IViewObjectEx,
-        public IQuickActivate,
-        public IOleInPlaceObjectWindowless,
-        public IObjectSafety,
-        public IPersistPropertyBag{
-
-        virtual ULONG STDMETHODCALLTYPE AddRef() = 0;
-        virtual ULONG STDMETHODCALLTYPE Release() = 0;
-    #ifdef DROP_TARGET
-        virtual void addDropTarget(HWND hwnd, IDropTarget* drop_target) = 0;
-        virtual void interceptDropTargets(bool intercept) = 0;
-    #endif
-    };
-
-    #ifdef DROPT_TARGET
-    BOOL CALLBACK OverwriteDropTarget(HWND hwnd, LPARAM lParam){        
-            IDropTarget *ie_drop_target =
-                static_cast<IDropTarget*>(GetProp(hwnd, L"OleDropTargetInterface"));
-            if (ie_drop_target && lParam){
-                IJAxCtrl* jax = (IJAxCtrl*)lParam;
-                jax->addDropTarget(hwnd, ie_drop_target);
-            }
-            return true;
-        }
-
-        typedef tList<cDropTarget*>::Iter Drop_Target_IT; 
-
-    #endif
+	BOOL CALLBACK FindIEServerWindow(HWND hwnd, LPARAM lParam);
 
     typedef BOOL (STDMETHODCALLTYPE* bfpointerdw)(ULONG_PTR);
 
+	HWND		def_hwnd;
+	WNDPROC		def_proc;
+	LONG		def_usrdata;
+
     class CJAxCtrl : public IJAxCtrl
     {
+		struct Notifier {
+			Notifier(CJAxCtrl* owner=0)
+				: m_owner(owner)
+			{
 
+			}
 
+			void hookIn(HWND wnd) 
+			{
+				def_hwnd = wnd;
+				def_proc = (WNDPROC) GetWindowLong(wnd,GWL_WNDPROC); 
+				def_usrdata = GetWindowLong(wnd,GWL_USERDATA);
+
+				//SetWindowLong(wnd,GWL_USERDATA,(LONG) this); 
+				SetWindowLong(wnd,GWL_WNDPROC,(LONG) &wndProc); 
+			}
+
+			static LRESULT CALLBACK wndProc(HWND hwnd, UINT message, 
+				WPARAM wparam, LPARAM lparam)
+			{
+				if (message == WM_MBUTTONDOWN)
+				{
+					int a =3;
+					a++;
+				}
+				//Notifier* pthis = (Notifier*)GetWindowLong(hwnd,GWL_USERDATA); 
+				//SetWindowLong(hwnd,GWL_USERDATA,(LONG) def_usrdata); 
+				LRESULT ret = ((WNDPROC) def_proc)(hwnd, message, wparam, lparam);
+				//SetWindowLong(hwnd,GWL_USERDATA,(LONG) pthis); 
+				return ret;
+			}
+
+			CJAxCtrl*		m_owner;												
+					
+		};
+		
+/****************************/
+/* CJAxCtrl sink class:		*/
+/****************************/
+
+		struct CDucumentSink : HTMLDocumentEvents 
+		{
+			CDucumentSink(CJAxCtrl* pthis=0)
+				:   p_this(pthis)
+			{}
+
+			virtual ~CDucumentSink(){}
+
+			mscom_begin_debug(CDucumentSink)
+				mscom_add_dinterface(HTMLDocumentEvents)
+				mscom_add_interface(IDispatch)
+			mscom_end();   
+
+			ULONG STDMETHODCALLTYPE AddRef() 
+			{
+				return atomicInc(_m_com.ref_count);
+			} 
+			ULONG STDMETHODCALLTYPE Release() 
+			{              
+				int ret = atomicDec(_m_com.ref_count);
+				if( ret == 0)
+				{ 
+					this->~CDucumentSink(); 
+					g_sys->free(this); 
+				} 
+				return (ULONG)ret;
+			} 	
+
+			CJAxCtrl*  p_this;
+
+			// IDispatch methods
+			STDMETHODIMP GetTypeInfoCount(UINT *pctinfo){return E_NOTIMPL;}
+			STDMETHODIMP GetTypeInfo(UINT iTInfo,LCID lcid,
+				ITypeInfo **ppTInfo){return E_NOTIMPL;}
+			STDMETHODIMP GetIDsOfNames(REFIID riid,LPOLESTR *rgszNames,
+				UINT cNames,LCID lcid,DISPID *rgDispId)	{return E_NOTIMPL;}
+			STDMETHODIMP Invoke(DISPID dispIdMember,REFIID riid,LCID lcid,
+				WORD wFlags,DISPPARAMS *pDispParams,VARIANT *pVarResult,
+				EXCEPINFO *pExcepInfo,UINT *puArgErr)
+			{
+				Delegate dg;
+				switch(dispIdMember) {
+					case DISPID_HTMLDOCUMENTEVENTS_ONDBLCLICK:						
+						dg = p_this->m_host->ondblclick();
+						break;
+		
+					case DISPID_HTMLDOCUMENTEVENTS_ONCLICK:
+						dg = p_this->m_host->onclick();
+						break;
+				
+					case DISPID_HTMLDOCUMENTEVENTS_ONMOUSEDOWN:
+						dg = p_this->m_host->onmousedown();
+						break;
+
+					case DISPID_HTMLDOCUMENTEVENTS_ONMOUSEUP:
+						dg = p_this->m_host->onmouseup();
+						break;
+
+					case DISPID_HTMLDOCUMENTEVENTS_ONMOUSEMOVE:
+						dg = p_this->m_host->onmousemove();
+						break;
+
+					case DISPID_HTMLDOCUMENTEVENTS_ONMOUSEWHEEL:
+						dg = p_this->m_host->onmousewheel();
+						break;
+
+					case DISPID_HTMLDOCUMENTEVENTS_ONKEYUP:
+						dg = p_this->m_host->onkeyup();
+						break;
+
+					case DISPID_HTMLDOCUMENTEVENTS_ONKEYDOWN:
+						dg = p_this->m_host->onkeydown();
+						break;						
+
+					case DISPID_HTMLDOCUMENTEVENTS_ONKEYPRESS: 
+						dg = p_this->m_host->onkeypress();
+						break;
+				
+				}
+
+				if (dg.valid())
+					dg(generateEventObjec());
+
+				return S_OK;
+			}
+
+			siScr generateEventObjec() 
+			{
+				cScr* scr = o3_new(cScr)();
+				siScr ret = scr;
+				siCtx ctx(p_this->m_ctx);					
+				SIHTMLEventObj eventObj1;
+				long x(0),y(0),cx(0),cy(0),sx(0),sy(0);
+				long keycode;
+				VARIANT_BOOL shift,ctr,alt;
+				SIDispatch ddoc;
+				p_this->m_webbrowser->get_Document(&ddoc);
+				SIHTMLDocument2 doc = ddoc;	
+				SIHTMLWindow2 wnd;
+				SIHTMLElement src;
+				SIDispatchEx src2;
+				if (doc) {
+					doc->get_parentWindow(&wnd);
+					if (wnd) {
+						// create event object
+						wnd->get_event(&eventObj1);
+						if (eventObj1) {
+							eventObj1->get_clientX(&cx);
+							eventObj1->get_clientY(&cy);							
+							eventObj1->get_screenX(&sx);
+							eventObj1->get_screenY(&sy);							
+							eventObj1->get_x(&x);
+							eventObj1->get_y(&y);							
+							eventObj1->get_keyCode(&keycode);
+							eventObj1->get_shiftKey(&shift);
+							eventObj1->get_ctrlKey(&ctr);
+							eventObj1->get_altKey(&alt);							
+							eventObj1->get_srcElement(&src);
+							src2 = src;
+							siScr bridge = src2 ? o3_new(cScrBridge)(ctx,src2) : siScr();
+							scr->setProperty(ctx, "clientX", (int32_t) cx);
+							scr->setProperty(ctx, "clientY", (int32_t) cy);							
+							scr->setProperty(ctx, "screenX", (int32_t) sx);
+							scr->setProperty(ctx, "screenY", (int32_t) sy);							
+							scr->setProperty(ctx, "x", (int32_t) x);
+							scr->setProperty(ctx, "y", (int32_t) y);
+							scr->setProperty(ctx, "keyCode", (int32_t) keycode);
+							scr->setProperty(ctx, "shiftKey", shift!=0);
+							scr->setProperty(ctx, "ctrKey", ctr!=0);
+							scr->setProperty(ctx, "altKey", alt!=0);
+							scr->setProperty(ctx, "srcElement", bridge);
+						}
+					}
+				}
+				return ret;
+			}
+		};
+/****************************/
+/* CJAxCtrl implementation:	*/
+/****************************/
     public:
-
-        CJAxCtrl() {                        
-            m_ctx = o3_new(cCtx1)();
+		CJAxCtrl() 
+			: m_notifier(this) 
+		{                      
+			m_host = o3_new(cHost)(this);            
+			m_ctx = o3_new(cCtx1)(m_host);			
 			siScr root = o3_new(cO3)(m_ctx, 0,0,0);          
             //m_mgr->addExtTraits(cFs1::extTraits());
             //m_mgr->addExtTraits(cBlob1::extTraits());
             //m_mgr->addExtTraits(cRsc1::extTraits());
 
             m_bridge = o3_new(CDispBridge)(siCtx1(m_ctx),root) ;
-
-    #ifdef DROP_TARGET
-            m_connection_point = 0;
-            m_advise_cookie = 0;
-    #endif
-
 			m_proto_factory = o3_new(ProtocolIE)(m_ctx);
 			ProtocolIE::registerProtocol(m_proto_factory.ptr());
+			m_doc_sink = o3_new(CDucumentSink)(this);
         }
         
-        virtual ~CJAxCtrl(){          
+        virtual ~CJAxCtrl()
+		{          
 			if (m_proto_factory) {
 				ProtocolIE::unregisterProtocol(m_proto_factory.ptr());
 				m_proto_factory = 0;
 			}
 
+			if (m_doc_sink_connection) {
+				m_doc_sink_connection->Unadvise(m_doc_sink_cookie);
+				m_doc_sink_connection = 0;
+			}
+
 			if(m_bridge) {
-                m_bridge = 0;
-                if (m_ctx)
-                    siCtx1(m_ctx)->tear();
+				if (m_ctx)
+					siCtx1(m_ctx)->tear();
+				
+				m_bridge = 0;                
                 m_ctx = 0;
             }
         }
@@ -203,34 +484,40 @@ namespace o3 {
         } 	
 
         siCtx                       m_ctx;
+		siHost						m_host;
         SIDispBridge                m_bridge;
         HiddenWindow                m_hidden_window;
 		SIProtocolIE				m_proto_factory;
+		SIWebBrowser2				m_webbrowser;
 
-    #ifdef DROP_TARGET
-        tList<cDropTarget*> m_ie_drop_targets;    
-        cIEEventH*          m_ie_event_h;
-        bool                m_intercept_mode;
-        unsigned long       m_advise_cookie;
-        IConnectionPoint*   m_connection_point;    
+		SHTMLDocumentEvents			m_doc_sink;
+		unsigned long				m_doc_sink_cookie;
+		SIConnectionPoint			m_doc_sink_connection;
+
+		Notifier					m_notifier;
 
 
-        void addDropTarget(HWND hwnd, IDropTarget* drop_target){
-            cDropTarget* pdroptrg = ::new(sys_alloc(sizeof(cDropTarget))) cDropTarget(hwnd, drop_target) ;
-            pdroptrg->AddRef();
-            m_ie_drop_targets.pushBack( pdroptrg );
-        }
+		void attachDOMListener()
+		{
+			if (!m_webbrowser || m_doc_sink_connection)
+				return;
 
-        void interceptDropTargets(bool mode){
-            if (mode == m_intercept_mode) return;
-            
-            m_intercept_mode = mode;
-            Drop_Target_IT it = m_ie_drop_targets.begin();
-            for (;it !=  m_ie_drop_targets.end(); it++){
-                (*it)->intercept(mode);
-            }        
-        }
-    #endif
+			SIDispatch doc;
+			m_webbrowser->get_Document(&doc);
+			SIConnectionPointContainer cpc = doc;
+			if (doc && cpc) 
+			{
+				HRESULT hret = cpc->FindConnectionPoint(
+					DIID_HTMLDocumentEvents,&m_doc_sink_connection);
+
+				if (hret == S_OK && m_doc_sink_connection) 
+				{
+					// advise the connection point of our event sink
+					hret = m_doc_sink_connection->Advise(
+						(IUnknown *) m_doc_sink,&m_doc_sink_cookie);                
+				}							
+			}
+		}
 
         // IDispatch
         HRESULT STDMETHODCALLTYPE CJAxCtrl::GetTypeInfoCount(unsigned int FAR*  pctinfo){
@@ -312,122 +599,59 @@ namespace o3 {
             if (!pClientSite) 
                 return (S_OK);
 
-            HRESULT hret(0);           
-            IWebBrowser2 *webbrowser(0);
+            HRESULT hret(0);                       
             IServiceProvider *srvprov = 0, *srvprov2 = 0;
+			IConnectionPointContainer*  pConnectionPointContainer = 0;
             
-            hret = pClientSite->QueryInterface(IID_IServiceProvider , (void**)(&srvprov));
+            hret = pClientSite->QueryInterface(IID_IServiceProvider,
+				(void**)(&srvprov));
 
             if (hret == S_OK && srvprov){
-                hret = srvprov->QueryService(SID_STopLevelBrowser, IID_IServiceProvider, (void **)(&srvprov2));
+                hret = srvprov->QueryService(SID_STopLevelBrowser,
+					IID_IServiceProvider, (void **)(&srvprov2));
             }
 
             if (hret == S_OK && srvprov2){
-                hret = srvprov2->QueryService(SID_SWebBrowserApp, IID_IWebBrowser2, (void **)(&webbrowser));
+                hret = srvprov2->QueryService(SID_SWebBrowserApp, 
+					IID_IWebBrowser2, (void **)(&m_webbrowser));
             }
+			
 
-            BSTR url;
-            webbrowser->get_LocationURL(&url);
-            Str url2 = Str(WStr(url));
-			m_ctx->mgr()->setCurrentUrl(url2);
-			SysFreeString(url);
+			if (m_webbrowser) {
+				BSTR url;
+				m_webbrowser->get_LocationURL(&url);
+				Str url2 = Str(WStr(url));
+				m_ctx->mgr()->setCurrentUrl(url2);
+				SysFreeString(url);
 
-			HWND hwnd;
-			if (S_OK == webbrowser->get_HWND((SHANDLE_PTR*)&hwnd))
-				siCtx1(m_ctx)->setAppWindow(hwnd);
+				// getting a handle to the window that is responsible for showing
+				// the current site, the coordinates of that window are needed
+				HWND hwnd;
+				if (S_OK == m_webbrowser->get_HWND((SHANDLE_PTR*)&hwnd)) {
+					EnumChildWindows(hwnd, FindIEServerWindow, (LPARAM)this );				
+				}
+				
+				m_notifier.hookIn((HWND) siCtx(m_ctx)->appWindow());
+			}
 
+			if (pConnectionPointContainer) srvprov->Release();
             if (srvprov) srvprov->Release();
             if (srvprov2) srvprov2->Release();        
-            if (webbrowser) webbrowser->Release();
-
-
-    #ifdef DROP_TARGET   
-            IOleInPlaceSite* pInPlaceSite;
-            if (! pClientSite) return S_FALSE;
-
-            pClientSite->QueryInterface(__uuidof(IOleInPlaceSite), (void **)&pInPlaceSite);
-            
-            if ( ! pInPlaceSite){
-                return(S_FALSE); 
-            }
-            
-            HWND hwnd;
-            if (S_OK != pInPlaceSite->GetWindow(&hwnd))
-                return(S_FALSE);
-
-         
-            pInPlaceSite->Release();
-
-            wchar_t buf[1024];
-            while (GetClassNameW(hwnd,buf,1024) && !strEquals(buf,L"IEFrame"))    hwnd = GetParent(hwnd);
-            m_intercept_mode = true;
-            //overwriting the drop target of the IE frame window
-            OverwriteDropTarget(hwnd, (LPARAM)this);            
-            
-            //and the drop targets of its child windows
-            EnumChildWindows(hwnd, OverwriteDropTarget, (LPARAM)this );
-
-            //and now setting up a listener for getting events each time when our tab in ie become active/inactive
-            HRESULT                     hret(0);
-            IConnectionPointContainer*  pConnectionPointContainer = 0;
-            
-            //IOleControlSite*            ctrsite;
-            IWebBrowser2*                webbrowser(0);
-            IServiceProvider*            srvprov = 0, *srvprov2 = 0;
-
-            m_ie_event_h = (cIEEventH*) com_new(cIEEventH)(this);
-            m_ie_event_h->AddRef();
-            
-            hret = pClientSite->QueryInterface(IID_IServiceProvider , (void**)(&srvprov));
-
-            if (hret == S_OK && srvprov){
-                hret = srvprov->QueryService(SID_STopLevelBrowser, IID_IServiceProvider, (void **)(&srvprov2));
-            }
-
-            if (hret == S_OK && srvprov2){
-                hret = srvprov2->QueryService(SID_SWebBrowserApp, IID_IWebBrowser2, (void **)(&webbrowser));
-            }
-
-            if (hret == S_OK && webbrowser){
-                hret = webbrowser->QueryInterface(IID_IConnectionPointContainer, (void**)(&pConnectionPointContainer));
-            }
-
-            if (hret == S_OK && pConnectionPointContainer) {
-                // Get the appropriate connection point
-                hret = pConnectionPointContainer->FindConnectionPoint(DIID_DWebBrowserEvents2, &m_connection_point);
-
-                if (hret == S_OK && m_connection_point) {
-                    // Advise the connection point of our event sink
-                    hret = m_connection_point->Advise((IUnknown *) m_ie_event_h, &m_advise_cookie);                
-                }
-
-            }
-
-            if (srvprov) srvprov->Release();
-            if (srvprov2) srvprov2->Release();        
-            if (pConnectionPointContainer) pConnectionPointContainer->Release();
-            if (webbrowser) webbrowser->Release();
-    #endif        
             return(S_OK);
         }
+
+
+
 
         HRESULT STDMETHODCALLTYPE CJAxCtrl::GetClientSite(IOleClientSite **ppClientSite){ return(E_NOTIMPL); }
         HRESULT STDMETHODCALLTYPE CJAxCtrl::SetHostNames(LPCOLESTR szContainerApp,LPCOLESTR szContainerObj){ return(E_NOTIMPL); }
 
         HRESULT STDMETHODCALLTYPE CJAxCtrl::Close(DWORD dwSaveOption){
-    #ifdef DROP_TARGET
-            while (!m_ie_drop_targets.empty()){
-                cDropTarget* dtrg = m_ie_drop_targets.front();
-                m_ie_drop_targets.popFront();
-                dtrg->intercept(false);
-                dtrg->Release();
-            }
-            if (m_ie_event_h) m_ie_event_h->Release();
-            if (m_connection_point) {
-                if (m_advise_cookie) m_connection_point->Unadvise(m_advise_cookie);
-                m_connection_point->Release();
-            }
-    #endif
+			if (m_doc_sink_connection) {
+				m_doc_sink_connection->Unadvise(m_doc_sink_cookie);
+				m_doc_sink_connection = 0;
+			}
+			
 			if (m_proto_factory) {
 				ProtocolIE::unregisterProtocol(m_proto_factory.ptr());
 				m_proto_factory = 0;
@@ -541,8 +765,28 @@ namespace o3 {
         HRESULT STDMETHODCALLTYPE CJAxCtrl::Save(IPropertyBag *pPropBag,BOOL fClearDirty,BOOL fSaveAllProperties){ return(E_NOTIMPL); }
 
     };
-   
+
+	BOOL CALLBACK FindIEServerWindow(HWND hwnd, LPARAM lParam) 
+	{
+		CJAxCtrl* pthis = (CJAxCtrl*)lParam;
+		WStr clsName; clsName.reserve(256);
+		int s = GetClassNameW(hwnd, clsName.ptr(), 256);
+		clsName.resize( size_t (s>0 ? s : 0));
+		if (strEquals(L"Internet Explorer_Server",clsName.ptr())) 
+		{
+			siCtx ctx(pthis->m_ctx);
+			ctx->setAppWindow(hwnd);
+			return FALSE;
+		}
+		return TRUE;
+	}
+
+
     wchar_t tmpModuleFile [MAX_PATH];
+
+/****************************/
+/* COM class factory:		*/
+/****************************/
 
     class CJAxCtrlClassFactory : public IClassFactory
     {
@@ -605,7 +849,9 @@ namespace o3 {
     };
 }
 
-//************************ Dll Functions ***********************
+/****************************/
+/* Dll functions:			*/
+/****************************/
 
 STDAPI DllCanUnloadNow(void) {
     using namespace o3;
@@ -795,8 +1041,10 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD fdwReason, LPVOID lpvReserved) {
     using namespace o3;
     switch (fdwReason) {
         case DLL_PROCESS_ATTACH:
-        {            
-            if (!g_sys) 
+        {   
+			WSADATA wsd;
+			WSAStartup(MAKEWORD(2,2), &wsd);
+			if (!g_sys) 
             {
                 g_sys = //::new( HeapAlloc(GetProcessHeap(), 0, sizeof(cSys)) ) cSys;
                         new cSys();
@@ -806,7 +1054,8 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD fdwReason, LPVOID lpvReserved) {
         } break;
 
         case DLL_PROCESS_DETACH:
-        {            
+        {   
+			WSACleanup();
             if (g_win32_outstanding_objects==0 && g_outerComponents==0 && g_sys) 
             {
                 g_sys->release();

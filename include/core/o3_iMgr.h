@@ -53,6 +53,8 @@ struct iMgr : iUnk {
 
     virtual Str root() = 0;
 
+	virtual siHost host() = 0;
+	
 	virtual void addFactory(const Str& name, factory_t factory) = 0;
 
 	virtual factory_t factory(const Str& name) = 0;

@@ -22,7 +22,6 @@
 #include <mshtmhst.h>	// IDocHostUIHandler
 
 #include "shared/o3_CDropTarget.h"
-
 namespace o3{
     volatile int32_t g_outerComponents = 0;
 
@@ -173,7 +172,6 @@ namespace o3 {
                 EXCEPINFO *pExcepInfo,UINT *puArgErr)
             {
                 // here we can receive the events and play with them
-
                 if (dispIdMember==DISPID_NEWWINDOW2) 
                 {
                     // 2 incomming args in reversed order
@@ -297,7 +295,7 @@ namespace o3 {
                                 |WS_MAXIMIZEBOX,
 							    0, 0, 640, 480,
 							    HWND_DESKTOP, NULL, GetModuleHandle(NULL), (LPVOID)m_wnd_proc.ptr());
-            siCtx1(m_ctx)->setAppWindow(m_hwnd);
+            siCtx(m_ctx)->setAppWindow(m_hwnd);
             return m_hwnd ? true : false;
         }
 

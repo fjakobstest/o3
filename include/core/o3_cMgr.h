@@ -68,6 +68,7 @@ struct cMgr : cUnk, iMgr {
     siThreadPool m_pool;
     Str m_root;
 	Str m_current_url;
+	siHost m_host;
 	siMutex m_mutex;
 
 #ifdef O3_WIN32
@@ -76,8 +77,9 @@ struct cMgr : cUnk, iMgr {
     #define O3_FS_ROOT "/"
 #endif
 
-    cMgr(const char* root = O3_FS_ROOT)
-    {
+    cMgr(const char* root = O3_FS_ROOT, iHost* host = 0)
+		: m_host(host)
+	{
         o3_trace2 trace;
 
         m_pool = g_sys->createThreadPool();
@@ -154,6 +156,11 @@ struct cMgr : cUnk, iMgr {
             traits.push(Trait::end());
         }
     }
+
+	siHost host()
+	{
+		return m_host;
+	}
 
 	void addFactory(const Str& name, factory_t factory) 
 	{

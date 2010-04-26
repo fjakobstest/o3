@@ -54,10 +54,6 @@ struct iCtx1 : iUnk {
     virtual ComTrack** track() = 0;
 
     virtual void tear() = 0;
-
-    virtual void setAppWindow(void*) = 0;
-    
-    virtual void* appWindow() = 0;
 };
 
 struct ScrInfo {
@@ -111,8 +107,6 @@ static const char* ex_file_not_found = "File not found";
 #define o3_set_ex(msg) \
     if (ex) \
         *ex = o3_new(cEx)(msg);
-
-
 }
 
 #endif

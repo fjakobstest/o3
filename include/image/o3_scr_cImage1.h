@@ -120,12 +120,12 @@ siEx cImage1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
          case 8:
             if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( src )");
-            *rval = pthis1->src(argv[0].toStr());
+            *rval = siFs(pthis1->src(siFs (argv[0].toScr()),&ex));
             break;
          case 9:
             if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( savePng )");
-            *rval = pthis1->savePng(argv[0].toStr(),&ex);
+            *rval = pthis1->savePng(siFs (argv[0].toScr()),&ex);
             break;
          case 10:
             if (argc != 5)

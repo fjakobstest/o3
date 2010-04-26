@@ -22,10 +22,9 @@
 
 #define o3_fun
 #define o3_get
-#define o3_get_imm(T)
 #define o3_set
-#define o3_set_imm(T)
-#define o3_imm(T)
+#define o3_prop
+#define o3_name(T)
 #define o3_ext(T)
 #define o3_tgt
 #define o3_enum(...)
@@ -156,7 +155,6 @@ struct cScr : cUnk, iScr {
         o3_trace2 trace;
         tMap<Str, int>::ConstIter iter;
         int base;	
-
         iter = m_indices.find(name);
         if (iter != m_indices.end())
             return iter->val;
@@ -299,6 +297,25 @@ struct cScr : cUnk, iScr {
     }
 
     siScr createFun(iScr* scr, Trait::invoke_t invoke, int index);
+
+	void setProperty(iCtx* ctx, const Str& name, const Var& value)
+	{
+		Var ret;
+		int i = resolve(ctx,name,true);
+		invoke(ctx, ACCESS_SET, i, 1,&value,&ret);
+	}
+
+	Var property(iCtx* ctx, const Str& name)
+	{
+		int i = resolve(ctx,name,false);
+		Var ret;
+		if (i<0)
+			return Var();
+
+		invoke(ctx, ACCESS_GET, i, 0,0,&ret);
+		return ret;
+	}
+
 };
 
 o3_iid(iScrFun, 0x9ff368d, 0x29f, 0x426b, 0x9d, 

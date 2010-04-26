@@ -18,6 +18,7 @@
 #ifndef O3_TOOLS_ATOMIC_WIN32_H
 #define O3_TOOLS_ATOMIC_WIN32_H
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 namespace o3 {

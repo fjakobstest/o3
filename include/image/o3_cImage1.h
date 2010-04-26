@@ -62,6 +62,43 @@ namespace o3
 		return dx * dx + dy * dy;
 	}
 
+	// custom io functions for the png lib:	
+	void o3_read_data(png::png_structp png_ptr,
+		png::png_bytep data, png::png_size_t length) 
+	{
+		siStream stream = (iStream*) png_ptr->io_ptr;
+		if ( !stream || length != 
+			stream->read((void*) data, (size_t) length )) 
+		{				
+			png::png_error(png_ptr, "PNG file read failed.");
+		}
+	}
+
+	void o3_write_data(png::png_structp png_ptr,
+		png::png_bytep data, png::png_size_t length)
+	{
+		siStream stream = (iStream*) png_ptr->io_ptr;
+		if ( !stream || length != 
+			stream->write((void*) data, (size_t) length )) 
+		{				
+			png::png_error(png_ptr, "PNG file write failed.");
+		}
+	}
+
+	void o3_flush_data(png::png_structp png_ptr)
+	{
+		siStream stream = (iStream*) png_ptr->io_ptr;
+		if ( !stream ) 
+		{				
+			png::png_error(png_ptr, "PNG file flush failed.");
+		} 
+		else
+		{
+			stream->flush();
+		}
+	}
+
+
 	struct cImage1_Gradient: cScr 
 	{
 		o3_begin_class(cScr)
@@ -390,23 +427,29 @@ namespace o3
 			return 0;
 		};
 
-		o3_set int src(const Str &file_name)
+		o3_set siFs src(iFs* file, siEx* ex=0)
 		{
-			using namespace png;
-			FILE* file = fopen(file_name, "rb");
+			using namespace png;			
 
 			// unable to open
-			if (file == 0) return -1;
+			if (!file || !file->exists()) 
+			{
+				cEx::fmt(ex,"Invalid file."); 
+				return file;
+			}
+
+			siStream stream = file->open("r", ex);
+			if (!stream)				
+				return file;
 
 			// create read struct
-
 			png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
 
 			// check pointer
 			if (png_ptr == 0)
 			{
-				fclose(file);
-				return -1;
+				cEx::fmt(ex,"Creating PNG read struct failed."); 
+				return file;
 			}
 
 			// create info struct
@@ -416,27 +459,25 @@ namespace o3
 			if (info_ptr == 0)
 			{
 				png_destroy_read_struct(&png_ptr, 0, 0);
-				fclose(file);
-				return -1;
+				cEx::fmt(ex,"Creating PNG info struct failed."); 
+				return file;
 			}
 
 			// set error handling
 			if (setjmp(png_jmpbuf(png_ptr)))
 			{
 				png_destroy_read_struct(&png_ptr, &info_ptr, 0);
-				fclose(file);
-				return -1;
+				cEx::fmt(ex,"Setting up PNG error handling failed."); 				
+				return file;
 			}
 
-			// I/O initialization using standard C streams
-			png_init_io(png_ptr, file);
+			// I/O initialization using custom o3 methods
+			png_set_read_fn(png_ptr,(void*) stream.ptr(), (png_rw_ptr) &o3_read_data);
 			
 			// read entire image (high level)
 			png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_EXPAND, 0);
 
-			// convert the png bytes to BGRA
-			
-
+			// convert the png bytes to BGRA			
 			int W = png_get_image_width(png_ptr, info_ptr);
 			int H = png_get_image_height(png_ptr, info_ptr);
 
@@ -484,34 +525,36 @@ namespace o3
 
 				default:
 					png_destroy_read_struct(&png_ptr, &info_ptr, 0);
-					fclose(file);
-					return -1;
+					cEx::fmt(ex,"PNG unsupported color type.");
+					return file;
 			}
 
-			png_destroy_read_struct(&png_ptr, &info_ptr, 0);
-			fclose(file);
-			return 0;
-
+			png_destroy_read_struct(&png_ptr, &info_ptr, 0);			
+			return file;
 		};
 		
-		o3_fun int savePng(const Str &file_name, siEx* ex = 0)
+		o3_fun int savePng(iFs* file, siEx* ex = 0)
 		{
 			using namespace png;
-			/* create file */
+			png_structp png_ptr;
+			png_infop info_ptr;
+			
 			if (m_w==0 ||m_h == 0)
 			{
 				cEx::fmt(ex,"[write_png_file] image must have both width and height >0 before something can be written!");			
 				return 0;
 			}
 
-			png_structp png_ptr;
-			png_infop info_ptr;
-
-			FILE *fp = fopen(file_name, "wb");
-			if (!fp){
-				cEx::fmt(ex,"[write_png_file] File %s could not be opened for writing", file_name);			
+			/* create file */
+			if (!file) 
+			{
+				cEx::fmt(ex,"Invalid file."); 
 				return 0;
 			}
+
+			siStream stream = file->open("w", ex);
+			if (!stream)				
+				return 0;
 
 			/* initialize stuff */
 			png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -536,7 +579,8 @@ namespace o3
 				return 0;
 			}
 
-			png_init_io(png_ptr, fp);
+			png_set_write_fn(png_ptr,(void*) stream.ptr(), 
+				(png_rw_ptr) &o3_write_data, (png_flush_ptr) &o3_flush_data);
 
 
 			/* write header */
@@ -655,7 +699,6 @@ namespace o3
 
 			/* cleanup heap allocation */
 			
-			fclose(fp);
 			return 1;
 		};
 	

@@ -19,7 +19,6 @@
 #ifndef J_TOOLS_WIN32_H
 #define J_TOOLS_WIN32_H
 
-#include <windows.h>
 #include <wininet.h>
 #include <initguid.h>
 #include <ocidl.h>
@@ -149,6 +148,16 @@ struct iWindow : iUnk
     } \
     \
     typedef tMSComPtr<IFACE> S##IFACE;
+
+	#define mscom_ptr_d(IFACE) \
+	\
+	inline const IID& msiid(IFACE*) \
+	{ \
+	return DIID_##IFACE; \
+	} \
+	\
+	typedef tMSComPtr<IFACE> S##IFACE;
+
 
     template<typename T> struct tMSComPtr{
         tMSComPtr() : m_object(0) {}
@@ -661,11 +670,13 @@ struct iWindow : iUnk
 
     Str cwdPath()
     {
-        Str buffer(_MAX_PATH);
-
+        Str buffer;
+		buffer.reserve(MAX_PATH);
         /* Get the current working directory: */
-        if( _getcwd( buffer.ptr(), _MAX_PATH ) == NULL )
+        char* p = buffer.ptr();
+		if( _getcwd( p, _MAX_PATH ) == NULL )
             return Str();
+		buffer.resize(strLen(p));
 
         return buffer;
     }

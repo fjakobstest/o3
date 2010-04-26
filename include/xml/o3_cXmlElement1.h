@@ -128,11 +128,15 @@ namespace o3 {
             //registering namespaces
             xmlNs* ns = m_node->ns;
             while (ns) {
-                    if (xmlXPathRegisterNs(xpathCtx, m_node->ns->prefix, m_node->ns->href) != 0) {
-                        o3_assert(false);
-                    }
-                    ns = ns->next;
+				if (xmlXPathRegisterNs(xpathCtx, 
+					m_node->ns->prefix ? m_node->ns->prefix : (const xmlChar*) "", 
+					m_node->ns->href) != 0)
+				{
+					o3_assert(false);
                 }
+				
+				ns = ns->next;
+            }
             //do the xpath eval
             xpathObj = xmlXPathEval(BAD_CAST expr, xpathCtx);
             if(!xpathObj) {

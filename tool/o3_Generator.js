@@ -215,7 +215,7 @@ this.Generator = {
     genBlockForTrait : function(trait,t,ws,check) {        
         function genImmCall(trait) {
             if (trait.type == 'get')
-                return {call:trait.member};
+                return {call: 'pthis1->' + trait.member};
             
             return genArgsForCall({args: [{type:trait.ret}]});     
         };

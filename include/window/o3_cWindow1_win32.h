@@ -33,8 +33,8 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         : m_hwnd(0), m_icon_s(NULL), m_icon_l(NULL), m_color(0), m_done(false)
     {}
 
-    cWindow1(HWND hwnd, bool chained = false)
-        : m_hwnd(hwnd), m_icon_s(NULL), m_icon_l(NULL), m_done(false), m_color(0), m_text_color(-1)
+    cWindow1(HWND hwnd, bool chained = false, bool owner = true)
+        : m_hwnd(hwnd), m_icon_s(NULL), m_icon_l(NULL), m_done(false), m_color(0), m_text_color(-1),m_owner(owner)
     {
         if (chained)
         {
@@ -67,7 +67,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
             m_icon_l = NULL;
         }    
 
-        if (m_hwnd) {
+        if (m_hwnd && m_owner) {
             DestroyWindow(m_hwnd);
             m_hwnd = 0;
         }
@@ -80,7 +80,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
 
     o3_glue_gen()
 
-    siWindowProc           m_prev_proc;
+    siWindowProc        m_prev_proc;
     HICON               m_icon_s;
     HICON               m_icon_l;
     HWND                m_hwnd;
@@ -90,6 +90,7 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
     int                 m_color;
 	int                 m_text_color;
     bool                m_done;
+	bool				m_owner;
 
 	o3_enum("FontStyles", BOLD=1, ITALIC=2, UNDERLINE=4, STRIKEOUT=8);
 
@@ -100,11 +101,11 @@ struct cWindow1 : cWindow1Base, iWindow, iWindowProc
         if (ret)
             return ret;
 
-        HWND hwnd = (HWND) siCtx1(ctx)->appWindow();
+        HWND hwnd = (HWND) siCtx(ctx)->appWindow();
         if (!hwnd)
             return ret;
 
-        ret = o3_new(cWindow1)(hwnd);
+        ret = o3_new(cWindow1)(hwnd,false,false);
         v = ret;
         ctx->setValue("appWindow", v);
         return ret;

@@ -64,7 +64,7 @@ function RunTypeTests()
 			o3.print("mode: " + x.mode + "\n");
 			
 			o3.print("writing to disk..\n");
-			x.savePng(test+"-test-" + bmpt + ".png");
+			x.savePng(o3.cwd.get("test.png"));
 			o3.print("writing done..\n");
 			
 			o3.print("\n");
@@ -297,7 +297,7 @@ if (1)
 	var img4 = o3.image(150,150, "argb");
 	img4.clear(0xff808080);
 	drawstars(img4);
-	img4.savePng("clippedstars.png");
+	img4.savePng(o3.cwd.get("clippedstars.png"));
 };
 
 if (1)
@@ -305,7 +305,7 @@ if (1)
 	var img = o3.image(300,300, "argb");
 	img.clear(0xffffffff);
 	drawtocontext(img);
-	img.savePng("canvastest.png");
+	img.savePng(o3.cwd.get("canvastest.png"));
 }
 
 if (1)
@@ -313,7 +313,7 @@ if (1)
 	var img3 = o3.image(150,150, "argb");
 	img3.clear(0xffffe0f0);
 	drawcol(img3);
-	img3.savePng("colortest.png");
+	img3.savePng(o3.cwd.get("colortest.png"));
 }
 
 if (1)
@@ -321,7 +321,7 @@ if (1)
 	var img2 = o3.image(150,150, "argb");
 	img2.clear(0xffffffff);
 	drawpac(img2);
-	img2.savePng("pactest.png");
+	img2.savePng(o3.cwd.get("pactest.png"));
 }
 
 if (1)
@@ -342,7 +342,7 @@ if (1)
 		img4.lineTo(i,150);
 	};
 	img4.stroke();
-	img4.savePng("aa-test1.png");
+	img4.savePng(o3.cwd.get("aa-test1.png"));
 
 	var img4 = o3.image(150,150, "argb");
 	img4.clear(0xffffffff);
@@ -354,7 +354,7 @@ if (1)
 		img4.lineTo(i,150);
 	};
 	img4.stroke();
-	img4.savePng("aa-test2.png");
+	img4.savePng(o3.cwd.get("aa-test2.png"));
 
 };
 

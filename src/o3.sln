@@ -25,6 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{475BCB3E-D
 		..\include\core\o3_iBuf.h = ..\include\core\o3_iBuf.h
 		..\include\core\o3_iCtx.h = ..\include\core\o3_iCtx.h
 		..\include\core\o3_iFs.h = ..\include\core\o3_iFs.h
+		..\include\core\o3_iHost.h = ..\include\core\o3_iHost.h
 		..\include\core\o3_iHttp.h = ..\include\core\o3_iHttp.h
 		..\include\core\o3_iImage.h = ..\include\core\o3_iImage.h
 		..\include\core\o3_iMgr.h = ..\include\core\o3_iMgr.h
@@ -124,6 +125,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{B1323F70-C4B5-4008-8589-71D5EBFC244D}"
 	ProjectSection(SolutionItems) = preProject
 		..\include\shared\o3_cdroptarget.h = ..\include\shared\o3_cdroptarget.h
+		..\include\shared\o3_CSink.h = ..\include\shared\o3_CSink.h
 		..\include\shared\o3_glue.h = ..\include\shared\o3_glue.h
 		..\include\shared\o3_glue_idispatch.h = ..\include\shared\o3_glue_idispatch.h
 		..\include\shared\o3_scr_glue.h = ..\include\shared\o3_scr_glue.h
@@ -159,6 +161,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "zip", "zip", "{6F09CF9A-A76
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scan", "scan\scan.vcproj", "{7849AC40-3FFD-4427-9268-86457D275609}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "socket", "socket", "{50C011B8-A82D-4BFC-840D-47183A80E9D8}"
+	ProjectSection(SolutionItems) = preProject
+		..\include\socket\o3_cSocket1.h = ..\include\socket\o3_cSocket1.h
+		..\include\socket\o3_cSocket1_posix.h = ..\include\socket\o3_cSocket1_posix.h
+		..\include\socket\o3_cSocket1_win32.h = ..\include\socket\o3_cSocket1_win32.h
+		..\include\socket\o3_cSocket1Base.h = ..\include\socket\o3_cSocket1Base.h
+		..\include\socket\o3_scr_cSocket1_posix.h = ..\include\socket\o3_scr_cSocket1_posix.h
+		..\include\socket\o3_scr_cSocket1_win32.h = ..\include\socket\o3_scr_cSocket1_win32.h
+		..\include\socket\o3_scr_cSocket1Base.h = ..\include\socket\o3_scr_cSocket1Base.h
+		..\include\socket\o3_socket.h = ..\include\socket\o3_socket.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dom", "dom", "{88A9BC2F-8ADD-456C-BE0C-CEDB28C8B367}"
+	ProjectSection(SolutionItems) = preProject
+		..\include\dom\o3_cDOM1.h = ..\include\dom\o3_cDOM1.h
+		..\include\dom\o3_dom.h = ..\include\dom\o3_dom.h
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -266,5 +286,7 @@ Global
 		{28B2F03A-5DE2-492C-95A8-E2AE60088A89} = {E190BAD3-A698-45AF-9B6C-95E03D776584}
 		{6F09CF9A-A76C-46E5-8E9F-27D87E8D21E3} = {E190BAD3-A698-45AF-9B6C-95E03D776584}
 		{7849AC40-3FFD-4427-9268-86457D275609} = {E190BAD3-A698-45AF-9B6C-95E03D776584}
+		{50C011B8-A82D-4BFC-840D-47183A80E9D8} = {E190BAD3-A698-45AF-9B6C-95E03D776584}
+		{88A9BC2F-8ADD-456C-BE0C-CEDB28C8B367} = {E190BAD3-A698-45AF-9B6C-95E03D776584}
 	EndGlobalSection
 EndGlobal

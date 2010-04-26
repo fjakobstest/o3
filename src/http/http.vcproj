@@ -61,6 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="libcurld.lib wldap32.lib ws2_32.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../external/lib/win32"
 				GenerateDebugInformation="true"

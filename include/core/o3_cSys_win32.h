@@ -330,14 +330,27 @@ namespace o3 {
                 {
                 }
 
-                EventObject(iHandle* h, Delegate d)
+                EventObject(iHandle* h, Delegate d, bool m)
                     : handle(h)
                     , delegate(d)
+					, manual(m)
                 {
                 
                 }
+
+				EventObject& operator=(const EventObject& that)
+				{
+					if (this != &that) {
+						handle = that.handle;
+						delegate = that.delegate;
+						manual = that.manual;
+					}
+					return *this;
+				}
+
                 siHandle handle;
                 Delegate delegate;
+				bool manual;
             };
 
             siWeak                      m_msgloop;
@@ -349,14 +362,14 @@ namespace o3 {
             size_t                      m_nhandles;
             HANDLE                      m_handles[64];
 
-            siListener createListener(iHandle* ihandle, Delegate fun) 
+            siListener createListener(iHandle* ihandle, Delegate fun, bool manual=false) 
             {
                 if (!ihandle)
                     return siListener();
 
                 {
                     Lock lock(m_mutex);
-                    m_event_objs[ihandle->handle()] = EventObject(ihandle,fun);
+                    m_event_objs[ihandle->handle()] = EventObject(ihandle,fun,manual);
                     m_reset = true;
                 }
                 m_event->signal();
@@ -437,6 +450,7 @@ namespace o3 {
                 bool ret(false);                
                 siMessageLoop loop(m_msgloop);
                 tMap<HANDLE,EventObject>::Iter it;
+				EventObject copy;
 
                 while (index > 0 && index < m_nhandles) {                    
                     bool removed(false);
@@ -446,13 +460,18 @@ namespace o3 {
                         it = m_event_objs.find(m_handles[index]);
                         if (it == m_event_objs.end())
                             removed = true;
+						else
+							copy = (*it).val;
                     }
 
                     if (!removed) {
                         // do the call
-                        loop->post((*it).val.delegate, 0);
+                        loop->post(copy.delegate, 0);
                         ret = true;    
-                    }
+						// reset if its is a manual reset event handle like socket events
+						if (copy.manual)
+							ResetEvent(copy.handle);
+					}
                     // if no more handles break
                     if (index == m_nhandles-1)
                         break;
@@ -497,9 +516,11 @@ namespace o3 {
         cEventHandler        m_event_handler;   
         tList<Message*>      m_queue;
 
-        siListener createListener(void* handle, unsigned, const Delegate& fun)
+		// flag is an os specific flag here, on windows if its first bit set, 
+		// the handle needs to be reset manually
+        siListener createListener(void* handle, unsigned flag, const Delegate& fun)
         {
-            return m_event_handler.createListener(siHandle(handle), fun);
+            return m_event_handler.createListener(siHandle(handle), fun, flag&1);
         }
 
         void removeListener(iHandle* handle)
@@ -687,15 +708,15 @@ namespace o3 {
             return o3_new(cMessageLoop)();
         }
 
-		//bool removeLogFile()
-		//{
-		//	DeleteFileW(L"c:\\Users\\Gabor\\AppData\\Local\\Temp\\Low\\o3_v0_9\\o3log.txt");
-		//	return true;
-		//}
+		bool removeLogFile()
+		{
+			DeleteFileW(L"c:\\Users\\Gabor\\AppData\\Local\\Temp\\Low\\o3_v0_9\\o3log.txt");
+			return true;
+		}
 
 		virtual void logfv(const char* format, va_list ap)
 		{
-			vfprintf(stderr, format, ap);
+			//vfprintf(stderr, format, ap);
 			//static bool rem = removeLogFile();
 			//FILE* file = fopen("c:\\Users\\Gabor\\AppData\\Local\\Temp\\Low\\o3_v0_9\\o3log.txt", "a");
 			//vfprintf(file, format, ap);

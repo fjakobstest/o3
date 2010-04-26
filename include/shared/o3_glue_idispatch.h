@@ -474,7 +474,6 @@ namespace o3 {
 				in.pdispVal->QueryInterface(IID_IDispatchEx, (void**)&dispe);					
 				if (dispe){
 					//if it is not a IDispBirdge, then we have to wrap it
-					//!TODO: how to do this now??
                     cScrBridge* pscBr = o3_new(cScrBridge)(ctx,dispe);                    
                     out = pscBr;
                     dispe->Release();
