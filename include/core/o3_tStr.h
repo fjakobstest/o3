@@ -485,6 +485,32 @@ public:
         return find(0, str);
     }
 
+	size_t findRight(size_t pos, const C* str, size_t n) const
+	{
+		o3_trace1 trace;
+		size_t index;
+
+		index = buf().findRight(pos * sizeof(C), str, n * sizeof(C));
+		if (index == NOT_FOUND)
+			return NOT_FOUND;
+		return index / sizeof(C);
+	}
+
+	size_t findRight(size_t pos, const C* str) const
+	{
+		o3_trace1 trace;
+
+		return findRight(pos, str, strLen(str));
+	}
+
+	size_t findRight(const C* str) const
+	{
+		o3_trace1 trace;
+
+		return findRight(size()-1, str);
+	}
+
+
     void insert(size_t pos, C c, size_t n)
     {
         o3_trace1 trace;

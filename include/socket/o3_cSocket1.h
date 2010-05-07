@@ -18,20 +18,22 @@
 #ifndef O3_C_SOCKET1_H
 #define O3_C_SOCKET1_H
 
-#ifdef O3_POSIX
+#ifdef O3_WITH_LIBEVENT
+#include "o3_cSocket1_libevent.h"
+#elif defined O3_POSIX
 #include "o3_cSocket1_posix.h"
-#endif // O3_POSIX
-#ifdef O3_WIN32
+#elif defined O3_WIN32
 #include "o3_cSocket1_win32.h"
 #endif // O3_WIN32
 
 #ifdef O3_WITH_GLUE
-#ifdef O3_POSIX
+#ifdef O3_WITH_LIBEVENT
+#include "o3_scr_cSocket1_libevent.h"
+#elif defined O3_POSIX
 #include "o3_scr_cSocket1_posix.h"
-#endif
-#ifdef O3_WIN32
+#elif defined O3_WIN32
 #include "o3_scr_cSocket1_win32.h"
-#endif // O3_POSIX
+#endif 
 #endif // O3_WITH_GLUE
 
 #endif // O3_C_SOCKET1_H

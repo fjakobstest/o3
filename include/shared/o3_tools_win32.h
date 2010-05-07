@@ -27,6 +27,7 @@
 #include <objsafe.h>
 #include <shlobj.h>
 #include <shellapi.h>
+#include <shlguid.h>
 
 #include <direct.h> //for _getcwd
 
@@ -838,6 +839,105 @@ struct iWindow : iUnk
         }      
     }
 
+	// Retrieves the UIObject interface for the specified full PIDL
+	static HRESULT SHGetUIObjectFromFullPIDL(LPCITEMIDLIST pidl, HWND hwnd, REFIID riid, void **ppv)
+	{
+		LPCITEMIDLIST pidlChild;
+		IShellFolder* psf;
+		*ppv = NULL;
+		HRESULT hr = SHBindToParent(pidl, IID_IShellFolder, (LPVOID*)&psf, &pidlChild);
+		if (SUCCEEDED(hr))
+		{
+			hr = psf->GetUIObjectOf(hwnd, 1, &pidlChild, riid, NULL, ppv);
+			psf->Release();
+		}
+		return hr;
+	}
+	static HRESULT SHILClone(LPCITEMIDLIST pidl, LPITEMIDLIST *ppidl)
+	{
+		DWORD cbTotal = 0;
+		if (pidl)
+		{
+			LPCITEMIDLIST pidl_temp = pidl;
+			cbTotal += pidl_temp->mkid.cb;
+			while (pidl_temp->mkid.cb) 
+			{
+				cbTotal += pidl_temp->mkid.cb;
+				pidl_temp = ILNext(pidl_temp);
+			}
+		}
+
+		*ppidl = (LPITEMIDLIST)CoTaskMemAlloc(cbTotal);
+
+		if (*ppidl)
+			CopyMemory(*ppidl, pidl, cbTotal);
+
+		return  *ppidl ? S_OK: E_OUTOFMEMORY;
+	}
+
+	// Get the target PIDL for a folder PIDL. This also deals with cases of a folder  
+	// shortcut or an alias to a real folder.
+	static HRESULT SHGetTargetFolderIDList(LPCITEMIDLIST pidlFolder, LPITEMIDLIST *ppidl)
+	{
+		IShellLink *psl;
+
+		*ppidl = NULL;
+
+		HRESULT hr = SHGetUIObjectFromFullPIDL(pidlFolder, NULL, IID_IShellLink, (LPVOID*)&psl);
+
+		if (SUCCEEDED(hr))
+		{
+			hr = psl->GetIDList(ppidl);
+			psl->Release();
+		}
+
+		// It's not a folder shortcut so get the PIDL normally.
+		if (FAILED(hr))
+			hr = SHILClone(pidlFolder, ppidl);
+
+		return hr;
+	}
+	// Get the target folder for a folder PIDL. This deals with cases where a folder
+	// is an alias to a real folder, folder shortcuts, the My Documents folder, etc.
+	STDAPI SHGetTargetFolderPath(LPCITEMIDLIST pidlFolder, LPWSTR pszPath)
+	{
+		LPITEMIDLIST pidlTarget;
+
+		*pszPath = 0;
+		HRESULT hr = SHGetTargetFolderIDList(pidlFolder, &pidlTarget);
+
+		if (SUCCEEDED(hr))
+		{
+			SHGetPathFromIDListW(pidlTarget, pszPath);   // Make sure it is a path
+			CoTaskMemFree(pidlTarget);
+		}
+
+		return *pszPath ? S_OK : E_FAIL;
+	}
+
+
+	Str openFolderDialog()
+	{
+		wchar_t buf[MAX_PATH];
+		wchar_t buf2[MAX_PATH];
+		BROWSEINFOW bi;
+		ZeroMemory(&bi,sizeof(bi));
+		bi.pszDisplayName = buf;
+		bi.lpszTitle = L"Ajax.org open directory dialog";
+		bi.ulFlags = BIF_RETURNONLYFSDIRS|BIF_DONTGOBELOWDOMAIN;
+		
+		PIDLIST_ABSOLUTE pid = SHBrowseForFolderW(&bi);
+		if (!pid)
+			return Str();
+
+		if (S_OK != SHGetTargetFolderPath(pid, buf2))
+			return Str();
+
+		CoTaskMemFree(pid);
+		return WStr(buf2);
+	}
+
+
     WStr openFileDialog(bool open, const Str& types, const Str& default=Str(), HWND hwnd = 0)
     {
 		WStr filter = types;
@@ -902,29 +1002,13 @@ struct iWindow : iUnk
 		return selectedPath;
     }
 
-	Str openFileByDialog(const Str& filter){
-		WStr selectedPath = openFileDialog(true, filter);	
-
-		HANDLE hFile = CreateFileW( selectedPath.ptr(),
-			GENERIC_READ,
-			FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
-			NULL,
-			OPEN_EXISTING,
-			0,
-			NULL);
-
-		if (INVALID_HANDLE_VALUE == hFile)
-			return Str();
-
-		siStream ret = o3_new(cStream)(hFile);
-		size_t read,file_size = ret->size();
-		Buf data(file_size);
-		read = ret->read(data.ptr(), file_size);
-		data.resize(read);
-		return data;
+	Str openFileByDialog(const Str& filter)
+	{
+		return openFileDialog(true, filter);			
 	}
 
-	bool saveAsByDialog(const Str& data, const Str& filter, const Str& default){
+	Str saveAsByDialog(const Str& data, const Str& filter, const Str& default)
+	{
 		WStr selectedPath = openFileDialog(false, filter, default);	
 
 		HANDLE hFile = CreateFileW( selectedPath.ptr(),
@@ -940,7 +1024,7 @@ struct iWindow : iUnk
 
 		siStream ret = o3_new(cStream)(hFile);		
 		size_t written = ret->write(data.ptr(), data.size());
-		return written == data.size();
+		return selectedPath;
 	}
 
     siStream openSelf()

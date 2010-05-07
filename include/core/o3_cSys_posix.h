@@ -426,12 +426,12 @@ struct cMessageLoop : cUnk, iMessageLoop {
                 tv.tv_usec = O3_TICK_SIZE % 1000 * 1000;
                 gettimeofday(&pt, 0);
             }
-            nfds = select(nfds, &readfds, &writefds, &errorfds,
+            int sum = select(nfds, &readfds, &writefds, &errorfds,
                           !empty || timeout >= 0 ? &tv : 0);
             atomicInc((volatile int&) m_seq);
             while (nfds-- > 0)
-                if (FD_ISSET(nfds, &readfds)) {
-                    cListener* listener;
+                if (FD_ISSET(nfds, &readfds) || FD_ISSET(nfds, &writefds)) {
+					cListener* listener;
 
                     {
                         Lock lock(m_mutex);
@@ -502,9 +502,9 @@ struct cMessageLoop : cUnk, iMessageLoop {
         unsigned oflag = listener->m_oflag;
 
         m_nfds = max(m_nfds, fd + 1);
-        if (oflag & O_RDONLY)
+        if (oflag == O_RDONLY || oflag == O_RDWR)
             FD_SET(fd, &m_readfds);
-        if (oflag & O_WRONLY)
+        if (oflag == O_WRONLY || oflag == O_RDWR)
             FD_SET(fd, &m_writefds);
         FD_SET(fd, &m_errorfds);
         m_listeners[fd] = listener;
@@ -619,6 +619,12 @@ struct cSys : cSysBase {
         fcntl(fd[0], F_SETFL, O_NONBLOCK);
         return o3_new(cMessageLoop)(fd[0], fd[1]);
     }
+	
+	bool approvalBox(const char* msg, const char* caption)
+	{
+		o3_assert(false);
+		return true;
+	}
 };
 
 }

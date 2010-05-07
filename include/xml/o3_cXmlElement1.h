@@ -34,7 +34,7 @@ namespace o3 {
         
         o3_fun siXmlNode selectSingleNode(iCtx* ctx, const char* selection, iScr* ctxt = 0) {
             xmlXPathObjectPtr res = selectNodesInternal(
-                selection, siXmlDocument(ctxt));
+                selection, siXmlDocument(ctxt), ctx);
             if (!res || !res->nodesetval->nodeTab) 
                 return siXmlNode();
             siXmlNode ret = wrapNode(ctx, res->nodesetval->nodeTab[0], m_owner_node ? m_owner_node : this);
@@ -42,10 +42,10 @@ namespace o3 {
             return ret;
         }
 
-        o3_fun siXmlNodeArray selectNodes(const char* selection, iScr* ctxt = 0) {
+        o3_fun siXmlNodeArray selectNodes(iCtx* ctx, const char* selection, iScr* ctxt = 0) {
             o3_trace3 trace;
             xmlXPathObjectPtr res = selectNodesInternal(
-                selection, siXmlDocument(ctxt));
+                selection, siXmlDocument(ctxt), ctx);
             if (!res)
                 return siXmlNode();
             cXmlNodeArray1* nodes = o3_new(cXmlNodeArray1)(m_owner_node ? m_owner_node : this);
@@ -107,7 +107,7 @@ namespace o3 {
             return siXmlNodeList(o3_new(cXmlNodeList1)(this, name));
 		}
         
-        xmlXPathObjectPtr selectNodesInternal(const char* expr, iXmlDocument* ctxt) {
+        xmlXPathObjectPtr selectNodesInternal(const char* expr, iXmlDocument* ctxt, iCtx* ctx) {
             o3_trace3 trace;
             o3_assert(expr);
 
@@ -126,16 +126,18 @@ namespace o3 {
                 xpathCtx->node = m_node;                
             }
             //registering namespaces
-            xmlNs* ns = m_node->ns;
-            while (ns) {
-				if (xmlXPathRegisterNs(xpathCtx, 
-					m_node->ns->prefix ? m_node->ns->prefix : (const xmlChar*) "", 
-					m_node->ns->href) != 0)
-				{
-					o3_assert(false);
-                }
-				
-				ns = ns->next;
+            siXmlDocument doc = ownerDocument(ctx);
+			if (doc){				
+				const tMap<Str,Str> ns = doc->nameSpaces();
+				tMap<Str,Str>::ConstIter it;
+				for (it=ns.begin(); it != ns.end(); ++it) {
+					if (xmlXPathRegisterNs(xpathCtx, 
+						BAD_CAST (*it).key.ptr(),
+						BAD_CAST (*it).val.ptr()))
+					{
+						o3_assert(false);
+					}
+				}
             }
             //do the xpath eval
             xpathObj = xmlXPathEval(BAD_CAST expr, xpathCtx);

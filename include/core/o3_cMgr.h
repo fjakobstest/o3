@@ -58,6 +58,8 @@ struct Trait {
     }
 };
 
+Str hostFromURL( const Str& url );
+
 o3_cls(cMgr);
 
 struct cMgr : cUnk, iMgr {
@@ -68,7 +70,6 @@ struct cMgr : cUnk, iMgr {
     siThreadPool m_pool;
     Str m_root;
 	Str m_current_url;
-	siHost m_host;
 	siMutex m_mutex;
 
 #ifdef O3_WIN32
@@ -77,8 +78,7 @@ struct cMgr : cUnk, iMgr {
     #define O3_FS_ROOT "/"
 #endif
 
-    cMgr(const char* root = O3_FS_ROOT, iHost* host = 0)
-		: m_host(host)
+    cMgr(const char* root = O3_FS_ROOT)		
 	{
         o3_trace2 trace;
 
@@ -156,11 +156,6 @@ struct cMgr : cUnk, iMgr {
             traits.push(Trait::end());
         }
     }
-
-	siHost host()
-	{
-		return m_host;
-	}
 
 	void addFactory(const Str& name, factory_t factory) 
 	{
@@ -343,28 +338,6 @@ struct cMgr : cUnk, iMgr {
 		return true;
 	}
 
-// temporary utility function, this should be replaced with some
-// more serious url parser and put somewhere else...
-	Str hostFromURL( const Str& url ) 
-	{
-		size_t s,i;
-		i=url.find("//");
-		o3_assert(i!=NOT_FOUND);	
-		i = s = i+2;
-		
-		// TODO: there should be a distinction between files on 
-		// the localhost and files on the 'temp' directory where 
-		// the fs component has access 
-		if (url.ptr()[i] == '/') {
-			return Str("localhost");
-		}
-		//end of domain name
-		i=url.find(i,"/");
-		o3_assert(i!=NOT_FOUND);
-		const char* p=url.ptr();
-		return Str(p+s, i-s);
-	}
-
 	Str pathFromURL( const Str& url )
 	{		
 		size_t i;
@@ -407,6 +380,28 @@ struct cMgr : cUnk, iMgr {
 	}
 	
 };
+
+// temporary utility function, this should be replaced with some
+// more serious url parser and put somewhere else...
+Str hostFromURL( const Str& url ) 
+{
+	size_t s,i;
+	i=url.find("//");
+	o3_assert(i!=NOT_FOUND);	
+	i = s = i+2;
+
+	// TODO: there should be a distinction between files on 
+	// the localhost and files on the 'temp' directory where 
+	// the fs component has access 
+	if (url.ptr()[i] == '/') {
+		return Str("localhost");
+	}
+	//end of domain name
+	i=url.find(i,"/");
+	o3_assert(i!=NOT_FOUND);
+	const char* p=url.ptr();
+	return Str(p+s, i-s);
+}
 
 }
 

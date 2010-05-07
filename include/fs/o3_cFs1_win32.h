@@ -20,6 +20,7 @@
 
 #include "o3_cFs1Base.h"
 #include "shared/o3_glue.h"
+#include <shlwapi.h>
 
 namespace o3 {
     
@@ -198,8 +199,18 @@ public:
 public:
 
         static o3_ext("cO3") o3_get siFs fs(iCtx* ctx) 
-        {            
-            return siFs(o3_new(cFs1("", ctx->mgr()->root())));
+        {     
+			siFs ret = o3_new(cFs1("", ctx->mgr()->root()));
+			if (!ret->exists()) {
+				// if the root folder does not exists yet, let's
+				// create another node, that is able to create
+				// the no existing parent folders as well
+				cFs1* root;
+				siFs root2 = root = o3_new(cFs1(ctx->mgr()->root(), ""));
+				root->createParents();
+				root->createDir();
+			}
+            return ret;
         }
 
 		// the following factory functions are not allowed for the plugin,
@@ -248,6 +259,33 @@ public:
 #endif
 			return ret;
 
+		}
+
+		static o3_ext("cO3") o3_fun siFs selectFolder()
+		{
+			siFs ret;
+			Str path = openFolderDialog();
+			path.findAndReplaceAll("\\", "/");
+			if (!path.size())
+				return ret;
+			ret = o3_new(cFs1)("", path);
+			return ret;
+		}
+
+		static o3_ext("cO3") o3_fun siFs openFileDialog(const Str& filter) 
+		{		
+			siFs ret;
+			Str path = openFileByDialog( filter );
+			path.findAndReplaceAll("\\", "/");
+			if (!path.size())
+				return ret;
+			ret = o3_new(cFs1)("", path);
+			return ret;
+		}
+
+		static o3_ext("cO3") o3_fun Str saveAsFile(const Str& data, const Str& defaultFile) 
+		{		
+			return saveAsByDialog( data, "All [*.*]", defaultFile );
 		}
 
         virtual bool valid() {
@@ -312,7 +350,12 @@ public:
             path.append(m_local_path);
             return path;
         }
-	    
+
+		o3_get Str fullPath() {
+			return Str(winPath());
+		}
+
+
         virtual int permissions() {
             //!TODO: implement
             return 0;
@@ -568,7 +611,7 @@ public:
         }
         
         virtual void onChangeNotification(iUnk*) 
-        {			
+        {
             if (!m_onchange)
                 return;
 
@@ -578,9 +621,9 @@ public:
 					 Delegate(siCtx(m_ctx), m_onchange)(this); 
                      break;
                  case TYPE_FILE:					
-                    int64_t modt = modifiedTime();                         
-                    if (modt != -1 && m_mod_time != modt){
-                        m_mod_time = modt;                   
+                    int64_t modt = modifiedTime();                                             
+					if (modt != -1 && m_mod_time != modt){
+						m_mod_time = modt;                   
                         Delegate(siCtx(m_ctx), m_onchange)(this);
                     }                                         
                     break;
@@ -602,7 +645,7 @@ public:
                 case TYPE_FILE:
                     to_monitor = parent();
                     m_mod_time = modifiedTime();
-                    break;
+					break;
                 default:
                     // o3_set_ex(ex_invalid_op);
                     return;        
@@ -614,7 +657,6 @@ public:
 	            | FILE_NOTIFY_CHANGE_SIZE ;            
 
             WStr path_to_monitor = ((cFs1*)to_monitor.ptr())->winPath();
-
             HANDLE handle = FindFirstChangeNotificationW(
                 path_to_monitor.ptr(),false,f);
 
@@ -625,11 +667,10 @@ public:
 	        }
 
             m_change = o3_new(cHandle)(handle, cHandle::TYPE_DIRCHANGE);
-
             siMessageLoop ml = siCtx(m_ctx)->loop();
-            m_listener = ml->createListener(m_change, 0, 
+            m_listener = ml->createListener(m_change.ptr(), 0, 
                 Delegate(this, &cFs1::onChangeNotification));
-        }
+		}
 
         void stopListening() 
         {
@@ -642,11 +683,24 @@ public:
 		{
 			Str path = tmpPath();
 			path.findAndReplaceAll("\\", "/");
-			path.appendf("o3_%s", O3_VERSION_STRING);
+			path.appendf("o3_%s", O3_VERSION_STRING);			
 			siFs ret = o3_new(cFs1("", path.ptr()));
-			if (!ret->exists())
-				ret->createDir();
+			if (!ret->exists()) {
+				// if the root folder does not exists yet, let's
+				// create another node, that is able to create
+				// the no existing parent folders as well
+				cFs1* root;
+				siFs root2 = root = o3_new(cFs1(path.ptr(),""));
+				root->createParents();
+				root->createDir();
+			}
+
 			return ret;
+		}
+
+		o3_fun void openDoc() 
+		{
+			// this function is implemented in the version in the private repository only
 		}
 
 	};

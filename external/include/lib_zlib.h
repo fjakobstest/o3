@@ -4059,7 +4059,7 @@ namespace o3 {
                                         unsigned int dictLength)
         {
             struct inflate_state *state;
-            unsigned long id;
+            unsigned long _id;
 
             if (strm == 0 || strm->state == 0)
                 return Z_STREAM_ERROR;
@@ -4068,9 +4068,9 @@ namespace o3 {
                 return Z_STREAM_ERROR;
 
             if (state->mode == DICT) {
-                id = adler32(0L, 0, 0);
-                id = adler32(id, dictionary, dictLength);
-                if (id != state->check)
+                _id = adler32(0L, 0, 0);
+                _id = adler32(_id, dictionary, dictLength);
+                if (_id != state->check)
                     return Z_DATA_ERROR;
             }
             if (updatewindow(strm, strm->avail_out)) {

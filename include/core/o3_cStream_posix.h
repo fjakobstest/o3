@@ -110,6 +110,13 @@ struct cStream : cStreamBase {
 
         return m_stream;
     }
+
+	size_t size()
+	{
+		// TODO: implement
+		o3_assert(false);
+		return 0;
+	}
 };
 
 }

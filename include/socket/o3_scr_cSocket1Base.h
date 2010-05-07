@@ -54,12 +54,13 @@ Trait* cSocket1Base::clsTraits()
          {      30,     Trait::TYPE_SET,        "cSocket1Base",       "onreceive",          clsInvoke,      38,     0                  },
          {      31,     Trait::TYPE_GET,        "cSocket1Base",       "onsend",             clsInvoke,      39,     0                  },
          {      31,     Trait::TYPE_SET,        "cSocket1Base",       "onsend",             clsInvoke,      40,     0                  },
-         {      32,     Trait::TYPE_GET,        "cSocket1Base",       "packetSize",         clsInvoke,      41,     0                  },
-         {      32,     Trait::TYPE_SET,        "cSocket1Base",       "packetSize",         clsInvoke,      42,     0                  },
-         {      33,     Trait::TYPE_GET,        "cSocket1Base",       "bytesSent",          clsInvoke,      43,     0                  },
-         {      34,     Trait::TYPE_GET,        "cSocket1Base",       "bytesReceived",      clsInvoke,      44,     0                  },
-         {      35,     Trait::TYPE_GET,        "cSocket1Base",       "type",               clsInvoke,      45,     0                  },
-         {      36,     Trait::TYPE_GET,        "cSocket1Base",       "srcAddress",         clsInvoke,      46,     0                  },
+         {      32,     Trait::TYPE_FUN,        "cSocket1Base",       "close",              clsInvoke,      41,     0                  },
+         {      33,     Trait::TYPE_GET,        "cSocket1Base",       "packetSize",         clsInvoke,      42,     0                  },
+         {      33,     Trait::TYPE_SET,        "cSocket1Base",       "packetSize",         clsInvoke,      43,     0                  },
+         {      34,     Trait::TYPE_GET,        "cSocket1Base",       "bytesSent",          clsInvoke,      44,     0                  },
+         {      35,     Trait::TYPE_GET,        "cSocket1Base",       "bytesReceived",      clsInvoke,      45,     0                  },
+         {      36,     Trait::TYPE_GET,        "cSocket1Base",       "type",               clsInvoke,      46,     0                  },
+         {      37,     Trait::TYPE_GET,        "cSocket1Base",       "srcAddress",         clsInvoke,      47,     0                  },
          {      0,      Trait::TYPE_END,        "cSocket1Base",       0,                    0,              0,      0                  },
       };
 
@@ -282,21 +283,26 @@ siEx cSocket1Base::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             *rval = pthis1->setOnsend(argv[0].toScr());
             break;
          case 41:
-            *rval = pthis1->m_packet_size;
+            if (argc != 0)
+               return o3_new(cEx)("Invalid argument count. ( close )");
+            pthis1->close();
             break;
          case 42:
-            pthis1->m_packet_size = argv[0].toInt32();
+            *rval = pthis1->m_packet_size;
             break;
          case 43:
-            *rval = pthis1->m_bytes_sent;
+            pthis1->m_packet_size = argv[0].toInt32();
             break;
          case 44:
-            *rval = pthis1->m_bytes_received;
+            *rval = pthis1->m_bytes_sent;
             break;
          case 45:
-            *rval = pthis1->m_type;
+            *rval = pthis1->m_bytes_received;
             break;
          case 46:
+            *rval = pthis1->m_type;
+            break;
+         case 47:
             *rval = pthis1->m_src_address;
             break;
       }

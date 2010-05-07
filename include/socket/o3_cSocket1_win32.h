@@ -63,7 +63,7 @@ namespace o3 {
         void startup() 
 		{
             WSADATA wsd;
-            int rc = WSAStartup(MAKEWORD(2,2), &wsd);
+            WSAStartup(MAKEWORD(2,2), &wsd);
         }
 
 		static o3_ext("cO3") o3_fun siSocket socketUDP(iCtx* ctx)
@@ -100,9 +100,8 @@ namespace o3 {
                 NULL, NULL, WSA_FLAG_OVERLAPPED);                        
             
             if (cret->m_socket == INVALID_SOCKET) {
-                int e = WSAGetLastError();
+                //int e = WSAGetLastError();
                 return siSocket();
-				//o3::log("socket failed: %d\n", WSAGetLastError());                
             }
 
             cret->setupEvent();
@@ -155,7 +154,7 @@ namespace o3 {
             //bind
             if (::bind(m_socket, m_addr->ai_addr,m_addr->ai_addrlen)) {
                 //error
-                int e = WSAGetLastError();
+                //int e = WSAGetLastError();
                 return false;
             }
 
@@ -173,7 +172,7 @@ namespace o3 {
             int rc = getaddrinfo(addr, port, &hints, &res);
             if (rc) {
                 //sys_log(Str::format("getaddrinfo failed: %d\n", rc).ptr());
-                int e = WSAGetLastError();
+                //int e = WSAGetLastError();
                 return 0;
             }
             return res;
@@ -321,6 +320,8 @@ namespace o3 {
                 onsend(0);
                 return true;
             }
+
+			return false;
         }
 
         int sendFirstBuf(size_t size, DWORD& bytes_sent)
@@ -430,7 +431,7 @@ namespace o3 {
                 ,NULL,NULL);
   
             if (acc == INVALID_SOCKET){
-                int e = WSAGetLastError();
+                //int e = WSAGetLastError();
                 return;
             }
 
@@ -483,7 +484,7 @@ namespace o3 {
                                     FALSE, &flags);
 
             if (!res) {
-                int e = WSAGetLastError();
+                //int e = WSAGetLastError();
                 m_state |= STATE_ERROR;
             }
 
@@ -503,7 +504,7 @@ namespace o3 {
 
             memSet(&m_overl_receive, 0, sizeof(WSAOVERLAPPED));             
             res = startnewrecv();
-            int err = WSAGetLastError();
+            //int err = WSAGetLastError();
             //if (!res && !err) 
             //    onreceive(0);
         
@@ -521,7 +522,7 @@ namespace o3 {
                                     FALSE, &flags);
 
             if (!res_op) {
-                int e = WSAGetLastError();
+                //int e = WSAGetLastError();
                 m_state |= STATE_ERROR;
                 return;
             }

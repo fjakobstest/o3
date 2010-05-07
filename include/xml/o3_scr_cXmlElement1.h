@@ -55,7 +55,7 @@ siEx cXmlElement1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
          case 1:
             if (argc < 1 && argc > 2)
                return o3_new(cEx)("Invalid argument count. ( selectNodes )");
-            *rval = siXmlNodeArray(pthis1->selectNodes(argv[0].toStr(),argc > 1 ? argv[1].toScr() : 0));
+            *rval = siXmlNodeArray(pthis1->selectNodes(ctx,argv[0].toStr(),argc > 1 ? argv[1].toScr() : 0));
             break;
          case 2:
             if (argc != 0)

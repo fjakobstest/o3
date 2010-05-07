@@ -151,6 +151,7 @@ namespace o3 {
 
         o3_fun bool sendTo(iBuf* ibuf, const char* host, int port)
         {
+			host; port;
 			// TODO: handle host and port
             if (!ibuf)
                 return false;
@@ -243,6 +244,8 @@ namespace o3 {
 		{
 			return m_on_send = cb;
 		}
+
+		o3_fun void close() = 0;
 
         o3_prop     size_t  m_packet_size;
         o3_get		size_t  m_bytes_sent;

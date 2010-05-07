@@ -19,6 +19,7 @@ Trait* cXmlDocument1::clsTraits()
          {      3,      Trait::TYPE_FUN,        "cXmlDocument1",      "createComment",      clsInvoke,      3,      0                  },
          {      4,      Trait::TYPE_FUN,        "cXmlDocument1",      "createCDATASection", clsInvoke,      4,      0                  },
          {      5,      Trait::TYPE_FUN,        "cXmlDocument1",      "createAttribute",    clsInvoke,      5,      0                  },
+         {      6,      Trait::TYPE_FUN,        "cXmlDocument1",      "setProperty",        clsInvoke,      6,      0                  },
          {      0,      Trait::TYPE_END,        "cXmlDocument1",      0,                    0,              0,      0                  },
       };
 
@@ -71,6 +72,11 @@ siEx cXmlDocument1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( createAttribute )");
             *rval = siXmlAttr(pthis1->createAttribute(ctx,argv[0].toStr()));
+            break;
+         case 6:
+            if (argc != 2)
+               return o3_new(cEx)("Invalid argument count. ( setProperty )");
+            *rval = pthis1->setProperty(argv[0].toStr(),argv[1].toStr());
             break;
       }
       return ex;

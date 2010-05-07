@@ -31,10 +31,10 @@
 #include <http/o3_http.h>
 #include <window/o3_window.h>
 #include <socket/o3_socket.h>
+#include <process/o3_process.h>
 //#include <image/o3_image.h>
 //#include <scanner/o3_scan.h>
 //#include <barcode/o3_barcode.h>
-#include <dom/o3_dom.h>
 
 #include <md5/o3_md5.h>
 #include <rsa/o3_rsa.h>
@@ -170,8 +170,13 @@ struct cCtx : cMgr, iCtx {
 				if (siEx ex = m_scr->invoke(ctx, iScr::ACCESS_GET, index, 0, 0,
 											&rval))
 					return false;
-				if (siScr scr = rval.toScr())
-					return scr->resolve(ctx, "__self__") < 0;
+				if (siScr scr = rval.toScr()) { 
+					// this is a bug I have no clue why was this 
+					// implemented like this I fixed the best way 
+					// I could come up with... (Gabor)
+					//return scr->resolve(ctx, "__self__") < 0;				
+					return !siScrFun(scr).valid();
+				}
 			} else {
 				int getter = m_scr->resolve(ctx, "__getter__");
 				Var arg = ::NPN_IntFromIdentifier(identifier);
@@ -488,7 +493,7 @@ struct cCtx : cMgr, iCtx {
     HiddenWindow    m_hidden_wnd; 
 #endif // O3_WIN32
 	
-	cCtx(iHost* host=0) : cMgr(O3_FS_ROOT, host)
+	cCtx()
 	{
 #ifdef O3_APPLE
         m_timer = [[O3Timer alloc] initWithCtx:this];
@@ -506,12 +511,12 @@ struct cCtx : cMgr, iCtx {
         addExtTraits(cFs1::extTraits());
 		addExtTraits(cWindow1::extTraits());
 		addExtTraits(cSocket1::extTraits());
+		addExtTraits(cHttp1::extTraits());
+		addExtTraits(cProcess1::extTraits());
 //		addExtTraits(cImage1::extTraits());
 //		addExtTraits(cScan1::extTraits());
 //		addExtTraits(cBarcode1::extTraits());
-#ifdef O3_WIN32
-		addExtTraits(cDOM1::extTraits());
-	
+#ifdef O3_WIN32	
 		addFactory("fs", &cFs1::rootDir);
 		addFactory("http", &cHttp1::factory);	
 #endif
@@ -695,8 +700,8 @@ NPError NPP_New(NPMIMEType type, NPP npp, ::uint16_t mode, ::int16_t argc,
     full_url = url = Str(string.UTF8Characters, string.UTF8Length);
 	index = url.find("://");
     url[index] = 0;
-	// WTF???
-	/*if (!o3::strEquals(url.ptr(), "file")) {
+	
+	if (!o3::strEquals(url.ptr(), "file")) {
 		hostent* he;
 		in_addr addr;
 
@@ -706,10 +711,12 @@ NPError NPP_New(NPMIMEType type, NPP npp, ::uint16_t mode, ::int16_t argc,
             url[index] = 0;
         if (he = gethostbyname(url.ptr())) {
 			o3::memCopy(&addr, he->h_addr, sizeof(in_addr));
-			if (!o3::strEquals(inet_ntoa(addr), "127.0.0.1"))
-				return NPERR_GENERIC_ERROR;
+			if (!o3::strEquals(inet_ntoa(addr), "127.0.0.1")
+				&& !o3::strCaseEquals("www.ajax.org", url.ptr()))
+					return NPERR_GENERIC_ERROR;
 		}
-	}*/
+	}
+
 	ctx = o3_new(o3::cCtx)();
 	ctx->addRef();
 	ctx->mgr()->setCurrentUrl(full_url);

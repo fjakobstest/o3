@@ -37,7 +37,7 @@ int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR arg, int show)
     cSys sys;
 
 
-    CoInitializeEx(NULL, COINIT_APARTMENTTHREADED); 
+    //CoInitializeEx(NULL, COINIT_APARTMENTTHREADED); 
 
 
     INITCOMMONCONTROLSEX cc = {sizeof( INITCOMMONCONTROLSEX ), ICC_WIN95_CLASSES /*| ICC_STANDARD_CLASSES*/};
@@ -85,6 +85,6 @@ int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR arg, int show)
 		((cJs1*)js.ptr())->tear();
     }
     
-    CoUninitialize(); 
+    //CoUninitialize(); 
     return ret;
 }  

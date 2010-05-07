@@ -77,6 +77,7 @@ namespace o3 {
         virtual siXmlNodeList getElementsByTagName(iCtx* ctx, const char* tagName) = 0;        
         
         virtual xmlDocPtr docPtr() = 0;
+		virtual const tMap<Str,Str>& nameSpaces() = 0;
     };
 
     struct iXmlElement : iUnk {

@@ -52,8 +52,6 @@ struct iMgr : iUnk {
     virtual siThreadPool pool() = 0;
 
     virtual Str root() = 0;
-
-	virtual siHost host() = 0;
 	
 	virtual void addFactory(const Str& name, factory_t factory) = 0;
 

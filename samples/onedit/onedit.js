@@ -1,73 +1,37 @@
-/*
- * See the NOTICE file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- *
- */
-
-// #ifdef __WITH_O3
 /**
- * Helper class that aids in creating and controlling Ajax O3 instances
+ * Helper class that aids in creating and controlling Ajax.org OnEdit instances
  *
  * @author      Mike de Boer
  * @version     %I%, %G%
- * @since       2.1
- * @namespace   o3
+ * @since       2.0
+ * @namespace   onedit
  * @private
  */
 
  
 (function(global) {
+
 var sId         = "Ajax.org",
     sDefProduct = "O3Stem",
     bAvailable  = null,
     iVersion    = null,
-    embedded    = false,
-    oO3Count    = 0;
     bEmbed      = false,
     sPlatform   = null,
-    oInstMap    = {};
+    oOnEdit     = null,
+    oOptions    = null,
+    oHttp       = null,
+	oFileMonitored = null;
 
 function detect(o) {
-    var version;
-    var name = o && o.fullname ? o.fullname : "Ajax.org O3";    
-    
-    if (window.external && window.external.o3) {    
-        version = window.external.o3.versionInfo.match(/v([\d]+\.[\d]+)/)[1];        
-        embedded = true;
+    var version,
+        name = o && o.fullname ? o.fullname : "Ajax.org OnEdit";
+
+    if (navigator.plugins && navigator.plugins[name]) {
+        version = navigator.plugins[name].description.match(/v([\d]+\.[\d]+)/)[1];
     }
-    
-    else if (navigator.plugins) {
-        if (navigator.plugins[name]) {
-            version = navigator.plugins[name].description.match(/v([\d]+\.[\d]+)/)[1];
-        }
-        else {
-            debugger;
-            // try sniffing the mimeTypes
-            name = "application/" + name;
-            for (var i = 0, l = navigator.mimeTypes.length; i < l; ++i) {
-                if (navigator.mimeTypes[i].type == name)
-                    version = "0.9";
-            }
-        }
-    }
-    else { 
+    else {
         try {
-            var axo = new ActiveXObject(name);
+            var axo = new ActiveXObject(name);            
             version = axo.versionInfo.match(/v([\d]+\.[\d]+)/)[1];
         }
         catch (e) {}
@@ -84,15 +48,15 @@ function detect(o) {
 }
 
 function sniff() {
-    var sAgent = navigator.userAgent.toLowerCase();
-    var is_opera     = sAgent.indexOf("opera") !== -1;
-    var is_konqueror = sAgent.indexOf("konqueror") != -1;
-    var is_safari    = !is_opera && ((navigator.vendor
+    var sAgent = navigator.userAgent.toLowerCase(),
+        is_opera     = sAgent.indexOf("opera") !== -1,
+        is_konqueror = sAgent.indexOf("konqueror") != -1,
+        is_safari    = !is_opera && ((navigator.vendor
             && navigator.vendor.match(/Apple/) ? true : false)
-            || sAgent.indexOf("safari") != -1 || is_konqueror);
-    var is_ie        = (document.all && !is_opera && !is_safari);
+            || sAgent.indexOf("safari") != -1 || is_konqueror),
+        is_ie        = (document.all && !is_opera && !is_safari);
     bEmbed           = !(is_ie && !is_opera);
-    
+
     // OS sniffing:
 
     // windows...
@@ -178,57 +142,25 @@ function createHtml(options) {
         }
     }
     out.push(bEmbed ? '> </embed>' : '</object>');
-        
+
     return out.join("");
 }
 
-function register(o, options) {
-    // do some funky registering stuff...
-    var key = (options.guid ? options.guid : "ajax.o3")
-        + (options.name ? "." + options.name : "");
-
-    if (!oInstMap[key])
-        oInstMap[key] = [];
-    oInstMap[key].push(o);
-}
-
-function get(guid) {
-    for (var i in oInstMap) {
-        if (i.indexOf(guid) > -1)
-            return oInstMap[i][0];
-    }
-
-    return null;
-}
-
-function destroy(o) {
-    if (typeof o == "string") //guid provided
-        o = get(o);
-    if (!o) return;
-    // destroy references and domNode of this/ each plugin instance...
-    var i, j, k, inst;
-    for (i in oInstMap) {
-        inst = oInstMap[i];
-        if (!inst.length) continue;
-        for (j = inst.length -1; j >= 0; j--) {
-            // if we're searching for 'o', check for a match first
-            if (o && inst[j] != o) continue;
-            for (k in o) {
-                if (typeof o[k] == "function")
-                    o[k] = null;
-            }
-            inst[j].parentNode.removeChild(inst[j]);
-            inst.splice(j, 1);
-        }
-    }
-
-    if (!o)
-        oInstMap = {};
+function destroy() {
+    if (!oOnEdit) return;
+    /*for (var i in oOnEdit) {
+        if (typeof oOnEdit[i] == "function")
+            oOnEdit[i] = null;
+    }*/
+    oOnEdit.parentNode.removeChild(oOnEdit);
+    oHttp = oOnEdit = null;
+    delete oHttp;
+    delete oOnEdit;
 }
 
 // global API:
-global.o3 = {
-    isAvailable: function(o) {     
+global.onedit = {
+    isAvailable: function(o) {
         if (bAvailable === null)
             detect(o);
 
@@ -242,7 +174,7 @@ global.o3 = {
         return iVersion;
     },
 
-    create: function(guid, options) {
+    init: function(guid, options) {
         if (!options && typeof guid == "object") {
             options      = guid;
             options.guid = false;
@@ -255,17 +187,17 @@ global.o3 = {
             options.fullname = (options.product || sDefProduct) 
                 + (options.guid ? "-" + options.guid : "")
         }
-                    
+
         // mini-browser sniffing:
-        sniff();                        
+        sniff();
         
         if (!this.isAvailable(options)) {
             var sUrl = installerUrl(options);
             return typeof options["oninstallprompt"] == "function"
                 ? options.oninstallprompt(sUrl)
                 : window.open(sUrl, "_blank");
-        }                
-        
+        }
+
         if (typeof options["params"] == "undefined")
             options.params = {};
         if (typeof options.params["type"] == "undefined")
@@ -273,31 +205,97 @@ global.o3 = {
 
         options.id = sId + (options.name ? options.name : "");
 
-        var oO3;
-        if (!embedded) {
-            (options["parent"] || document.body).appendChild(
-              document.createElement("div")).innerHTML = createHtml(options);        
-              
-            oO3 = document.getElementById(options.id);
-        } else {
-            oO3 = window.external.o3;            
+        (options["parent"] || document.body).appendChild(
+          document.createElement("div")).innerHTML = createHtml(options);
+
+        oOnEdit = document.getElementById(options.id);
+        if (oOnEdit) {
+            // set onunload handler to destroy...
+            var old_unload = window.onunload;
+            window.onunload = function() {
+                destroy();
+                if (typeof old_unload == "function")
+                    old_unload();
+            };
+
+            oOptions = options;
+            //oHttp    = oOnEdit.http();
+            if (typeof options["onprogress"] == "function")
+                oHttp.onprogress = options.onprogress;
+            if (typeof options["onready"] == "function")
+                options.onready(oOnEdit);
+            return oOnEdit;
         }
-       
-            if (oO3) {
-                register(oO3, options);
-                if (typeof options["onready"] == "function")
-                    options.onready(oO3);
-                
-                return oO3;            
-            }
-        
         
         return false;
     },
+    
+    open: function(file) {	
+        var verb    = "GET",
+            getFile = file,
+            putFile = file;
+        if (typeof oOptions["onbeforedownload"] == "function") {
+            var res = oOptions.onbeforedownload(file);
+            if (typeof res == "string") {
+                getFile = res;
+            }
+            else if (res) {
+                if (typeof res["verb"] == "string")
+                    verb = res.verb;
+                if (typeof res["url"] == "string")
+                    getFile = res.url;
+            }
+        }
+        
+		if (oFileMonitored)
+			oFileMonitored.onchange = null;
+			
+		oHttp    = oOnEdit.http();
+        oHttp.open(verb, getFile, true);
+        oHttp.onreadystatechange = function() {
+            if (oHttp.readyState != 4) return;
+            oHttp.onreadystatechange = null;
+            
+            if (typeof oOptions["onafterdownload"] == "function")
+                oOptions.onafterdownload(file, getFile);
+            var parent = oOnEdit.fs.get("OnEdit"),
+                res    = parent.createDir(),
+                oFile  = oHttp.responseOpen(parent);
+            
+			oFileMonitored = oFile;
+            
+			function write(){				
+				verb = "PUT";
+                if (typeof oOptions["onbeforeupload"] == "function") {
+                    res = oOptions.onbeforeupload(file);
+                    if (typeof res == "string") {
+                        putFile = res;
+                    }
+                    else if (res) {
+                        if (typeof res["verb"] == "string")
+                            verb = res.verb;
+                        if (typeof res["url"] == "string")
+                            putFile = res.url;
+                    }
+                }
+                oHttp.open(verb, putFile, true);
+                oHttp.onreadystatechange = function() {
+                    if (oHttp.readyState != 4) return;
+                    oHttp.onreadystatechange = null;
 
-    destroy: destroy,
+                    if (typeof oOptions["onafterupload"] == "function")
+                        oOptions.onafterupload(file, putFile);
+                }
+                oHttp.send(oFile.blob);
+            };
 
-    get: get
+            oFile.onchange = function() {
+              window.setTimeout(write,300);
+            }
+
+        }
+        oHttp.send("");
+    }
 };
 
 })(this);

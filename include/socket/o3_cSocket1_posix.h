@@ -8,7 +8,6 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <sys/select.h>
-#include "socket_v1_scriptapi.h"
 
 namespace o3 {
     struct cSocket1 : cSocket1Base {
@@ -31,9 +30,11 @@ namespace o3 {
         ~cSocket1()
         {
             if (m_timer_listener)
-                m_timer_listener.set();
+                m_timer_listener = 0;
             if (m_file_listener)
-                m_file_listener.set();
+                m_file_listener = 0;
+			if (m_state != STATE_CLOSED)
+				::close(m_sock);	
         }
 
         o3_begin_class(cSocket1Base)
@@ -53,7 +54,7 @@ namespace o3 {
 
         
         static siSocket create(iCtx* ctx, Type type) 
-		{
+		{		
             int sock;            
 
             switch (type) {
@@ -176,8 +177,12 @@ namespace o3 {
                 m_state |= STATE_SENDING;
             
                 // Set up a file listener so that the callback will be called
-                m_file_listener = siCtx(m_ctx)->loop()->createListener(
-					m_sock, O_RDONLY ,Delegate(this, &cSocket1::trigger));
+				if (!m_file_listener)
+					m_file_listener = siCtx(m_ctx)->loop()->createListener(
+						(void*) &m_sock, O_RDWR ,Delegate(this, &cSocket1::trigger));
+				//m_timer_listener = siCtx(m_ctx)->loop()->createTimer(1,
+				//	Delegate(this, &cSocket1::trigger));
+				
 				/*	
 					scr_root->listenerLoop()->listen(
                    com_new(cHandle)((void*) m_sock), (iObj*) this,
@@ -233,22 +238,27 @@ namespace o3 {
              */
             m_state |= STATE_RECEIVING;
             // Set up a file listener so that the callback will be called
-			m_file_listener = siCtx(m_ctx)->loop()->createListener(
-				m_sock, O_RDONLY ,Delegate(this, &cSocket1::trigger));
+			if (!m_file_listener)
+				m_file_listener = siCtx(m_ctx)->loop()->createListener(
+					(void*)&m_sock, O_RDWR ,Delegate(this, &cSocket1::trigger));
             return true;
         }
         
         virtual void close() {
-            ::close(m_sock);
+			if (m_timer_listener)
+                m_timer_listener = 0;
+            if (m_file_listener)
+                m_file_listener = 0;	
+			if (m_state != STATE_CLOSED)
+				::close(m_sock);
             m_state = STATE_CLOSED;
         }
 
         void trigger(iUnk*) {
             if (m_state & STATE_ERROR || m_state & STATE_CLOSED) {
-                m_timer_listener.set();
-                m_file_listener.set();
+				m_timer_listener = 0;
+                m_file_listener = 0;
             } else if (m_state & STATE_CONNECTING) {
-
                 /*
                  * If the connecting flag is set, we try to call connect() on
                  * each callback.
@@ -271,9 +281,9 @@ namespace o3 {
                          * current one.
                          */
                         m_state = STATE_CONNECTED;
-						Delegate(siCtx(m_ctx), m_on_connect)(
-							siScr(this));
-                        break;
+						Delegate(siCtx(m_ctx), m_on_connect)(this);
+						return;
+						break;
                     case EINPROGRESS:
                         /*
                          * If the current call to connect is still in progress,
@@ -283,6 +293,7 @@ namespace o3 {
                     default:// In all other cases, we set the error flag
                         m_state |= STATE_ERROR;
                     }
+					m_timer_listener->restart(100);
                 } else {
                     /*
                      * If the call to connect() succeeds, the connecting flag is
@@ -292,7 +303,7 @@ namespace o3 {
                     m_state = STATE_CONNECTED;
 					Delegate(siCtx(m_ctx), m_on_connect)(
 						siScr(this));
-                    m_timer_listener.set(); // We don't need anymore callbacks for now
+                    m_timer_listener = 0; // We don't need anymore callbacks for now
                 }
             } else if (m_state & STATE_ACCEPTING) {
                 siScr on_accept;
@@ -318,12 +329,12 @@ namespace o3 {
                         m_state |= STATE_ERROR;
                     }
                 } else {
-                    siScr scr = o3_new(cSocket1)(siCtx(m_ctx), m_type, STATE_CONNECTED);
+                    siScr scr = o3_new(cSocket1)(siCtx(m_ctx), sock, m_type, STATE_CONNECTED);
                   
                     Var arg(scr, g_sys);
 					Delegate(siCtx(m_ctx), m_on_accept)(
 						siScr(this));
-                    m_timer_listener.set(); // We don't need anymore callbacks for now
+                    m_timer_listener = 0; // We don't need anymore callbacks for now
                 }
             } else if (m_state & (STATE_SENDING | STATE_RECEIVING)) {
             
@@ -347,7 +358,7 @@ namespace o3 {
                 timeout.tv_sec = 0;
                 timeout.tv_usec = 0;
                 do
-                    err = select(m_sock + 1, &readfds, &writefds, &errorfds,
+                    err = ::select(m_sock + 1, &readfds, &writefds, &errorfds,
                                  &timeout);
                 while (err < 0);
 
@@ -364,6 +375,7 @@ namespace o3 {
                     if (size < 0) {
                         m_state |= STATE_ERROR;
                     } else {
+
                         /*
                          * If the call to send() succeeds, the onSend event is
                          * triggered, end the data sent is removed from the
@@ -373,16 +385,16 @@ namespace o3 {
                         m_bytes_sent += size;
 						Delegate(siCtx(m_ctx), m_on_send)(
 							siScr(this));
-                        m_out_buf.remove(m_out_buf.begin(), m_out_buf.begin() + size);
+                        m_out_buf.remove(0, size);
                         if (m_out_buf.empty()) {
                             m_state &= ~STATE_SENDING;
                             if (!(m_state & STATE_RECEIVING))
-                                m_file_listener.set(0); // We don't need any more callbacks for now
+                                m_file_listener = 0; // We don't need any more callbacks for now
                             }
                     }
                 }
                 if (m_state & STATE_RECEIVING && FD_ISSET(m_sock, &readfds)) {
-                    siScr on_receive;
+					siScr on_receive;
                     /*
                      * If the receiving flag is set and the socket is ready for
                      * reading, we receive at most m_packet_size bytes from the
@@ -425,7 +437,7 @@ namespace o3 {
                          * trigger the onReceive event.
                          */
                         buf.resize(size);
-                        m_received_buf.append(buf);
+                        m_received_buf.append(buf.ptr(), buf.size());
                         m_bytes_received += size;
 						Delegate(siCtx(m_ctx), m_on_receive)(
 							siScr(this));

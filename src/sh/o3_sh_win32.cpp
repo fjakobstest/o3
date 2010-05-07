@@ -17,6 +17,7 @@
  */
 
 #include <core/o3_core.h>
+
 #include <js/o3_js.h>
 //#include <test/o3_proto_v1.h>
 #include "xml/o3_xml.h"
@@ -51,7 +52,7 @@ int main(int argc, char **argv) {
 
     using namespace o3;  
 
-    CoInitializeEx(NULL, COINIT_APARTMENTTHREADED); 
+    //CoInitializeEx(NULL, COINIT_APARTMENTTHREADED); 
 
     cSys sys;
 
@@ -86,7 +87,7 @@ int main(int argc, char **argv) {
 	mgr->addFactory("http", &cHttp1::factory);
 
     WSADATA wsd;
-    int rc = WSAStartup(MAKEWORD(2,2), &wsd);
+    WSAStartup(MAKEWORD(2,2), &wsd);
 	int ret = 0;
     bool wait = true;
     {// scope the local vars        
@@ -128,7 +129,7 @@ int main(int argc, char **argv) {
         siCtx1(ctx)->tear();
 	}
     
-    CoUninitialize(); 
+    //CoUninitialize(); 
 
     // if(wait)
 	// getc(stdin);

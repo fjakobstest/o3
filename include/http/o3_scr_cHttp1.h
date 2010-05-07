@@ -36,6 +36,7 @@ Trait* cHttp1::clsTraits()
          {      18,     Trait::TYPE_SET,        "cHttp1",             "onreadystatechange", clsInvoke,      20,     0                  },
          {      19,     Trait::TYPE_GET,        "cHttp1",             "onprogress",         clsInvoke,      21,     0                  },
          {      19,     Trait::TYPE_SET,        "cHttp1",             "onprogress",         clsInvoke,      22,     0                  },
+         {      20,     Trait::TYPE_FUN,        "cHttp1",             "responseOpen",       clsInvoke,      23,     0                  },
          {      0,      Trait::TYPE_END,        "cHttp1",             0,                    0,              0,      0                  },
       };
 
@@ -172,6 +173,11 @@ siEx cHttp1::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( setOnprogress )");
             *rval = pthis1->setOnprogress(ctx,argv[0].toScr());
+            break;
+         case 23:
+            if (argc != 1)
+               return o3_new(cEx)("Invalid argument count. ( responseOpen )");
+            *rval = siFs(pthis1->responseOpen(siFs (argv[0].toScr())));
             break;
       }
       return ex;

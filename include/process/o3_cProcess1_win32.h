@@ -230,9 +230,9 @@ namespace o3{
 			m_event_err = o3_new(cEvent)(m_overlapped_err.hEvent);                       
 			e = GetLastError();
 
-            m_listener_out = ctx->loop()->createListener(m_event_out.ptr(),0,
+            m_listener_out = ctx->loop()->createListener(siHandle(m_event_out).ptr(),0,
                     Delegate(this, &cProcess1::onReceive));
-			m_listener_err = ctx->loop()->createListener(m_event_err.ptr(),0,
+			m_listener_err = ctx->loop()->createListener(siHandle(m_event_err).ptr(),0,
                     Delegate(this, &cProcess1::onError));
             m_hprocess = o3_new(cHandle)(m_p_info.hProcess);
             m_listener_term = ctx->loop()->createListener(m_hprocess.ptr(), 0, 

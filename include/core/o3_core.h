@@ -25,7 +25,6 @@
 #include "o3_iUnk.h"
 #include "o3_iAlloc.h"
 #include "o3_iSys.h"
-#include "o3_iHost.h"
 #include "o3_iMgr.h"
 #include "o3_iCtx.h"
 #include "o3_iScr.h"

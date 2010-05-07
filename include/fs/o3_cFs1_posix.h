@@ -337,6 +337,11 @@ struct cFs1 : cFs1Base {
     {
         return (m_root_path.size() > 1 ? m_root_path : Str()) + m_rel_path;
     }
+	
+	void openDoc() 
+	{
+
+	}
 };
 
 }

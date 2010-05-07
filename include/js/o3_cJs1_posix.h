@@ -506,6 +506,16 @@ public:
             *ex = o3_new(cEx)(msg + " on line " + line);
         return Var((iAlloc*) this);
     }
+
+	virtual void setAppWindow(void*)
+	{
+		
+	}
+
+	virtual void* appWindow()
+	{
+
+	}
 };
 
 }

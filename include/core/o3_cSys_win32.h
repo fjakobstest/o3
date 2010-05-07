@@ -327,6 +327,9 @@ namespace o3 {
             
             struct EventObject {
                 EventObject()
+					: handle(0)
+					, delegate()
+					, manual(false)
                 {
                 }
 
@@ -363,14 +366,14 @@ namespace o3 {
             HANDLE                      m_handles[64];
 
             siListener createListener(iHandle* ihandle, Delegate fun, bool manual=false) 
-            {
+            {				
                 if (!ihandle)
                     return siListener();
 
                 {
                     Lock lock(m_mutex);
                     m_event_objs[ihandle->handle()] = EventObject(ihandle,fun,manual);
-                    m_reset = true;
+					m_reset = true;
                 }
                 m_event->signal();
                 return o3_new(cListener(siMessageLoop(m_msgloop), ihandle));
@@ -385,7 +388,7 @@ namespace o3 {
                 HANDLE h = ihandle->handle();
                 {
                     Lock lock(m_mutex);
-                    it = m_event_objs.find(h);
+					it = m_event_objs.find(h);
                     if (it != m_event_objs.end()) {
                         m_event_objs.remove(it);
                         m_reset = true;
@@ -400,13 +403,14 @@ namespace o3 {
                     Lock lock(m_mutex);
                     if (m_reset)
                         reset();
-                }    
+                }    				
                 DWORD index = MsgWaitForMultipleObjectsEx ( m_nhandles, 
                         m_handles, timeout, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
                 switch (index) {
                     case WAIT_FAILED:
                         // !TODO: report error
                         //db_assert(false);
+						break;
                     case WAIT_TIMEOUT:
                         // nothing happend (again...)
                         return false;
@@ -458,8 +462,9 @@ namespace o3 {
                         Lock lock(m_mutex);
                         // copy the delegate:
                         it = m_event_objs.find(m_handles[index]);
-                        if (it == m_event_objs.end())
+						if (it == m_event_objs.end()) {
                             removed = true;
+						}
 						else
 							copy = (*it).val;
                     }
@@ -493,6 +498,7 @@ namespace o3 {
                         m_handles[m_nhandles] = ((*it).key);
                         m_nhandles++;    
                     }
+					m_reset = false;
                 }
             }
         };
@@ -520,7 +526,7 @@ namespace o3 {
 		// the handle needs to be reset manually
         siListener createListener(void* handle, unsigned flag, const Delegate& fun)
         {
-            return m_event_handler.createListener(siHandle(handle), fun, flag&1);
+            return m_event_handler.createListener((iHandle*) handle, fun, flag&1);
         }
 
         void removeListener(iHandle* handle)
@@ -538,11 +544,9 @@ namespace o3 {
         void post(const Delegate& fun, iUnk* arg)
         {
             Lock lock(m_mutex);
-            //o3::log("post before push\n");
 			if (m_queue.size() <  O3_MESSAGE_LIMIT)
                 m_queue.pushBack(o3_new(Message(fun, arg)));
             m_event->signal();
-			//o3::log("post after push\n");
         }
 
         void wait(int timeout)
@@ -570,28 +574,27 @@ namespace o3 {
 
                 {
                     Lock lock(m_mutex);               
-                    last_to_handle = m_queue.back();                    
+                    last_to_handle = m_queue.back();
+					// update message count...
+					nmessages = m_queue.size();
                 }
                     
                 size_t left = nmessages;
-                bool last;
-                do {
+                bool last=false;
+                
+				while (left > 0 && !last) {
                     {
                         Lock lock(m_mutex);
-                        to_send = *m_queue.begin();
-//						o3::log("wait:: before pop %d\n", left);
+                        to_send = *m_queue.begin();						
 						o3_assert(m_queue.size());
 						m_queue.popFront();
 						left--;
-//						o3::log("wait:: after pop %d\n", left);
                     }
-
                     to_send->fun(to_send->arg);
                     last = (to_send == last_to_handle);
                     o3_delete(to_send);                                        
                     sent = true;
-//					o3::log("wait:: 'left' before check %d\n", left);
-                } while (left > 0 && !last);
+                } 
              
                 timeout -= (GetTickCount() - before) / 10;
             }
@@ -625,6 +628,7 @@ namespace o3 {
 
         cSys()
         {
+			CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
             g_sys = this;
             g_sys->addRef();
             initResource();
@@ -635,7 +639,8 @@ namespace o3 {
             // every o3 component must be deleted before this destructor returns
             m_files.clear();
             m_stream = 0;
-            m_weak = 0;            
+            m_weak = 0;
+			CoUninitialize(); 
         }
 
         o3_begin_class(cSysBase)
@@ -716,6 +721,7 @@ namespace o3 {
 
 		virtual void logfv(const char* format, va_list ap)
 		{
+			//format;ap;
 			//vfprintf(stderr, format, ap);
 			//static bool rem = removeLogFile();
 			//FILE* file = fopen("c:\\Users\\Gabor\\AppData\\Local\\Temp\\Low\\o3_v0_9\\o3log.txt", "a");

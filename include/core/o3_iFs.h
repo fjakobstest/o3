@@ -92,6 +92,8 @@ struct iFs : iUnk {
 	virtual siScr onchange() = 0;
 
 	virtual siScr setOnchange(iCtx* ctx, iScr* scr) = 0;
+
+	virtual void openDoc() = 0;
 };
 
 }

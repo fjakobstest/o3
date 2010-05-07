@@ -22,6 +22,10 @@
 #include "o3_crypto.h"
 #include "shared/o3_zip_tools.h"
 
+#ifdef O3_WITH_LIBEVENT
+	#include<event.h>    
+#endif	
+
 namespace o3 {
 
 o3_cls(cLoadProgress);
@@ -156,7 +160,9 @@ struct cO3 : cScr {
 	o3_fun void wait(iCtx* ctx, int timeout = -1)
 	{
 		o3_trace3 trace;
-
+#ifdef O3_WITH_LIBEVENT
+	event_dispatch();    
+#endif	
 		ctx->loop()->wait(timeout);
 	}
 
@@ -190,25 +196,13 @@ struct cO3 : cScr {
 
 	o3_get Str settingsURL()
 	{
+#ifdef O3_WIN32	
 		Str base = installDirPath();
 		base.findAndReplaceAll("\\", "/");
 		return "File:///" + base + "/settings.html";
-	}
-
-	o3_fun Str loadFile(const Str& filter) {		
-#ifdef O3_WIN32		
-		return openFileByDialog( filter );
 #else
 		return Str();
-#endif		
-	}
-
-	o3_fun bool saveAsFile(const Str& data, const Str& default) {		
-#ifdef O3_WIN32		
-		return saveAsByDialog( data, "All [*.*]", default );
-#else
-		return false;
-#endif
+#endif	
 	}
 
     o3_fun bool loadModule(iCtx* ctx, const char* name) 
@@ -268,7 +262,7 @@ struct cO3 : cScr {
 		m_load_progress->setState(
 			ihttp->readyState());
 		Delegate(siCtx(m_ctx), m_onprogress)(
-			siScr(m_load_progress));
+			siScr(m_load_progress.ptr()));
 	}
 
 	void onProgress(iUnk* http)
@@ -277,7 +271,7 @@ struct cO3 : cScr {
 		m_load_progress->setBytesReceived(
 			ihttp->bytesReceived());
 		Delegate(siCtx(m_ctx), m_onprogress)(
-			siScr(m_load_progress));
+			siScr(m_load_progress.ptr()));
 	}
 
 	void onNotification(iUnk* http)
@@ -351,6 +345,7 @@ struct cO3 : cScr {
 	// NOTE2: after it has finished it will launch the updating asynch
 	void moduleLoading(iUnk*)
 	{
+#ifdef O3_WIN32	
 		siCtx ctx = siCtx(m_ctx);
 		siMgr mgr = ctx->mgr();		
 		tList<Str>::Iter
@@ -380,11 +375,13 @@ struct cO3 : cScr {
 		// starting the component update in the bg... 
 		ctx->mgr()->pool()->post(Delegate(this, &cO3::moduleUpdating),
 			o3_cast this);
+#endif			
 	}
 
 	// unzip the downloaded module, validates it and put the dll in place
 	bool unpackModule(const Str& name, iStream* zipped, bool update=false ) 
 	{
+#ifdef O3_WIN32	
 		using namespace zip_tools;
 		bool ret = false;
 		siCtx ctx(m_ctx);		
@@ -453,6 +450,7 @@ error:
 			sign_stream->close();
 		fs->get("tmp")->remove(true);
 		return ret;
+#endif		
 	}
 
 	// checks the signiture comes with the dll for validation
@@ -491,6 +489,7 @@ error:
 	// we check the local versions hash against these values and update the component if needed
 	void moduleUpdating(iUnk*)
 	{
+#ifdef O3_WIN32	
 		using namespace zip_tools;
 		siCtx ctx = siCtx(m_ctx);
 		siMgr mgr = ctx->mgr();
@@ -544,7 +543,7 @@ error:
 					updateComponent(name);
 			}
 		}
-
+#endif
 	}
 
 	// if we already know that a component should be updated..,
@@ -552,15 +551,14 @@ error:
 	// rename the original, replace it with the new one
 	// mark the original to be deleted, remove the temp folder
 	void updateComponent( const Str& name ) 
-	{		
-		siCtx ctx = m_ctx;
-		if (!ctx)
-			return;
-
+	{
+#ifdef O3_WIN32
+		siCtx ctx = siCtx(m_ctx);
 		Buf downloaded = ctx->mgr()->downloadComponent(ctx,name,
 			Delegate(), Delegate());
 		siStream stream = o3_new(cBufStream)(downloaded);
 		unpackModule(name, stream, true);
+#endif		
 	}			
 
 	void checkForMajorUpdate() 

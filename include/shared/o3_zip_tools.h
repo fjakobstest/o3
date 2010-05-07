@@ -122,7 +122,11 @@ namespace o3 {
 		siEx findCentralDirEnd(iStream* src, EndOfCentralDir& eof_cd)
 		{
 			size_t size = src->size();
-			size_t max_back = min(0xffff, size);
+#ifdef O3_WIN32
+			size_t max_back = min((size_t) 0xffff, size);
+#else 
+			size_t max_back = o3::min((size_t) 0xffff, size);
+#endif
 			size_t pos=(size_t)-1;
 			Buf data(max_back);
 			 

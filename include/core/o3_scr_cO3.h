@@ -112,12 +112,10 @@ Trait* cO3::clsTraits()
          {      5,      Trait::TYPE_GET,        "cO3",                "settings",           clsInvoke,      5,      0                  },
          {      5,      Trait::TYPE_SET,        "cO3",                "settings",           clsInvoke,      6,      0                  },
          {      6,      Trait::TYPE_GET,        "cO3",                "settingsURL",        clsInvoke,      7,      0                  },
-         {      7,      Trait::TYPE_FUN,        "cO3",                "loadFile",           clsInvoke,      8,      0                  },
-         {      8,      Trait::TYPE_FUN,        "cO3",                "saveAsFile",         clsInvoke,      9,      0                  },
-         {      9,      Trait::TYPE_FUN,        "cO3",                "loadModule",         clsInvoke,      10,     0                  },
-         {      10,     Trait::TYPE_FUN,        "cO3",                "require",            clsInvoke,      11,     0                  },
-         {      11,     Trait::TYPE_FUN,        "cO3",                "loadModules",        clsInvoke,      12,     0                  },
-         {      12,     Trait::TYPE_SET,        "cO3",                "onUpdateNotification",clsInvoke,      13,     0                  },
+         {      7,      Trait::TYPE_FUN,        "cO3",                "loadModule",         clsInvoke,      8,      0                  },
+         {      8,      Trait::TYPE_FUN,        "cO3",                "require",            clsInvoke,      9,      0                  },
+         {      9,      Trait::TYPE_FUN,        "cO3",                "loadModules",        clsInvoke,      10,     0                  },
+         {      10,     Trait::TYPE_SET,        "cO3",                "onUpdateNotification",clsInvoke,      11,     0                  },
          {      0,      Trait::TYPE_END,        "cO3",                0,                    0,              0,      0                  },
       };
 
@@ -183,30 +181,20 @@ siEx cO3::clsInvoke(iScr* pthis, iCtx* ctx, int index, int argc,
             break;
          case 8:
             if (argc != 1)
-               return o3_new(cEx)("Invalid argument count. ( loadFile )");
-            *rval = pthis1->loadFile(argv[0].toStr());
-            break;
-         case 9:
-            if (argc != 2)
-               return o3_new(cEx)("Invalid argument count. ( saveAsFile )");
-            *rval = pthis1->saveAsFile(argv[0].toStr(),argv[1].toStr());
-            break;
-         case 10:
-            if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( loadModule )");
             *rval = pthis1->loadModule(ctx,argv[0].toStr());
             break;
-         case 11:
+         case 9:
             if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( require )");
             pthis1->require(ctx,argv[0].toStr());
             break;
-         case 12:
+         case 10:
             if (argc < 1 && argc > 3)
                return o3_new(cEx)("Invalid argument count. ( loadModules )");
             pthis1->loadModules(ctx,argv[0].toScr(),argc > 1 ? argv[1].toScr() : 0,argc > 2 ? argv[2].toScr() : 0);
             break;
-         case 13:
+         case 11:
             if (argc != 1)
                return o3_new(cEx)("Invalid argument count. ( setOnUpdateNotification )");
             *rval = pthis1->setOnUpdateNotification(ctx,argv[0].toScr());

@@ -102,7 +102,71 @@ namespace o3 {
             return m_doc;
         }
 
+//		xmldoc.setProperty("SelectionNamespaces",
+//			"xmlns:wrox='http://www.wrox.com/' xmlns='http://www.amazon.com/'");
+
+		o3_fun bool setProperty(const Str& prop, const Str& val) {
+			if (!strEquals(prop.ptr(), "SelectionNamespaces"))
+				return false;
+
+			const char* p=val.ptr();
+			while ((p = parseNextNS(p)) != 0);
+			return true;
+		}
+
+		const tMap<Str,Str>& nameSpaces() {
+			return m_ns;
+		}
+
+		const char* parseNextNS(const char* p) {
+			if (!p || !*p)
+				return 0;
+
+			while(*p && *p==' ') 
+				p++;
+
+			if (!strEquals(p,"xmlns",5))
+				return 0;
+			p+=5;
+			Str tag;
+			const char* e;
+			switch(*p) {
+				case ':' :
+					for(e=p;*e&&*e!='=';e++);
+
+					if (!*e)
+						return 0;
+					tag = Str(p+1,e-p-1);
+					p = e+1;
+					break;
+				case '=' :
+					tag = "defaultNamespace";
+					p++;
+					break;
+				default: 
+					return 0;
+			}
+			switch(*p) {
+				case '\'':
+					for(e=p+1;*e&&*e!='\'';e++);
+										
+					break;
+				case '\"':
+					for(e=p+1;*e&&*e!='\"';e++);
+
+					break;
+				default:
+					return 0;
+			}
+			if (!*e)
+				return 0;
+			
+			m_ns[tag] = Str(p+1, e-p-1);
+			return e+1;
+		}
+
         xmlDocPtr m_doc;
+		tMap<Str,Str> m_ns;
     };
 }
 

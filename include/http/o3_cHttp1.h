@@ -29,7 +29,6 @@ struct cHttp1 : cScr, iHttp {
     {
         cHttp1* pthis = (cHttp1*) stream;
         Lock lock(pthis->m_mutex);
-
         memCopy(ptr, pthis->m_ptr, size = min(size * nmemb, pthis->m_size));
         pthis->m_ptr += size;
         pthis->m_size -= size;
@@ -42,7 +41,6 @@ struct cHttp1 : cScr, iHttp {
         Lock lock(pthis->m_mutex);
         Str header = (const char*) ptr;
         size_t pos = header.find(":");
-
         if (pos != NOT_FOUND) {
             header[pos] = 0;
             pthis->m_response_headers[header] = header.ptr() + pos + 2;
@@ -150,7 +148,7 @@ struct cHttp1 : cScr, iHttp {
                              bool async = true)
     {
         o3_trace3 trace;
-
+		
         m_state = READY_STATE_LOADING;
         if (strEquals(method, "GET"))
             m_method = METHOD_GET;
@@ -160,6 +158,7 @@ struct cHttp1 : cScr, iHttp {
             m_method = METHOD_PUT;
         m_url = url;
         m_async = async;
+		m_response_body = Buf(1024);
     }
 
     virtual o3_fun void setRequestHeader(const char* name, const char* value)
@@ -337,6 +336,8 @@ struct cHttp1 : cScr, iHttp {
     {
         curl_slist *slist = 0;
 
+		curl_easy_reset(m_handle);
+
         if (m_async)
             m_mutex->lock();
         switch (m_method) {
@@ -355,8 +356,8 @@ struct cHttp1 : cScr, iHttp {
         }
         //if (m_async)
         //    m_mutex->unlock();
-        curl_easy_perform(m_handle);
-        curl_slist_free_all(slist);
+        //curl_easy_perform(m_handle);
+        //curl_slist_free_all(slist);
         curl_easy_setopt(m_handle, CURLOPT_URL, m_url.ptr());
         for (tMap<Str, Str>::ConstIter i = m_request_headers.begin();
              i != m_request_headers.end(); ++i)
@@ -407,6 +408,14 @@ struct cHttp1 : cScr, iHttp {
         fun(this);
         m_pending = false;
     }
+
+
+	o3_fun siFs responseOpen(iFs* parent) 
+	{
+		// this function is implemented in the version in the private repository only
+		return siFs();
+	}
+
 };
 
 }

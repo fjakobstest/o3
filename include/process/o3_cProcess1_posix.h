@@ -33,6 +33,8 @@ struct cProcess1 : cProcess1Base {
     siTimer m_timer;
     pid_t m_pid;
     int m_stat;
+	
+	Str m_cmd;
 
     cProcess1() 
     {
@@ -85,8 +87,19 @@ struct cProcess1 : cProcess1Base {
         return m_err = err;
     }
 
-    void exec(iCtx*, const char* args)
+	void task(iUnk*)
+	{
+		int i = ::system(m_cmd.ptr());
+	}
+
+    void exec(iCtx* ctx, const char* args)
     {
+		m_cmd = args;
+		ctx->mgr()->pool()->post(Delegate(this, &cProcess1::task),
+			o3_cast this);
+	
+	
+	/*
         tVec<Str> argv;
         tVec<char*> argv1;
 
@@ -125,6 +138,7 @@ struct cProcess1 : cProcess1Base {
                 dup2(fileno((FILE*) m_err->unwrap()), 2);           
             execvp(argv1[0], argv1.ptr());
         }
+		*/
     }
 
     int exitCode()
