@@ -39,17 +39,14 @@ int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR arg, int show)
 
     //CoInitializeEx(NULL, COINIT_APARTMENTTHREADED); 
 
-
     INITCOMMONCONTROLSEX cc = {sizeof( INITCOMMONCONTROLSEX ), ICC_WIN95_CLASSES /*| ICC_STANDARD_CLASSES*/};
     InitCommonControlsEx(&cc); 
-
 
 
     int ret = 0;
     {// scope the local vars
         
         siMgr mgr = o3_new(cMgr)();    
-       
         mgr->addExtTraits(cFs1::extTraits());
         mgr->addExtTraits(cBlob1::extTraits());
         mgr->addExtTraits(cJs1::extTraits());
@@ -61,25 +58,20 @@ int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR arg, int show)
         mgr->addExtTraits(cStaticCtrl1::extTraits());
         mgr->addExtTraits(cTools1::extTraits());
         mgr->addExtTraits(cProcess1::extTraits());
-
         char x[MAX_PATH];
         GetModuleFileNameA(0, x, MAX_PATH);
-        
         char* args[3];
         args[0] = x;
         // TODO: need a command line parser...
         args[1] = arg;
 		args[2] = 0;
 
-        siCtx js = o3_new(cJs1)(mgr, 2, args, 0, true);
-
+        siCtx js = o3_new(cJs1)(mgr, 2, args, 0, false);
         Buf buf = ((cSys*)g_sys)->resource("installer.js");
         Str script(buf);
         Var rval;
         rval = js->eval(script);  
-
         Str err = rval.toStr();
-
 		Var exitCode = js->value("exitCode");
         ret = exitCode.toInt32();
 		((cJs1*)js.ptr())->tear();

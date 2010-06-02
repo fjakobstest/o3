@@ -38,7 +38,7 @@ class tList {
         Node* head;
         Node* tail;
 
-        Impl() : ref_count(1), size(0), head((Node*) malloc(sizeof(Node))),
+        Impl() : ref_count(1), size(0), head((Node*) /*malloc*/ memAlloc(sizeof(Node))),
                  tail(head)
         {
             head->prev = 0;

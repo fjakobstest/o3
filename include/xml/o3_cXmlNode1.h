@@ -31,9 +31,11 @@ namespace o3 {
 
         virtual ~cXmlNode1() {
             o3_trace3 trace;
-            m_node_map->remove(m_node);
-            if (!m_owner_node && m_node){                
-                xmlFreeNode(m_node);            
+			if (m_node)
+				m_node_map->remove(m_node);
+
+            if (!m_owner_node && m_node){                                
+				xmlFreeNode(m_node);
             }
         }
 

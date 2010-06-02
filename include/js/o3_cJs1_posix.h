@@ -302,8 +302,8 @@ struct cJs1 : cJs1Base {
 
         if (scr) {
             scr->release();
-            pthis->m_objects.remove(*object);
-        }
+            //pthis->m_objects.remove(*object);        
+		}
     }
 
     Persistent<Context> m_context;
@@ -321,7 +321,7 @@ struct cJs1 : cJs1Base {
         object = Persistent<Object>::New(m_template->NewInstance());
         object.MakeWeak(this, finalize);
         object->SetInternalField(0, External::New(scr));
-        m_objects[*object] = *object;
+        //m_objects[*object] = *object;
         return object;
     }
 

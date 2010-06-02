@@ -124,7 +124,7 @@ struct iSys : iAlloc {
 
     virtual void traceLeave() = 0;
 
-    virtual void assert(const char* pred, const char* file, int line) = 0;
+    virtual void o3assert(const char* pred, const char* file, int line) = 0;
 
     virtual void logfv(const char* format, va_list ap) = 0;
 
@@ -175,9 +175,9 @@ inline void traceLeave()
     return g_sys->traceLeave();
 }
 
-inline void assert(const char* pred, const char* file, int line)
+inline void o3assert(const char* pred, const char* file, int line)
 {
-    return g_sys->assert(pred, file, line);
+    return g_sys->o3assert(pred, file, line);
 }
 
 inline void log(const char* format, ...)

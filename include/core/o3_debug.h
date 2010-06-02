@@ -61,7 +61,7 @@ struct Trace { \
 
 #ifdef O3_ASSERT
 #define o3_assert(pred) ((void) ((pred) ? 0 \
-                                        : (o3::assert(#pred, \
+                                        : (o3::o3assert(#pred, \
                                                       __FILE__, \
                                                       __LINE__), \
                                           0)))
@@ -81,7 +81,7 @@ inline void traceEnter(const char* file, int line);
 
 inline void traceLeave();
 
-inline void assert(const char* pred, const char* file, int line);
+inline void o3assert(const char* pred, const char* file, int line);
 
 inline void log(const char* format, ...);
 

@@ -18,16 +18,21 @@
 #ifndef J_C_XML_DOCUMENT_H
 #define J_C_XML_DOCUMENT_H
 
+#include <malloc.h>
+
 namespace o3 {
     struct cXmlDocument1 : cXmlNode1, iXmlDocument {   
         cXmlDocument1(xmlDocPtr doc, NodeMap* node_map) 
             : cXmlNode1((xmlNodePtr) doc, 0, node_map), m_doc(doc) {            
         }
 
-        ~cXmlDocument1()
+        virtual ~cXmlDocument1()
         {
             xmlFreeDoc(m_doc);
-            m_node = 0;
+			malloc_trim(0);
+            
+			m_node_map->remove(m_node);
+			m_node = 0;
         }
 
         o3_begin_class(cXmlNode1)

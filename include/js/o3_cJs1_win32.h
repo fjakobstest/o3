@@ -93,8 +93,7 @@ namespace o3{
 				tMSComPtr<IActiveScriptSite>  activeScriptSite = 0;
 
 				GUID CLSID_JScript  = 
-                    {0xf414c260, 0x6ac0, 0x11cf, {0xb6, 0xd1, 0x00, 0xaa, 0x00, 0xbb, 0xbb, 0x58}};
-                
+                    {0xf414c260, 0x6ac0, 0x11cf, {0xb6, 0xd1, 0x00, 0xaa, 0x00, 0xbb, 0xbb, 0x58}};  
                 if (m_debug) {
 				    //create debugger
 				    hr = CoCreateInstance(CLSID_ProcessDebugManager,
@@ -112,12 +111,10 @@ namespace o3{
 					(void **)&m_activeScript);
 				if (FAILED(hr))
 					return false;
-
 				hr = m_activeScript->QueryInterface( IID_IActiveScriptParse, 
                                                      (void **)&m_activeScriptParse);
 				if (FAILED(hr))
 					return false;
-            
                 if (m_debug) {
           
 				    hr = m_pdm->CreateApplication(&m_debug_app);
@@ -150,11 +147,9 @@ namespace o3{
 				hr = this->QueryInterface(IID_IActiveScriptSite, (void **)&activeScriptSite);
 				if (FAILED(hr))
 					return false;			
-
 				hr = m_activeScript->SetScriptSite(activeScriptSite);
 				if (FAILED(hr))
-					return false;
-				                
+					return false;                
 				return true;
 			}
 

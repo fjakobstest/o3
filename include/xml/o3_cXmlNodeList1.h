@@ -28,6 +28,11 @@ namespace o3 {
             if(name) m_name = name;
         }
 
+		virtual ~cXmlNodeList1()
+		{
+
+		}
+
         o3_begin_class(cScr)
             o3_add_iface(iScr)
             o3_add_iface(iXmlNodeList)

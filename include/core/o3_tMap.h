@@ -129,7 +129,7 @@ class tMap {
         Node* head;
         Node* tail;
 
-        Impl() : ref_count(1), size(0), head((Node*) malloc(sizeof(Node))),
+        Impl() : ref_count(1), size(0), head((Node*) /*malloc*/ memAlloc(sizeof(Node))),
                  tail(head)
         {
             head->parent = 0;
@@ -168,7 +168,7 @@ class tMap {
 
     Node* insertImpl(Node* parent, const Entry& x)
     {
-        Node* new_node = new Node(parent, x);
+        Node* new_node = o3_new(Node)(parent, x);
 
         ++m_impl->size;
         if (parent == m_impl->tail || x.key < parent->x.key) {

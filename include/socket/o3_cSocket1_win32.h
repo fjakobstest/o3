@@ -13,6 +13,7 @@ namespace o3 {
             //, m_from_addr(0)
             , m_flags(0)                  
             , m_from_addr_length(sizeof(sockaddr_in))
+			, m_pdisc(0)
         {
         }
 
@@ -24,8 +25,18 @@ namespace o3 {
                 ::freeaddrinfo(m_acc_addr);
             if (m_to_addr)
                 ::freeaddrinfo(m_to_addr);
-            if (m_socket)
-                ::closesocket(m_socket);
+			if (m_socket) {
+				if (m_pdisc)
+					m_pdisc(m_socket, NULL, 0, 0);
+				
+				closesocket(m_socket);
+			}
+
+			m_signal = 0;
+			m_listener = 0;
+			m_read_listener = 0;
+			m_write_signal = 0;
+
         }
 
         o3_begin_class(cSocket1Base)
@@ -55,10 +66,11 @@ namespace o3 {
         WSABUF           m_buf_in;
         WSABUF           m_buf_out;
         DWORD            m_flags;
-        Buf             m_tmprecv_blob;
+        Buf				 m_tmprecv_blob;
 
-        tVec<Buf>    m_tosend;   
-            
+        tVec<Buf>		 m_tosend;   
+        LPFN_DISCONNECTEX m_pdisc;
+
         //helper function for debugging, this should be done on cSys
         void startup() 
 		{
@@ -72,7 +84,7 @@ namespace o3 {
 		}
 
 		static o3_ext("cO3") o3_fun siSocket socketTCP(iCtx* ctx) 
-		{
+		{	
 			return create(ctx, TYPE_TCP);
 		}
 
@@ -103,6 +115,23 @@ namespace o3 {
                 //int e = WSAGetLastError();
                 return siSocket();
             }
+
+			if (type == TYPE_TCP) {
+				// because of the bug in the closesocket function let's aquire a pointer
+				// to the DisconnectEx function... 
+				DWORD dwBytesReturned;
+				GUID guidDisconnectEx = WSAID_DISCONNECTEX;
+				WSAIoctl( cret->m_socket,
+					SIO_GET_EXTENSION_FUNCTION_POINTER,
+					&guidDisconnectEx,
+					sizeof(GUID),
+					&cret->m_pdisc,
+					sizeof(cret->m_pdisc),
+					&dwBytesReturned,
+					NULL,
+					NULL);
+
+			}
 
             cret->setupEvent();
             cret->m_state = STATE_CREATED;
@@ -208,6 +237,7 @@ namespace o3 {
                 return false;
                                  
             //async connect:
+			m_state |= STATE_CONNECTING;
             int err_connect, res_connect = WSAConnect(m_socket, 
                 to_addr->ai_addr, to_addr->ai_addrlen,NULL, NULL, NULL, NULL);                       
 
@@ -215,14 +245,12 @@ namespace o3 {
             
             freeaddrinfo(to_addr);
             if ((res_connect != 0) && (err_connect == WSAEWOULDBLOCK)) {
-                //async connection started
-                m_state |= STATE_CONNECTING;
+                //async connection started                
                 return true;
             }
 
             if (!res_connect && !err_connect) {
                 //immediate success
-                m_state |= STATE_CONNECTING;
                 onconnect();
                 return true;
             }
@@ -390,10 +418,15 @@ namespace o3 {
 
         void close() 
 		{
+			if (m_pdisc)
+				m_pdisc(m_socket, NULL, 0, 0);
+
             ::closesocket(m_socket);
             m_socket = 0;
             m_state = STATE_CLOSED;
             m_listener = 0;
+			m_read_listener = 0;
+			m_write_signal = 0;
         }
 
         void terminate() 

@@ -148,10 +148,12 @@ namespace o3 {
 			if(m_bridge) {
 				if (m_ctx)
 					siCtx1(m_ctx)->tear();
-				
+
+				m_hidden_window.destroy();
+				siCtx(m_ctx)->loop()->wait(0);
 				m_bridge = 0;                
                 m_ctx = 0;
-            }
+            }			
         }
 
         mscom_begin_debug(CJAxCtrl)
@@ -367,10 +369,13 @@ namespace o3 {
             if (m_ctx)
                 siCtx1(m_ctx)->tear();
                            
-            if (m_bridge)
-                m_bridge = 0;
-
-            m_ctx = 0;
+			if (m_bridge) {
+				m_hidden_window.destroy();
+				siCtx(m_ctx)->loop()->wait(0);            
+				m_bridge = 0;
+			}
+            
+			m_ctx = 0;
             return(S_OK);
         }
 

@@ -25,6 +25,11 @@ namespace o3 {
             m_elem = elem;            
         }
        
+		virtual ~cXmlNamedNodeMap1()
+		{
+
+		}
+
         o3_begin_class(cScr)
             o3_add_iface(iXmlNamedNodeMap)
         o3_end_class();

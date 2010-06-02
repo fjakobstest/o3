@@ -25,6 +25,11 @@ namespace o3 {
             o3_trace3 trace;            
         }
 
+		virtual ~cXmlAttr1()
+		{
+
+		}
+
         o3_begin_class(cXmlNode1)
             o3_add_iface(iXmlAttr)
         o3_end_class();

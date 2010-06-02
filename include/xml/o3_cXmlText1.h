@@ -25,6 +25,11 @@ namespace o3 {
                 o3_trace3 trace;                
         }
 
+		virtual ~cXmlText1()
+		{
+
+		}
+
 		o3_begin_class(cXmlCharacterData1)
 			o3_add_iface(iXmlText)
 		o3_end_class();

@@ -20,6 +20,7 @@
 
 #include <shared/o3_tools_win32.h>
 #include <lib_zlib.h>
+#include <Winsock2.h>
 
 namespace o3 {
     o3_cls(cModule);
@@ -185,7 +186,7 @@ namespace o3 {
                         FindCloseChangeNotification(m_handle);
                         break;
                     case TYPE_SOCKET:
-                        //WSACloseEvent(m_handle);
+                        WSACloseEvent(m_handle);
                         break;
                     default:
                         //db_assert(false);
@@ -656,7 +657,7 @@ namespace o3 {
             ::operator delete(ptr);
         }
 
-        void assert(const char* pred, const char* file, int line)
+        void o3assert(const char* pred, const char* file, int line)
         {
 			o3::log("Assertion %s failed in file %s on line %d\n", pred, file, line);
 			abort();
@@ -715,7 +716,8 @@ namespace o3 {
 
 		bool removeLogFile()
 		{
-			DeleteFileW(L"c:\\Users\\Gabor\\AppData\\Local\\Temp\\Low\\o3_v0_9\\o3log.txt");
+			//DeleteFileW(L"c:\\Users\\Gabor\\AppData\\Local\\Temp\\Low\\o3_v0_9\\o3log.txt");
+			DeleteFileW(L"c:\\o3log.txt");
 			return true;
 		}
 
@@ -725,6 +727,7 @@ namespace o3 {
 			//vfprintf(stderr, format, ap);
 			//static bool rem = removeLogFile();
 			//FILE* file = fopen("c:\\Users\\Gabor\\AppData\\Local\\Temp\\Low\\o3_v0_9\\o3log.txt", "a");
+			//FILE* file = fopen("c:\\o3log.txt", "a");
 			//vfprintf(file, format, ap);
 			//fclose(file);
 		}

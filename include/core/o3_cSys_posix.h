@@ -544,7 +544,7 @@ struct cSys : cSysBase {
         ::free(ptr);
     }
 
-    void assert(const char* pred, const char* file, int line)
+    void o3_assert(const char* pred, const char* file, int line)
     {
         o3::log("Assertion %s failed in file %s on line %d\n", pred, file, line);
         abort();

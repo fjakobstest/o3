@@ -25,6 +25,11 @@ namespace o3 {
                 o3_trace3 trace;
         }
 
+		virtual ~cXmlComment1()
+		{
+
+		}
+
 		o3_begin_class(cXmlCharacterData1)
 		o3_end_class();
 
